@@ -33,6 +33,7 @@ struct VerbEntry {
     perfective: bool,
     reflexive: bool,
     intransitive: bool,
+    governs: Option<u8>,
 }
 
 #[derive(Debug)]
@@ -177,6 +178,7 @@ fn generate(input: &Path) -> Result<GeneratedFiles, Box<dyn Error>> {
                     perfective: metadata.perfective,
                     reflexive: metadata.reflexive,
                     intransitive: metadata.intransitive,
+                    governs: parse_governs(&addition),
                 };
                 insert_verb_entry(&mut verb_map, lemma.clone(), entry.clone());
                 let lower = lemma.to_lowercase();
@@ -223,6 +225,7 @@ fn insert_verb_entry(map: &mut BTreeMap<String, Vec<VerbEntry>>, key: String, en
             && existing.perfective == entry.perfective
             && existing.reflexive == entry.reflexive
             && existing.intransitive == entry.intransitive
+            && existing.governs == entry.governs
     }) {
         entries.push(entry);
     }
@@ -243,7 +246,8 @@ fn write_verb_phf(map: &BTreeMap<String, Vec<VerbEntry>>) -> String {
             out.push_str(&format!("imperfective: {}, ", entry.imperfective));
             out.push_str(&format!("perfective: {}, ", entry.perfective));
             out.push_str(&format!("reflexive: {}, ", entry.reflexive));
-            out.push_str(&format!("intransitive: {} ", entry.intransitive));
+            out.push_str(&format!("intransitive: {}, ", entry.intransitive));
+            out.push_str(&format!("governs: {:?} ", entry.governs));
             out.push_str("},\n");
         }
         out.push_str("    ],\n");
@@ -255,6 +259,20 @@ fn write_verb_phf(map: &BTreeMap<String, Vec<VerbEntry>>) -> String {
     out.push_str("    VERB_METADATA.get(word).copied()\n");
     out.push_str("}\n");
     out
+}
+
+/// The dictionary's object-government annotation in the addition column:
+/// `(+N)` with the community dictionary's case numbering (2=Gen, 3=Dat,
+/// 4=Acc, 5=Ins, 7=Loc) — the same convention the preposition table was
+/// curated from. May coexist with a present-stem hint
+/// ("izběgti (izběži) (+2)"); the hint parser strips the marker on its
+/// side, so extracting it here clobbers nothing.
+fn parse_governs(addition: &str) -> Option<u8> {
+    let bytes = addition.as_bytes();
+    bytes
+        .windows(2)
+        .find(|pair| pair[0] == b'+' && pair[1].is_ascii_digit())
+        .map(|pair| pair[1] - b'0')
 }
 
 fn is_core_verb_lemma(lemma: &str) -> bool {

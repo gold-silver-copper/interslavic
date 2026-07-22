@@ -383,6 +383,11 @@ pub struct VerbInfo {
     pub aspect: Option<Aspect>,
     pub transitive: Option<bool>,
     pub reflexive: bool,
+    /// The object case the dictionary's `(+N)` government annotation
+    /// marks (`dękovati (+3)` → dative), `None` for unmarked rows —
+    /// callers default to the accusative. Sourced from the same
+    /// annotation convention the preposition table was curated from.
+    pub governs: Option<Case>,
 }
 
 /// Dictionary metadata for a verb lemma, or `None` if the lemma is not in
@@ -403,6 +408,14 @@ pub struct VerbInfo {
 /// assert_eq!(info.transitive, Some(false));
 /// // abstrahovati: v.tr. ipf./pf. — biaspectual.
 /// assert_eq!(verb_info("abstrahovati").unwrap().aspect, Some(Aspect::Biaspectual));
+/// // Object government from the dictionary's (+N) annotation.
+/// assert_eq!(verb_info("dękovati").unwrap().governs, Some(Case::Dat));
+/// assert_eq!(verb_info("izběgti").unwrap().governs, Some(Case::Gen)); // hint + (+2) coexist
+/// assert_eq!(verb_info("vladati").unwrap().governs, Some(Case::Ins));
+/// // Multi-entry lemmas follow the first-entry convention: izbaviti has
+/// // a plain v.tr. row before its (+2) row, so its governs is None.
+/// assert_eq!(verb_info("izbaviti").unwrap().governs, None);
+/// assert_eq!(verb_info("ukrasti").unwrap().governs, None);
 /// // Not a dictionary verb.
 /// assert_eq!(verb_info("xyzzy"), None);
 /// ```
@@ -421,10 +434,19 @@ pub fn verb_info(infinitive: &str) -> Option<VerbInfo> {
     } else {
         None
     };
+    let governs = match entry.governs {
+        Some(2) => Some(Case::Gen),
+        Some(3) => Some(Case::Dat),
+        Some(4) => Some(Case::Acc),
+        Some(5) => Some(Case::Ins),
+        Some(7) => Some(Case::Loc),
+        _ => None,
+    };
     Some(VerbInfo {
         aspect,
         transitive,
         reflexive: entry.reflexive,
+        governs,
     })
 }
 
