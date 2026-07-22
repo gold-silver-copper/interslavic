@@ -633,16 +633,30 @@ fn build_pluperfect_vec(lpa: &str) -> Vec<String> {
     .collect()
 }
 
+/// The person-marked conditional auxiliary — the single source both the
+/// paradigm row and [`conditional_parts_with_hint`] draw from.
+fn conditional_auxiliary(person: Person, number: Number) -> &'static str {
+    match (person, number) {
+        (Person::First, Number::Singular) => "byh",
+        (Person::Second, Number::Singular) => "bys",
+        (Person::Third, Number::Singular) => "by",
+        (Person::First, Number::Plural) => "byhmo",
+        (Person::Second, Number::Plural) => "byste",
+        (Person::Third, Number::Plural) => "by",
+    }
+}
+
 fn build_conditional_vec(lpa: &str) -> Vec<String> {
+    let aux = conditional_auxiliary;
     [
-        format!("byh {lpa}(a)"),
-        format!("bys {lpa}(a)"),
-        format!("by {lpa}"),
-        format!("by {lpa}a"),
-        format!("by {lpa}o"),
-        format!("byhmo {lpa}i"),
-        format!("byste {lpa}i"),
-        format!("by {lpa}i"),
+        format!("{} {lpa}(a)", aux(Person::First, Number::Singular)),
+        format!("{} {lpa}(a)", aux(Person::Second, Number::Singular)),
+        format!("{} {lpa}", aux(Person::Third, Number::Singular)),
+        format!("{} {lpa}a", aux(Person::Third, Number::Singular)),
+        format!("{} {lpa}o", aux(Person::Third, Number::Singular)),
+        format!("{} {lpa}i", aux(Person::First, Number::Plural)),
+        format!("{} {lpa}i", aux(Person::Second, Number::Plural)),
+        format!("{} {lpa}i", aux(Person::Third, Number::Plural)),
     ]
     .into_iter()
     .map(|line| postprocess_lpa_line(&line))
@@ -908,6 +922,35 @@ pub fn perfect_parts_with_hint(
     };
     PerfectParts {
         auxiliary: auxiliary.map(str::to_string),
+        participle: l_participle_with_hint(word, present_hint, gender, number),
+    }
+}
+
+/// The conditional mood decomposed into data: the person-marked
+/// auxiliary and the correctly gendered l-participle, with no bracket
+/// conventions to parse — the conditional counterpart of
+/// [`PerfectParts`]. The auxiliary comes from the same table the
+/// paradigm's conditional row is built from, and the participle from the
+/// shared stem context, so this accessor and
+/// [`verb_paradigm_with_options`]'s `conditional` cells can never
+/// disagree.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConditionalParts {
+    pub auxiliary: String,
+    pub participle: String,
+}
+
+/// The conditional of a verb as structured [`ConditionalParts`], with an
+/// explicit dictionary present-stem hint.
+pub fn conditional_parts_with_hint(
+    word: &str,
+    present_hint: &str,
+    person: Person,
+    number: Number,
+    gender: Gender,
+) -> ConditionalParts {
+    ConditionalParts {
+        auxiliary: conditional_auxiliary(person, number).to_string(),
         participle: l_participle_with_hint(word, present_hint, gender, number),
     }
 }

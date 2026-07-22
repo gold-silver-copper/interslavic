@@ -39,9 +39,9 @@
 //! ```
 
 pub use interslavic_core::{
-    AdjParadigm, Animacy, CASE_ORDER, Case, Gender, NounParadigm, Number, PerfectParts, Person,
-    PronounStyle, Tense, VerbParadigm, adjective, cells, derivation, noun, orthography, paradigm,
-    phono, prepositions, pronoun, types, utils, verb,
+    AdjParadigm, Animacy, CASE_ORDER, Case, ConditionalParts, Gender, NounParadigm, Number,
+    PerfectParts, Person, PronounStyle, Tense, VerbParadigm, adjective, cells, derivation, noun,
+    orthography, paradigm, phono, prepositions, pronoun, types, utils, verb,
 };
 // The dependency-free rule engine is also re-exported, so consumers can reach
 // the lower-level dictionary-less API (and the shared morphophonemics helpers)
@@ -981,6 +981,44 @@ fn surface_paradigm(mut p: VerbParadigm) -> VerbParadigm {
     clean(&mut p.pfap);
     clean(&mut p.gerund);
     p
+}
+
+/// The conditional mood as structured parts: the person-marked
+/// auxiliary (`byh`/`bys`/`by`/`byhmo`/`byste`/`by`) and the correctly
+/// gendered l-participle — the conditional counterpart of
+/// [`perfect_parts()`], drawn from the same tables and stem context as
+/// the paradigm's own conditional row, so the two can never disagree.
+///
+/// ```
+/// use interslavic::*;
+/// let p = conditional_parts("kupiti", Person::Third, Number::Singular, Gender::Masculine);
+/// assert_eq!((p.auxiliary.as_str(), p.participle.as_str()), ("by", "kupil"));
+/// // 1sg feminine — the cell whose "(a)" convention makes string
+/// // parsing unreliable comes out as data.
+/// let p = conditional_parts("kupiti", Person::First, Number::Singular, Gender::Feminine);
+/// assert_eq!((p.auxiliary.as_str(), p.participle.as_str()), ("byh", "kupila"));
+/// // The d/t-stem hint path applies, as everywhere.
+/// let p = conditional_parts("ukrasti", Person::Second, Number::Plural, Gender::Masculine);
+/// assert_eq!((p.auxiliary.as_str(), p.participle.as_str()), ("byste", "ukradli"));
+/// ```
+pub fn conditional_parts(
+    infinitive: &str,
+    person: Person,
+    number: Number,
+    gender: Gender,
+) -> ConditionalParts {
+    let trimmed = infinitive.trim();
+    let entries = lookup_verbs_by_lemma(trimmed);
+    if let Some(entry) = entries.first() {
+        return verb::conditional_parts_with_hint(
+            entry.lemma,
+            entry.addition,
+            person,
+            number,
+            gender,
+        );
+    }
+    verb::conditional_parts_with_hint(trimmed, "", person, number, gender)
 }
 
 /// Full verb paradigm with dictionary metadata when available.
