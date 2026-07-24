@@ -5,7 +5,7 @@
 //!
 //! - typed builders ([`clause`], [`np`], [`vp`], [`pp`], [`pron`]),
 //! - the S-expression reader ([`clause_from_str`]) for data-driven
-//!   templates, with a canonical [`print`]er.
+//!   templates, with a canonical [`print()`]er.
 //!
 //! Both enter one staged pipeline:
 //!
