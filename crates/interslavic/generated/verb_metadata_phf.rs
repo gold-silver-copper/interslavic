@@ -20,6 +20,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "#izstųpiti" => &[
         VerbDictionaryEntry { lemma: "#izstųpiti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "#objavjati sę" => &[
+        VerbDictionaryEntry { lemma: "#objavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "#oblěkati" => &[
         VerbDictionaryEntry { lemma: "#oblěkati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -28,6 +31,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "#ocěnjati" => &[
         VerbDictionaryEntry { lemma: "#ocěnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "#odprašati sę" => &[
+        VerbDictionaryEntry { lemma: "#odprašati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "#odtiskati" => &[
         VerbDictionaryEntry { lemma: "#odtiskati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -76,6 +82,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "#sȯžegti" => &[
         VerbDictionaryEntry { lemma: "#sȯžegti", addition: "(sȯžže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "#udivjati sę" => &[
+        VerbDictionaryEntry { lemma: "#udivjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "#urězati" => &[
         VerbDictionaryEntry { lemma: "#urězati", addition: "(urěže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -251,17 +260,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "bezpokojiti" => &[
         VerbDictionaryEntry { lemma: "bezpokojiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "bezpokojiti sę" => &[
+        VerbDictionaryEntry { lemma: "bezpokojiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "biti" => &[
         VerbDictionaryEntry { lemma: "biti", addition: "(bije)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "bičevati" => &[
         VerbDictionaryEntry { lemma: "bičevati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "blazniti sę" => &[
+        VerbDictionaryEntry { lemma: "blazniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "blaznovati" => &[
         VerbDictionaryEntry { lemma: "blaznovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "blejati" => &[
         VerbDictionaryEntry { lemma: "blejati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "bližiti sę" => &[
+        VerbDictionaryEntry { lemma: "bližiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "bljunųti" => &[
         VerbDictionaryEntry { lemma: "bljunųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -308,14 +326,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "bodati" => &[
         VerbDictionaryEntry { lemma: "bodati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "bodati sę" => &[
+        VerbDictionaryEntry { lemma: "bodati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "bodnųti" => &[
         VerbDictionaryEntry { lemma: "bodnųti", addition: "(bode)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "bodnųti sę" => &[
+        VerbDictionaryEntry { lemma: "bodnųti sę", addition: "(bode)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "bogatěti" => &[
         VerbDictionaryEntry { lemma: "bogatěti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "bogohuliti" => &[
         VerbDictionaryEntry { lemma: "bogohuliti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "bojati sę" => &[
+        VerbDictionaryEntry { lemma: "bojati sę", addition: "(boji)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "bojevati" => &[
         VerbDictionaryEntry { lemma: "bojevati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -330,8 +357,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "bombardovati" => &[
         VerbDictionaryEntry { lemma: "bombardovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "boriti sę" => &[
+        VerbDictionaryEntry { lemma: "boriti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "bosti" => &[
         VerbDictionaryEntry { lemma: "bosti", addition: "(bode)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "bosti sę" => &[
+        VerbDictionaryEntry { lemma: "bosti sę", addition: "(bode)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "brahtati sę" => &[
+        VerbDictionaryEntry { lemma: "brahtati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "bratati sę" => &[
+        VerbDictionaryEntry { lemma: "bratati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "brati" => &[
         VerbDictionaryEntry { lemma: "brati", addition: "(bere)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -347,6 +386,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "briti" => &[
         VerbDictionaryEntry { lemma: "briti", addition: "(brije)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "briti sę" => &[
+        VerbDictionaryEntry { lemma: "briti sę", addition: "(brije)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "broditi" => &[
         VerbDictionaryEntry { lemma: "broditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -369,6 +411,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "buditi" => &[
         VerbDictionaryEntry { lemma: "buditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "buditi sę" => &[
+        VerbDictionaryEntry { lemma: "buditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "budovati" => &[
         VerbDictionaryEntry { lemma: "budovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -377,6 +422,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "buhnųti" => &[
         VerbDictionaryEntry { lemma: "buhnųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
+    ],
+    "buntovati sę" => &[
+        VerbDictionaryEntry { lemma: "buntovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "buriti" => &[
         VerbDictionaryEntry { lemma: "buriti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -407,6 +455,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "bělěti" => &[
         VerbDictionaryEntry { lemma: "bělěti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "běsiti sę" => &[
+        VerbDictionaryEntry { lemma: "běsiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "cenzurovati" => &[
         VerbDictionaryEntry { lemma: "cenzurovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -546,8 +597,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "diskvalifikovati" => &[
         VerbDictionaryEntry { lemma: "diskvalifikovati", addition: "", transitive: true, imperfective: true, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "distancevati sę" => &[
+        VerbDictionaryEntry { lemma: "distancevati sę", addition: "", transitive: false, imperfective: true, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "diviti" => &[
         VerbDictionaryEntry { lemma: "diviti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "dniti sę" => &[
+        VerbDictionaryEntry { lemma: "dniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "dobaviti" => &[
         VerbDictionaryEntry { lemma: "dobaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -582,14 +639,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "dognati" => &[
         VerbDictionaryEntry { lemma: "dognati", addition: "(dogone)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "dogoditi sę" => &[
+        VerbDictionaryEntry { lemma: "dogoditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "dogorěti" => &[
         VerbDictionaryEntry { lemma: "dogorěti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "dogovarjati" => &[
         VerbDictionaryEntry { lemma: "dogovarjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "dogovarjati sę" => &[
+        VerbDictionaryEntry { lemma: "dogovarjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "dogovoriti" => &[
         VerbDictionaryEntry { lemma: "dogovoriti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "dogovoriti sę" => &[
+        VerbDictionaryEntry { lemma: "dogovoriti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "dohoditi" => &[
         VerbDictionaryEntry { lemma: "dohoditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -645,6 +711,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "domněvati" => &[
         VerbDictionaryEntry { lemma: "domněvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "domysliti sę" => &[
+        VerbDictionaryEntry { lemma: "domysliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "domysljati sę" => &[
+        VerbDictionaryEntry { lemma: "domysljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "donesti" => &[
         VerbDictionaryEntry { lemma: "donesti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -693,6 +765,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "doråsti" => &[
         VerbDictionaryEntry { lemma: "doråsti", addition: "(doråste)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "doråzuměti sę" => &[
+        VerbDictionaryEntry { lemma: "doråzuměti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "doråzuměvati sę" => &[
+        VerbDictionaryEntry { lemma: "doråzuměvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "dorųčati" => &[
         VerbDictionaryEntry { lemma: "dorųčati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -702,8 +780,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "dosaditi" => &[
         VerbDictionaryEntry { lemma: "dosaditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "dosaditi sę" => &[
+        VerbDictionaryEntry { lemma: "dosaditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "dosađati" => &[
         VerbDictionaryEntry { lemma: "dosađati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "dosađati sę" => &[
+        VerbDictionaryEntry { lemma: "dosađati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "doskonaliti" => &[
         VerbDictionaryEntry { lemma: "doskonaliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -735,8 +819,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "dotknųti" => &[
         VerbDictionaryEntry { lemma: "dotknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "dotknųti sę" => &[
+        VerbDictionaryEntry { lemma: "dotknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "dotykati" => &[
         VerbDictionaryEntry { lemma: "dotykati", addition: "(dotyče)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "dotykati sę" => &[
+        VerbDictionaryEntry { lemma: "dotykati sę", addition: "(dotyče)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "dovezti" => &[
         VerbDictionaryEntry { lemma: "dovezti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -744,12 +834,24 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "dovoziti" => &[
         VerbDictionaryEntry { lemma: "dovoziti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "dovědati sę" => &[
+        VerbDictionaryEntry { lemma: "dovědati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "dověděti sę" => &[
+        VerbDictionaryEntry { lemma: "dověděti sę", addition: "(dově)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "dověriti" => &[
         VerbDictionaryEntry { lemma: "dověriti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "dověriti sę" => &[
+        VerbDictionaryEntry { lemma: "dověriti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "dověrjati" => &[
         VerbDictionaryEntry { lemma: "dověrjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
         VerbDictionaryEntry { lemma: "dověrjati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "dověrjati sę" => &[
+        VerbDictionaryEntry { lemma: "dověrjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "dovŕšati" => &[
         VerbDictionaryEntry { lemma: "dovŕšati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -796,6 +898,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "drobiti" => &[
         VerbDictionaryEntry { lemma: "drobiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "družiti sę" => &[
+        VerbDictionaryEntry { lemma: "družiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "drěmati" => &[
         VerbDictionaryEntry { lemma: "drěmati", addition: "(drěme)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -823,6 +928,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "dvigati" => &[
         VerbDictionaryEntry { lemma: "dvigati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "dvigati sę" => &[
+        VerbDictionaryEntry { lemma: "dvigati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "dvignųti" => &[
         VerbDictionaryEntry { lemma: "dvignųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -847,14 +955,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "dějati" => &[
         VerbDictionaryEntry { lemma: "dějati", addition: "(děje)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "dějati sę" => &[
+        VerbDictionaryEntry { lemma: "dějati sę", addition: "(děje)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "dělati" => &[
         VerbDictionaryEntry { lemma: "dělati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "děliti" => &[
         VerbDictionaryEntry { lemma: "děliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "děliti sę" => &[
+        VerbDictionaryEntry { lemma: "děliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "děti" => &[
         VerbDictionaryEntry { lemma: "děti", addition: "(děje/děne)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "děti sę" => &[
+        VerbDictionaryEntry { lemma: "děti sę", addition: "(děje/děne)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "dŕkati" => &[
         VerbDictionaryEntry { lemma: "dŕkati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -888,6 +1005,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "dȯlgočasiti" => &[
         VerbDictionaryEntry { lemma: "dȯlgočasiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "dȯlgočasiti sę" => &[
+        VerbDictionaryEntry { lemma: "dȯlgočasiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "dȯlžiti" => &[
         VerbDictionaryEntry { lemma: "dȯlžiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -1055,11 +1175,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "gnojiti" => &[
         VerbDictionaryEntry { lemma: "gnojiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "gnojiti sę" => &[
+        VerbDictionaryEntry { lemma: "gnojiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "gněvati" => &[
         VerbDictionaryEntry { lemma: "gněvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "gněvati sę" => &[
+        VerbDictionaryEntry { lemma: "gněvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "gnězditi sę" => &[
+        VerbDictionaryEntry { lemma: "gnězditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "gnųti" => &[
         VerbDictionaryEntry { lemma: "gnųti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "goditi sę" => &[
+        VerbDictionaryEntry { lemma: "goditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "godovati" => &[
         VerbDictionaryEntry { lemma: "godovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -1069,6 +1201,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "goliti" => &[
         VerbDictionaryEntry { lemma: "goliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "goliti sę" => &[
+        VerbDictionaryEntry { lemma: "goliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "gorčiti" => &[
         VerbDictionaryEntry { lemma: "gorčiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -1100,6 +1235,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "gravirovati" => &[
         VerbDictionaryEntry { lemma: "gravirovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "grbiti sę" => &[
+        VerbDictionaryEntry { lemma: "grbiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "grditi" => &[
         VerbDictionaryEntry { lemma: "grditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -1143,6 +1281,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "gubiti" => &[
         VerbDictionaryEntry { lemma: "gubiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "gubiti sę" => &[
+        VerbDictionaryEntry { lemma: "gubiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "gybati" => &[
         VerbDictionaryEntry { lemma: "gybati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -1170,6 +1311,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "harmonizovati" => &[
         VerbDictionaryEntry { lemma: "harmonizovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "hihotati sę" => &[
+        VerbDictionaryEntry { lemma: "hihotati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "hipnotizovati" => &[
         VerbDictionaryEntry { lemma: "hipnotizovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -1182,11 +1326,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "hlåditi" => &[
         VerbDictionaryEntry { lemma: "hlåditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "hlåditi sę" => &[
+        VerbDictionaryEntry { lemma: "hlåditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "hlåděti" => &[
         VerbDictionaryEntry { lemma: "hlåděti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "hmuriti" => &[
         VerbDictionaryEntry { lemma: "hmuriti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "hmuriti sę" => &[
+        VerbDictionaryEntry { lemma: "hmuriti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "hoditi" => &[
         VerbDictionaryEntry { lemma: "hoditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -1221,6 +1371,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "hråniti" => &[
         VerbDictionaryEntry { lemma: "hråniti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "hråniti sę" => &[
+        VerbDictionaryEntry { lemma: "hråniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "hrčati" => &[
         VerbDictionaryEntry { lemma: "hrčati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -1233,6 +1386,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "hvaliti" => &[
         VerbDictionaryEntry { lemma: "hvaliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "hvastati sę" => &[
+        VerbDictionaryEntry { lemma: "hvastati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "hvatati" => &[
         VerbDictionaryEntry { lemma: "hvatati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -1241,6 +1397,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "hvějati" => &[
         VerbDictionaryEntry { lemma: "hvějati", addition: "(hvěje)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "hvějati sę" => &[
+        VerbDictionaryEntry { lemma: "hvějati sę", addition: "(hvěje)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "hybiti" => &[
         VerbDictionaryEntry { lemma: "hybiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -1316,6 +1475,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "interesovati" => &[
         VerbDictionaryEntry { lemma: "interesovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "interesovati sę" => &[
+        VerbDictionaryEntry { lemma: "interesovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "internacionalizovati" => &[
         VerbDictionaryEntry { lemma: "internacionalizovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -1344,9 +1506,15 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
         VerbDictionaryEntry { lemma: "izbaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
         VerbDictionaryEntry { lemma: "izbaviti", addition: "(+2)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: Some(2) },
     ],
+    "izbaviti sę" => &[
+        VerbDictionaryEntry { lemma: "izbaviti sę", addition: "(+2)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: Some(2) },
+    ],
     "izbavjati" => &[
         VerbDictionaryEntry { lemma: "izbavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
         VerbDictionaryEntry { lemma: "izbavjati", addition: "(+2)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: Some(2) },
+    ],
+    "izbavjati sę" => &[
+        VerbDictionaryEntry { lemma: "izbavjati sę", addition: "(+2)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(2) },
     ],
     "izbirati" => &[
         VerbDictionaryEntry { lemma: "izbirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -1386,14 +1554,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izcěliti" => &[
         VerbDictionaryEntry { lemma: "izcěliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izcěliti sę" => &[
+        VerbDictionaryEntry { lemma: "izcěliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izcěljati" => &[
         VerbDictionaryEntry { lemma: "izcěljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izcěljati sę" => &[
+        VerbDictionaryEntry { lemma: "izcěljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "izdati" => &[
         VerbDictionaryEntry { lemma: "izdati", addition: "(izda)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "izdavati" => &[
         VerbDictionaryEntry { lemma: "izdavati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izdavati sę" => &[
+        VerbDictionaryEntry { lemma: "izdavati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "izdojiti" => &[
         VerbDictionaryEntry { lemma: "izdojiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -1443,6 +1620,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izgubiti" => &[
         VerbDictionaryEntry { lemma: "izgubiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izgubiti sę" => &[
+        VerbDictionaryEntry { lemma: "izgubiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izgynųti" => &[
         VerbDictionaryEntry { lemma: "izgynųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
@@ -1473,8 +1653,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izjaviti" => &[
         VerbDictionaryEntry { lemma: "izjaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izjaviti sę" => &[
+        VerbDictionaryEntry { lemma: "izjaviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izjavjati" => &[
         VerbDictionaryEntry { lemma: "izjavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izjavjati sę" => &[
+        VerbDictionaryEntry { lemma: "izjavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "izjehati" => &[
         VerbDictionaryEntry { lemma: "izjehati", addition: "(izjede)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -1575,6 +1761,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izlęgti" => &[
         VerbDictionaryEntry { lemma: "izlęgti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izlęgti sę" => &[
+        VerbDictionaryEntry { lemma: "izlęgti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izlězati" => &[
         VerbDictionaryEntry { lemma: "izlězati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -1583,6 +1772,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "izlěčiti" => &[
         VerbDictionaryEntry { lemma: "izlěčiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izlěčiti sę" => &[
+        VerbDictionaryEntry { lemma: "izlěčiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "izmagati" => &[
         VerbDictionaryEntry { lemma: "izmagati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -1818,11 +2010,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izravnjati" => &[
         VerbDictionaryEntry { lemma: "izravnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "izravnjati sę" => &[
+        VerbDictionaryEntry { lemma: "izravnjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "izraziti" => &[
         VerbDictionaryEntry { lemma: "izraziti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izraziti sę" => &[
+        VerbDictionaryEntry { lemma: "izraziti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "izrađati sę" => &[
+        VerbDictionaryEntry { lemma: "izrađati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "izražati" => &[
         VerbDictionaryEntry { lemma: "izražati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izražati sę" => &[
+        VerbDictionaryEntry { lemma: "izražati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "izroditi sę" => &[
+        VerbDictionaryEntry { lemma: "izroditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "izrvati" => &[
         VerbDictionaryEntry { lemma: "izrvati", addition: "(izrve)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -1845,6 +2052,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izråvniti" => &[
         VerbDictionaryEntry { lemma: "izråvniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izråvniti sę" => &[
+        VerbDictionaryEntry { lemma: "izråvniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izrěkati" => &[
         VerbDictionaryEntry { lemma: "izrěkati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -1866,8 +2076,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izseliti" => &[
         VerbDictionaryEntry { lemma: "izseliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izseliti sę" => &[
+        VerbDictionaryEntry { lemma: "izseliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izseljati" => &[
         VerbDictionaryEntry { lemma: "izseljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izseljati sę" => &[
+        VerbDictionaryEntry { lemma: "izseljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "izslati" => &[
         VerbDictionaryEntry { lemma: "izslati", addition: "(izšlje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -1875,8 +2091,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izslavjati" => &[
         VerbDictionaryEntry { lemma: "izslavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "izslavjati sę" => &[
+        VerbDictionaryEntry { lemma: "izslavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "izsloviti" => &[
         VerbDictionaryEntry { lemma: "izsloviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izsloviti sę" => &[
+        VerbDictionaryEntry { lemma: "izsloviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "izslušati" => &[
         VerbDictionaryEntry { lemma: "izslušati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -1887,11 +2109,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izslědovati" => &[
         VerbDictionaryEntry { lemma: "izslědovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "izsmrkati sę" => &[
+        VerbDictionaryEntry { lemma: "izsmrkati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izsmějati" => &[
         VerbDictionaryEntry { lemma: "izsmějati", addition: "(izsměje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "izsmějivati" => &[
         VerbDictionaryEntry { lemma: "izsmějivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izspati sę" => &[
+        VerbDictionaryEntry { lemma: "izspati sę", addition: "(izspi)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "izstaviti" => &[
         VerbDictionaryEntry { lemma: "izstaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -2028,8 +2256,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izviniti" => &[
         VerbDictionaryEntry { lemma: "izviniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "izviniti sę" => &[
+        VerbDictionaryEntry { lemma: "izviniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "izvinjati" => &[
         VerbDictionaryEntry { lemma: "izvinjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "izvinjati sę" => &[
+        VerbDictionaryEntry { lemma: "izvinjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "izvlastniti" => &[
         VerbDictionaryEntry { lemma: "izvlastniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -2121,11 +2355,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "izȯjdti" => &[
         VerbDictionaryEntry { lemma: "izȯjdti", addition: "(izȯjde; izšėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "jagniti sę" => &[
+        VerbDictionaryEntry { lemma: "jagniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "jalověti" => &[
         VerbDictionaryEntry { lemma: "jalověti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "jasněti" => &[
         VerbDictionaryEntry { lemma: "jasněti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "javiti sę" => &[
+        VerbDictionaryEntry { lemma: "javiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "javjati sę" => &[
+        VerbDictionaryEntry { lemma: "javjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "je" => &[
         VerbDictionaryEntry { lemma: "je", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2154,6 +2397,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "ježiti" => &[
         VerbDictionaryEntry { lemma: "ježiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "ježiti sę" => &[
+        VerbDictionaryEntry { lemma: "ježiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "jęti" => &[
         VerbDictionaryEntry { lemma: "jęti", addition: "(jme)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2162,6 +2408,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "kaditi" => &[
         VerbDictionaryEntry { lemma: "kaditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "kajati sę" => &[
+        VerbDictionaryEntry { lemma: "kajati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "kakati" => &[
         VerbDictionaryEntry { lemma: "kakati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -2211,6 +2460,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "kazati" => &[
         VerbDictionaryEntry { lemma: "kazati", addition: "(kaže)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "kazati sę" => &[
+        VerbDictionaryEntry { lemma: "kazati sę", addition: "(kaže)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "kaziti" => &[
         VerbDictionaryEntry { lemma: "kaziti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2219,6 +2471,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "kašljati" => &[
         VerbDictionaryEntry { lemma: "kašljati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "klanjati sę" => &[
+        VerbDictionaryEntry { lemma: "klanjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "klasifikovati" => &[
         VerbDictionaryEntry { lemma: "klasifikovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2256,11 +2511,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "kloniti" => &[
         VerbDictionaryEntry { lemma: "kloniti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "kloniti sę" => &[
+        VerbDictionaryEntry { lemma: "kloniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "klåsiti sę" => &[
+        VerbDictionaryEntry { lemma: "klåsiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "klåti" => &[
         VerbDictionaryEntry { lemma: "klåti", addition: "(kolje)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "klåtiti" => &[
         VerbDictionaryEntry { lemma: "klåtiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "klåtiti sę" => &[
+        VerbDictionaryEntry { lemma: "klåtiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "klęknųti" => &[
         VerbDictionaryEntry { lemma: "klęknųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -2301,6 +2565,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "kolěbati" => &[
         VerbDictionaryEntry { lemma: "kolěbati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "kolěbati sę" => &[
+        VerbDictionaryEntry { lemma: "kolěbati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "kombinovati" => &[
         VerbDictionaryEntry { lemma: "kombinovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2324,6 +2591,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "koncentrovati" => &[
         VerbDictionaryEntry { lemma: "koncentrovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "kondensovati sę" => &[
+        VerbDictionaryEntry { lemma: "kondensovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "konfiskovati" => &[
         VerbDictionaryEntry { lemma: "konfiskovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2349,6 +2619,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "končati" => &[
         VerbDictionaryEntry { lemma: "končati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "končati sę" => &[
+        VerbDictionaryEntry { lemma: "končati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "kooperovati" => &[
         VerbDictionaryEntry { lemma: "kooperovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -2366,6 +2639,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "korelovati" => &[
         VerbDictionaryEntry { lemma: "korelovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "koreniti sę" => &[
+        VerbDictionaryEntry { lemma: "koreniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "korigovati" => &[
         VerbDictionaryEntry { lemma: "korigovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2385,6 +2661,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "kositi" => &[
         VerbDictionaryEntry { lemma: "kositi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "kotiti sę" => &[
+        VerbDictionaryEntry { lemma: "kotiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "kovati" => &[
         VerbDictionaryEntry { lemma: "kovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2399,6 +2678,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "krasti" => &[
         VerbDictionaryEntry { lemma: "krasti", addition: "(krade)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "krasti sę" => &[
+        VerbDictionaryEntry { lemma: "krasti sę", addition: "(krade)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "kresati" => &[
         VerbDictionaryEntry { lemma: "kresati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2445,6 +2727,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "kryti" => &[
         VerbDictionaryEntry { lemma: "kryti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "kryti sę" => &[
+        VerbDictionaryEntry { lemma: "kryti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "krčiti" => &[
         VerbDictionaryEntry { lemma: "krčiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2460,11 +2745,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "krųtiti" => &[
         VerbDictionaryEntry { lemma: "krųtiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "krųtiti sę" => &[
+        VerbDictionaryEntry { lemma: "krųtiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "krųžiti" => &[
         VerbDictionaryEntry { lemma: "krųžiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "krųžiti sę" => &[
+        VerbDictionaryEntry { lemma: "krųžiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "krȯšiti" => &[
         VerbDictionaryEntry { lemma: "krȯšiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "krȯšiti sę" => &[
+        VerbDictionaryEntry { lemma: "krȯšiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "kuhati" => &[
         VerbDictionaryEntry { lemma: "kuhati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2538,11 +2832,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "kųpati" => &[
         VerbDictionaryEntry { lemma: "kųpati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "kųpati sę" => &[
+        VerbDictionaryEntry { lemma: "kųpati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "kųsati" => &[
         VerbDictionaryEntry { lemma: "kųsati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "kųsnųti" => &[
         VerbDictionaryEntry { lemma: "kųsnųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "kȯlzati sę" => &[
+        VerbDictionaryEntry { lemma: "kȯlzati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "lajati" => &[
         VerbDictionaryEntry { lemma: "lajati", addition: "(laje)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -2634,6 +2934,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "lobovati" => &[
         VerbDictionaryEntry { lemma: "lobovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "logovati sę" => &[
+        VerbDictionaryEntry { lemma: "logovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "lojiti" => &[
         VerbDictionaryEntry { lemma: "lojiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2679,8 +2982,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "lęgti" => &[
         VerbDictionaryEntry { lemma: "lęgti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "lęgti sę" => &[
+        VerbDictionaryEntry { lemma: "lęgti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "lěniti sę" => &[
+        VerbDictionaryEntry { lemma: "lěniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "lěpiti" => &[
         VerbDictionaryEntry { lemma: "lěpiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "lěpiti sę" => &[
+        VerbDictionaryEntry { lemma: "lěpiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "lětati" => &[
         VerbDictionaryEntry { lemma: "lětati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -2693,6 +3005,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "lěčiti" => &[
         VerbDictionaryEntry { lemma: "lěčiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "lěčiti sę" => &[
+        VerbDictionaryEntry { lemma: "lěčiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "mahati" => &[
         VerbDictionaryEntry { lemma: "mahati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -2853,6 +3168,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "molestovati" => &[
         VerbDictionaryEntry { lemma: "molestovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "moliti sę" => &[
+        VerbDictionaryEntry { lemma: "moliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "montovati" => &[
         VerbDictionaryEntry { lemma: "montovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2865,6 +3183,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "moriti" => &[
         VerbDictionaryEntry { lemma: "moriti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "moriti sę" => &[
+        VerbDictionaryEntry { lemma: "moriti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "motati" => &[
         VerbDictionaryEntry { lemma: "motati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -2876,6 +3197,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "močiti" => &[
         VerbDictionaryEntry { lemma: "močiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "močiti sę" => &[
+        VerbDictionaryEntry { lemma: "močiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "mrdati" => &[
         VerbDictionaryEntry { lemma: "mrdati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -2898,11 +3222,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "mråzosušiti" => &[
         VerbDictionaryEntry { lemma: "mråzosušiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "mråčiti sę" => &[
+        VerbDictionaryEntry { lemma: "mråčiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "mrčati" => &[
         VerbDictionaryEntry { lemma: "mrčati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "mrščiti" => &[
         VerbDictionaryEntry { lemma: "mrščiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "mrščiti sę" => &[
+        VerbDictionaryEntry { lemma: "mrščiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "mstiti" => &[
         VerbDictionaryEntry { lemma: "mstiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2918,6 +3248,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "myliti" => &[
         VerbDictionaryEntry { lemma: "myliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "myliti sę" => &[
+        VerbDictionaryEntry { lemma: "myliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "mysliti" => &[
         VerbDictionaryEntry { lemma: "mysliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -2949,6 +3282,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "měnjati" => &[
         VerbDictionaryEntry { lemma: "měnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "měnjati sę" => &[
+        VerbDictionaryEntry { lemma: "měnjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "měriti" => &[
         VerbDictionaryEntry { lemma: "měriti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
         VerbDictionaryEntry { lemma: "měriti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -2979,6 +3315,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "mųčiti" => &[
         VerbDictionaryEntry { lemma: "mųčiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "mųžiti sę" => &[
+        VerbDictionaryEntry { lemma: "mųžiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "mȯlknųti" => &[
         VerbDictionaryEntry { lemma: "mȯlknųti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -3022,6 +3361,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "nabzděti" => &[
         VerbDictionaryEntry { lemma: "nabzděti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "naběgati sę" => &[
+        VerbDictionaryEntry { lemma: "naběgati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "nacionalizovati" => &[
         VerbDictionaryEntry { lemma: "nacionalizovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -3054,6 +3396,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "nadzirati" => &[
         VerbDictionaryEntry { lemma: "nadzirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "nadějati sę" => &[
+        VerbDictionaryEntry { lemma: "nadějati sę", addition: "(naděje)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "nadělati" => &[
         VerbDictionaryEntry { lemma: "nadělati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3115,6 +3460,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "nahoditi" => &[
         VerbDictionaryEntry { lemma: "nahoditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "nahoditi sę" => &[
+        VerbDictionaryEntry { lemma: "nahoditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "nahvatati" => &[
         VerbDictionaryEntry { lemma: "nahvatati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -3127,8 +3475,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "najdti" => &[
         VerbDictionaryEntry { lemma: "najdti", addition: "(najde; našėl)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "najedati sę" => &[
+        VerbDictionaryEntry { lemma: "najedati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "najesti sę" => &[
+        VerbDictionaryEntry { lemma: "najesti sę", addition: "(naje)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "naježiti" => &[
         VerbDictionaryEntry { lemma: "naježiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "naježiti sę" => &[
+        VerbDictionaryEntry { lemma: "naježiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "najmati" => &[
         VerbDictionaryEntry { lemma: "najmati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -3262,9 +3619,15 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "naparfumovati" => &[
         VerbDictionaryEntry { lemma: "naparfumovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "naparfumovati sę" => &[
+        VerbDictionaryEntry { lemma: "naparfumovati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "napasti" => &[
         VerbDictionaryEntry { lemma: "napasti", addition: "(napade)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
         VerbDictionaryEntry { lemma: "napasti", addition: "(napase)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "napasti sę" => &[
+        VerbDictionaryEntry { lemma: "napasti sę", addition: "(napase)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "napečatati" => &[
         VerbDictionaryEntry { lemma: "napečatati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3284,6 +3647,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "napisati" => &[
         VerbDictionaryEntry { lemma: "napisati", addition: "(napiše)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "napiti sę" => &[
+        VerbDictionaryEntry { lemma: "napiti sę", addition: "(napije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "napivati sę" => &[
+        VerbDictionaryEntry { lemma: "napivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "napljuvati" => &[
         VerbDictionaryEntry { lemma: "napljuvati", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
@@ -3299,8 +3668,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "napraviti" => &[
         VerbDictionaryEntry { lemma: "napraviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "napraviti sę" => &[
+        VerbDictionaryEntry { lemma: "napraviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "napravjati" => &[
         VerbDictionaryEntry { lemma: "napravjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "napravjati sę" => &[
+        VerbDictionaryEntry { lemma: "napravjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "naprěti" => &[
         VerbDictionaryEntry { lemma: "naprěti", addition: "(napre)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -3387,8 +3762,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "naslađati" => &[
         VerbDictionaryEntry { lemma: "naslađati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "naslađati sę" => &[
+        VerbDictionaryEntry { lemma: "naslađati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "naslušati sę" => &[
+        VerbDictionaryEntry { lemma: "naslušati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "naslåditi" => &[
         VerbDictionaryEntry { lemma: "naslåditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "naslåditi sę" => &[
+        VerbDictionaryEntry { lemma: "naslåditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "naslěditi" => &[
         VerbDictionaryEntry { lemma: "naslěditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3398,6 +3782,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "nasmoliti" => &[
         VerbDictionaryEntry { lemma: "nasmoliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "naspati sę" => &[
+        VerbDictionaryEntry { lemma: "naspati sę", addition: "(naspi)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "nastati" => &[
         VerbDictionaryEntry { lemma: "nastati", addition: "(nastane)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -3420,14 +3807,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "nastojivati" => &[
         VerbDictionaryEntry { lemma: "nastojivati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "nastradati sę" => &[
+        VerbDictionaryEntry { lemma: "nastradati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "nastrajati" => &[
         VerbDictionaryEntry { lemma: "nastrajati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "nastrašiti" => &[
         VerbDictionaryEntry { lemma: "nastrašiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "nastrašiti sę" => &[
+        VerbDictionaryEntry { lemma: "nastrašiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "nastrojiti" => &[
         VerbDictionaryEntry { lemma: "nastrojiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "nastråžiti sę" => &[
+        VerbDictionaryEntry { lemma: "nastråžiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "nastųpati" => &[
         VerbDictionaryEntry { lemma: "nastųpati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -3443,6 +3839,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "nasyćati" => &[
         VerbDictionaryEntry { lemma: "nasyćati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "nasěděti sę" => &[
+        VerbDictionaryEntry { lemma: "nasěděti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "nasěkati" => &[
         VerbDictionaryEntry { lemma: "nasěkati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -3465,6 +3864,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "natočiti" => &[
         VerbDictionaryEntry { lemma: "natočiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "natruditi sę" => &[
+        VerbDictionaryEntry { lemma: "natruditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "natrěti" => &[
         VerbDictionaryEntry { lemma: "natrěti", addition: "(natre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -3477,11 +3879,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "natęgnųti" => &[
         VerbDictionaryEntry { lemma: "natęgnųti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "natěšiti sę" => &[
+        VerbDictionaryEntry { lemma: "natěšiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "natŕpěti sę" => &[
+        VerbDictionaryEntry { lemma: "natŕpěti sę", addition: "(natŕpi)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "natŕti" => &[
         VerbDictionaryEntry { lemma: "natŕti", addition: "(natre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "natȯlkati sę" => &[
+        VerbDictionaryEntry { lemma: "natȯlkati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "natȯlkti sę" => &[
+        VerbDictionaryEntry { lemma: "natȯlkti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "naučiti" => &[
         VerbDictionaryEntry { lemma: "naučiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "naučiti sę" => &[
+        VerbDictionaryEntry { lemma: "naučiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "navesti" => &[
         VerbDictionaryEntry { lemma: "navesti", addition: "(navede)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3554,11 +3971,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "nazyvati" => &[
         VerbDictionaryEntry { lemma: "nazyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "nazyvati sę" => &[
+        VerbDictionaryEntry { lemma: "nazyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "načaditi" => &[
         VerbDictionaryEntry { lemma: "načaditi", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
     "načinati" => &[
         VerbDictionaryEntry { lemma: "načinati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "načinati sę" => &[
+        VerbDictionaryEntry { lemma: "načinati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "načitati sę" => &[
+        VerbDictionaryEntry { lemma: "načitati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "načrpati" => &[
         VerbDictionaryEntry { lemma: "načrpati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3568,6 +3994,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "načęti" => &[
         VerbDictionaryEntry { lemma: "načęti", addition: "(načne)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "načęti sę" => &[
+        VerbDictionaryEntry { lemma: "načęti sę", addition: "(načne)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "našiti" => &[
         VerbDictionaryEntry { lemma: "našiti", addition: "(našije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3598,6 +4027,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "nepokojiti" => &[
         VerbDictionaryEntry { lemma: "nepokojiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "nepokojiti sę" => &[
+        VerbDictionaryEntry { lemma: "nepokojiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "nesti" => &[
         VerbDictionaryEntry { lemma: "nesti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -3632,8 +4064,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "noćevati" => &[
         VerbDictionaryEntry { lemma: "noćevati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "nrěstiti sę" => &[
+        VerbDictionaryEntry { lemma: "nrěstiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "nuditi" => &[
         VerbDictionaryEntry { lemma: "nuditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "nuditi sę" => &[
+        VerbDictionaryEntry { lemma: "nuditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "nyrjati" => &[
         VerbDictionaryEntry { lemma: "nyrjati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -3722,6 +4160,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "obhoditi" => &[
         VerbDictionaryEntry { lemma: "obhoditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "obhoditi sę" => &[
+        VerbDictionaryEntry { lemma: "obhoditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "obhvatiti" => &[
         VerbDictionaryEntry { lemma: "obhvatiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -3746,8 +4187,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "objaviti" => &[
         VerbDictionaryEntry { lemma: "objaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "objaviti sę" => &[
+        VerbDictionaryEntry { lemma: "objaviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "objavjati" => &[
         VerbDictionaryEntry { lemma: "objavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "objavjati sę" => &[
+        VerbDictionaryEntry { lemma: "objavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "objedati sę" => &[
+        VerbDictionaryEntry { lemma: "objedati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "objediniti" => &[
         VerbDictionaryEntry { lemma: "objediniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3757,6 +4207,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "objehati" => &[
         VerbDictionaryEntry { lemma: "objehati", addition: "(objede)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "objesti sę" => &[
+        VerbDictionaryEntry { lemma: "objesti sę", addition: "(obje)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "objezditi" => &[
         VerbDictionaryEntry { lemma: "objezditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3893,8 +4346,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "obnažati" => &[
         VerbDictionaryEntry { lemma: "obnažati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "obnažati sę" => &[
+        VerbDictionaryEntry { lemma: "obnažati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "obnažiti" => &[
         VerbDictionaryEntry { lemma: "obnažiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "obnažiti sę" => &[
+        VerbDictionaryEntry { lemma: "obnažiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "obnesti" => &[
         VerbDictionaryEntry { lemma: "obnesti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3938,14 +4397,29 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "obradovati" => &[
         VerbDictionaryEntry { lemma: "obradovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "obradovati sę" => &[
+        VerbDictionaryEntry { lemma: "obradovati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "obranjati" => &[
         VerbDictionaryEntry { lemma: "obranjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "obraćati" => &[
         VerbDictionaryEntry { lemma: "obraćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "obraćati sę" => &[
+        VerbDictionaryEntry { lemma: "obraćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "obriti" => &[
         VerbDictionaryEntry { lemma: "obriti", addition: "(obrije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "obriti sę" => &[
+        VerbDictionaryEntry { lemma: "obriti sę", addition: "(obrije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obrušati sę" => &[
+        VerbDictionaryEntry { lemma: "obrušati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obrušiti sę" => &[
+        VerbDictionaryEntry { lemma: "obrušiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "obrvati" => &[
         VerbDictionaryEntry { lemma: "obrvati", addition: "(obrve)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -3970,6 +4444,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "obråtiti" => &[
         VerbDictionaryEntry { lemma: "obråtiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "obråtiti sę" => &[
+        VerbDictionaryEntry { lemma: "obråtiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "obrěmeniti" => &[
         VerbDictionaryEntry { lemma: "obrěmeniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4009,6 +4486,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "obstanavjati" => &[
         VerbDictionaryEntry { lemma: "obstanavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "obstanavjati sę" => &[
+        VerbDictionaryEntry { lemma: "obstanavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obstanoviti sę" => &[
+        VerbDictionaryEntry { lemma: "obstanoviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "obstųpati" => &[
         VerbDictionaryEntry { lemma: "obstųpati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -4058,8 +4541,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "obtirati" => &[
         VerbDictionaryEntry { lemma: "obtirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "obtirati sę" => &[
+        VerbDictionaryEntry { lemma: "obtirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "obtrěti" => &[
         VerbDictionaryEntry { lemma: "obtrěti", addition: "(obtre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "obtrěti sę" => &[
+        VerbDictionaryEntry { lemma: "obtrěti sę", addition: "(obtre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "obtęžati" => &[
         VerbDictionaryEntry { lemma: "obtęžati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -4069,6 +4558,15 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "obtŕti" => &[
         VerbDictionaryEntry { lemma: "obtŕti", addition: "(obtre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "obtŕti sę" => &[
+        VerbDictionaryEntry { lemma: "obtŕti sę", addition: "(obtre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obuti sę" => &[
+        VerbDictionaryEntry { lemma: "obuti sę", addition: "(obuje)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obuvati sę" => &[
+        VerbDictionaryEntry { lemma: "obuvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "obuzdati" => &[
         VerbDictionaryEntry { lemma: "obuzdati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4121,6 +4619,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "obyvati" => &[
         VerbDictionaryEntry { lemma: "obyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "obzirati sę" => &[
+        VerbDictionaryEntry { lemma: "obzirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "obćiti" => &[
         VerbDictionaryEntry { lemma: "obćiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -4148,14 +4649,32 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "obŕnųti" => &[
         VerbDictionaryEntry { lemma: "obŕnųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "obŕnųti sę" => &[
+        VerbDictionaryEntry { lemma: "obŕnųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "obžegti" => &[
         VerbDictionaryEntry { lemma: "obžegti", addition: "(obžže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "obžigati" => &[
         VerbDictionaryEntry { lemma: "obžigati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "obžirati sę" => &[
+        VerbDictionaryEntry { lemma: "obžirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obžrti sę" => &[
+        VerbDictionaryEntry { lemma: "obžrti sę", addition: "(obžre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obžrěti sę" => &[
+        VerbDictionaryEntry { lemma: "obžrěti sę", addition: "(obžre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "obȯjdti" => &[
         VerbDictionaryEntry { lemma: "obȯjdti", addition: "(obȯjde; obšėl)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "obȯjdti sę" => &[
+        VerbDictionaryEntry { lemma: "obȯjdti sę", addition: "(obȯjde; obšėl)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "obȯzrěti sę" => &[
+        VerbDictionaryEntry { lemma: "obȯzrěti sę", addition: "(obȯzri)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "ocěniti" => &[
         VerbDictionaryEntry { lemma: "ocěniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4166,11 +4685,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odbiti" => &[
         VerbDictionaryEntry { lemma: "odbiti", addition: "(odbije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odbiti sę" => &[
+        VerbDictionaryEntry { lemma: "odbiti sę", addition: "(odbije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odbivati" => &[
         VerbDictionaryEntry { lemma: "odbivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "odbivati sę" => &[
+        VerbDictionaryEntry { lemma: "odbivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "odbrati" => &[
         VerbDictionaryEntry { lemma: "odbrati", addition: "(odbere)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odbyti sę" => &[
+        VerbDictionaryEntry { lemma: "odbyti sę", addition: "(odbųde)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "odbyvati sę" => &[
+        VerbDictionaryEntry { lemma: "odbyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odběgati" => &[
         VerbDictionaryEntry { lemma: "odběgati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -4181,8 +4712,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "oddaliti" => &[
         VerbDictionaryEntry { lemma: "oddaliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "oddaliti sę" => &[
+        VerbDictionaryEntry { lemma: "oddaliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "oddaljati" => &[
         VerbDictionaryEntry { lemma: "oddaljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "oddaljati sę" => &[
+        VerbDictionaryEntry { lemma: "oddaljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "oddati" => &[
         VerbDictionaryEntry { lemma: "oddati", addition: "(odda)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4247,8 +4784,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odidti" => &[
         VerbDictionaryEntry { lemma: "odidti", addition: "(odide; odšėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "odigrati sę" => &[
+        VerbDictionaryEntry { lemma: "odigrati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "odigryvati sę" => &[
+        VerbDictionaryEntry { lemma: "odigryvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "odimati" => &[
         VerbDictionaryEntry { lemma: "odimati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odjaviti sę" => &[
+        VerbDictionaryEntry { lemma: "odjaviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "odjavjati sę" => &[
+        VerbDictionaryEntry { lemma: "odjavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odjehati" => &[
         VerbDictionaryEntry { lemma: "odjehati", addition: "(odjede)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -4262,8 +4811,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odkazati" => &[
         VerbDictionaryEntry { lemma: "odkazati", addition: "(odkaže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odkazati sę" => &[
+        VerbDictionaryEntry { lemma: "odkazati sę", addition: "(odkaže)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odkazyvati" => &[
         VerbDictionaryEntry { lemma: "odkazyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odkazyvati sę" => &[
+        VerbDictionaryEntry { lemma: "odkazyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odkladati" => &[
         VerbDictionaryEntry { lemma: "odkladati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -4274,14 +4829,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odklejati" => &[
         VerbDictionaryEntry { lemma: "odklejati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "odklejati sę" => &[
+        VerbDictionaryEntry { lemma: "odklejati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "odklejiti" => &[
         VerbDictionaryEntry { lemma: "odklejiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odklejiti sę" => &[
+        VerbDictionaryEntry { lemma: "odklejiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "odključati" => &[
         VerbDictionaryEntry { lemma: "odključati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "odključati sę" => &[
+        VerbDictionaryEntry { lemma: "odključati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "odključiti" => &[
         VerbDictionaryEntry { lemma: "odključiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odključiti sę" => &[
+        VerbDictionaryEntry { lemma: "odključiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "odkloniti" => &[
         VerbDictionaryEntry { lemma: "odkloniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4325,6 +4892,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odličiti" => &[
         VerbDictionaryEntry { lemma: "odličiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odlogovati sę" => &[
+        VerbDictionaryEntry { lemma: "odlogovati sę", addition: "", transitive: false, imperfective: true, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odlomiti" => &[
         VerbDictionaryEntry { lemma: "odlomiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -4334,8 +4904,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odlěpiti" => &[
         VerbDictionaryEntry { lemma: "odlěpiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odlěpiti sę" => &[
+        VerbDictionaryEntry { lemma: "odlěpiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odlěpjati" => &[
         VerbDictionaryEntry { lemma: "odlěpjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odlěpjati sę" => &[
+        VerbDictionaryEntry { lemma: "odlěpjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odlětati" => &[
         VerbDictionaryEntry { lemma: "odlětati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -4394,8 +4970,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odpečatati" => &[
         VerbDictionaryEntry { lemma: "odpečatati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odpečatati sę" => &[
+        VerbDictionaryEntry { lemma: "odpečatati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odpečatyvati" => &[
         VerbDictionaryEntry { lemma: "odpečatyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odpečatyvati sę" => &[
+        VerbDictionaryEntry { lemma: "odpečatyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odphati" => &[
         VerbDictionaryEntry { lemma: "odphati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4411,6 +4993,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "odpinati" => &[
         VerbDictionaryEntry { lemma: "odpinati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odpirati sę" => &[
+        VerbDictionaryEntry { lemma: "odpirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odpisati" => &[
         VerbDictionaryEntry { lemma: "odpisati", addition: "(odpiše)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4455,14 +5040,29 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odpraviti" => &[
         VerbDictionaryEntry { lemma: "odpraviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odpraviti sę" => &[
+        VerbDictionaryEntry { lemma: "odpraviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odpravjati" => &[
         VerbDictionaryEntry { lemma: "odpravjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odpravjati sę" => &[
+        VerbDictionaryEntry { lemma: "odpravjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odprašati" => &[
         VerbDictionaryEntry { lemma: "odprašati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "odprašati sę" => &[
+        VerbDictionaryEntry { lemma: "odprašati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "odprositi sę" => &[
+        VerbDictionaryEntry { lemma: "odprositi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odpråšiti" => &[
         VerbDictionaryEntry { lemma: "odpråšiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odprěti sę" => &[
+        VerbDictionaryEntry { lemma: "odprěti sę", addition: "(odpre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "odpustiti" => &[
         VerbDictionaryEntry { lemma: "odpustiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4473,6 +5073,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odpęti" => &[
         VerbDictionaryEntry { lemma: "odpęti", addition: "(odpne)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odpŕti sę" => &[
+        VerbDictionaryEntry { lemma: "odpŕti sę", addition: "(odpre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odpųditi" => &[
         VerbDictionaryEntry { lemma: "odpųditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -4482,6 +5085,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odraziti" => &[
         VerbDictionaryEntry { lemma: "odraziti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odraziti sę" => &[
+        VerbDictionaryEntry { lemma: "odraziti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odračati" => &[
         VerbDictionaryEntry { lemma: "odračati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -4490,6 +5096,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "odražati" => &[
         VerbDictionaryEntry { lemma: "odražati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odražati sę" => &[
+        VerbDictionaryEntry { lemma: "odražati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odrestavrovati" => &[
         VerbDictionaryEntry { lemma: "odrestavrovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4509,8 +5118,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odrěkati" => &[
         VerbDictionaryEntry { lemma: "odrěkati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "odrěkati sę" => &[
+        VerbDictionaryEntry { lemma: "odrěkati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "odrěkti" => &[
         VerbDictionaryEntry { lemma: "odrěkti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odrěkti sę" => &[
+        VerbDictionaryEntry { lemma: "odrěkti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "odrězati" => &[
         VerbDictionaryEntry { lemma: "odrězati", addition: "(odrěže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4625,8 +5240,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odtiskati" => &[
         VerbDictionaryEntry { lemma: "odtiskati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "odtiskati sę" => &[
+        VerbDictionaryEntry { lemma: "odtiskati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "odtisknųti" => &[
         VerbDictionaryEntry { lemma: "odtisknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odtisknųti sę" => &[
+        VerbDictionaryEntry { lemma: "odtisknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "odtrěti" => &[
         VerbDictionaryEntry { lemma: "odtrěti", addition: "(odtre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4694,8 +5315,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odvykati" => &[
         VerbDictionaryEntry { lemma: "odvykati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "odvykati sę" => &[
+        VerbDictionaryEntry { lemma: "odvykati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "odvyknųti" => &[
         VerbDictionaryEntry { lemma: "odvyknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odvyknųti sę" => &[
+        VerbDictionaryEntry { lemma: "odvyknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "odvęzati" => &[
         VerbDictionaryEntry { lemma: "odvęzati", addition: "(odvęže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4715,8 +5342,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odzvati" => &[
         VerbDictionaryEntry { lemma: "odzvati", addition: "(odzȯve)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odzvati sę" => &[
+        VerbDictionaryEntry { lemma: "odzvati sę", addition: "(odzȯve)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odzyvati" => &[
         VerbDictionaryEntry { lemma: "odzyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odzyvati sę" => &[
+        VerbDictionaryEntry { lemma: "odzyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odćuđati" => &[
         VerbDictionaryEntry { lemma: "odćuđati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -4727,8 +5360,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "odčajati" => &[
         VerbDictionaryEntry { lemma: "odčajati", addition: "(odčaje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "odčajati sę" => &[
+        VerbDictionaryEntry { lemma: "odčajati sę", addition: "(odčaje)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "odčajivati" => &[
         VerbDictionaryEntry { lemma: "odčajivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "odčajivati sę" => &[
+        VerbDictionaryEntry { lemma: "odčajivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "odčiniti" => &[
         VerbDictionaryEntry { lemma: "odčiniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4795,6 +5434,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "ogoliti" => &[
         VerbDictionaryEntry { lemma: "ogoliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "ogoliti sę" => &[
+        VerbDictionaryEntry { lemma: "ogoliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "ogorčati" => &[
         VerbDictionaryEntry { lemma: "ogorčati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -4871,14 +5513,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "okazati" => &[
         VerbDictionaryEntry { lemma: "okazati", addition: "(okaže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "okazati sę" => &[
+        VerbDictionaryEntry { lemma: "okazati sę", addition: "(okaže)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "okazyvati" => &[
         VerbDictionaryEntry { lemma: "okazyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "okazyvati sę" => &[
+        VerbDictionaryEntry { lemma: "okazyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "oklevetati" => &[
         VerbDictionaryEntry { lemma: "oklevetati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "okolorovati" => &[
         VerbDictionaryEntry { lemma: "okolorovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "okotiti sę" => &[
+        VerbDictionaryEntry { lemma: "okotiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "okovati" => &[
         VerbDictionaryEntry { lemma: "okovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -4952,6 +5603,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "omųžiti" => &[
         VerbDictionaryEntry { lemma: "omųžiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "omųžiti sę" => &[
+        VerbDictionaryEntry { lemma: "omųžiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "onesměliti" => &[
         VerbDictionaryEntry { lemma: "onesměliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -4988,6 +5642,15 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "opekati" => &[
         VerbDictionaryEntry { lemma: "opekati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "operiti sę" => &[
+        VerbDictionaryEntry { lemma: "operiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "operjati sę" => &[
+        VerbDictionaryEntry { lemma: "operjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "opirati sę" => &[
+        VerbDictionaryEntry { lemma: "opirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "opisati" => &[
         VerbDictionaryEntry { lemma: "opisati", addition: "(opiše)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -4997,8 +5660,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "opiti" => &[
         VerbDictionaryEntry { lemma: "opiti", addition: "(opije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "opiti sę" => &[
+        VerbDictionaryEntry { lemma: "opiti sę", addition: "(opije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "opivati" => &[
         VerbDictionaryEntry { lemma: "opivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "opivati sę" => &[
+        VerbDictionaryEntry { lemma: "opivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "oplakati" => &[
         VerbDictionaryEntry { lemma: "oplakati", addition: "(oplače)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -5036,8 +5705,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "opozdniti" => &[
         VerbDictionaryEntry { lemma: "opozdniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "opozdniti sę" => &[
+        VerbDictionaryEntry { lemma: "opozdniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "opozdnjati" => &[
         VerbDictionaryEntry { lemma: "opozdnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "opozdnjati sę" => &[
+        VerbDictionaryEntry { lemma: "opozdnjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "opoznati" => &[
         VerbDictionaryEntry { lemma: "opoznati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -5081,6 +5756,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "oprěděljati" => &[
         VerbDictionaryEntry { lemma: "oprěděljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "oprěti sę" => &[
+        VerbDictionaryEntry { lemma: "oprěti sę", addition: "(opre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "optimizovati" => &[
         VerbDictionaryEntry { lemma: "optimizovati", addition: "", transitive: true, imperfective: true, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -5114,6 +5792,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "opyljati" => &[
         VerbDictionaryEntry { lemma: "opyljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "opŕti sę" => &[
+        VerbDictionaryEntry { lemma: "opŕti sę", addition: "(opre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "orati" => &[
         VerbDictionaryEntry { lemma: "orati", addition: "(oŕe)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -5122,6 +5803,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "organizovati" => &[
         VerbDictionaryEntry { lemma: "organizovati", addition: "", transitive: true, imperfective: true, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "orientovati sę" => &[
+        VerbDictionaryEntry { lemma: "orientovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "oriti" => &[
         VerbDictionaryEntry { lemma: "oriti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -5141,14 +5825,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "osaditi" => &[
         VerbDictionaryEntry { lemma: "osaditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "osaditi sę" => &[
+        VerbDictionaryEntry { lemma: "osaditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "osamotiti" => &[
         VerbDictionaryEntry { lemma: "osamotiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "osamotiti sę" => &[
+        VerbDictionaryEntry { lemma: "osamotiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "osađati" => &[
         VerbDictionaryEntry { lemma: "osađati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "osedlati" => &[
         VerbDictionaryEntry { lemma: "osedlati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "oseliti sę" => &[
+        VerbDictionaryEntry { lemma: "oseliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "osiliti" => &[
         VerbDictionaryEntry { lemma: "osiliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -5216,8 +5909,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "osměliti" => &[
         VerbDictionaryEntry { lemma: "osměliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "osměliti sę" => &[
+        VerbDictionaryEntry { lemma: "osměliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "osměljati" => &[
         VerbDictionaryEntry { lemma: "osměljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "osměljati sę" => &[
+        VerbDictionaryEntry { lemma: "osměljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "osnovati" => &[
         VerbDictionaryEntry { lemma: "osnovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -5270,6 +5969,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "ostrěgati" => &[
         VerbDictionaryEntry { lemma: "ostrěgati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "ostrěgati sę" => &[
+        VerbDictionaryEntry { lemma: "ostrěgati sę", addition: "(+2)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(2) },
+    ],
     "ostrěgti" => &[
         VerbDictionaryEntry { lemma: "ostrěgti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -5285,11 +5987,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "osvajati" => &[
         VerbDictionaryEntry { lemma: "osvajati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "osvatiti sę" => &[
+        VerbDictionaryEntry { lemma: "osvatiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "osvobađati" => &[
         VerbDictionaryEntry { lemma: "osvobađati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "osvobađati sę" => &[
+        VerbDictionaryEntry { lemma: "osvobađati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "osvoboditi" => &[
         VerbDictionaryEntry { lemma: "osvoboditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "osvoboditi sę" => &[
+        VerbDictionaryEntry { lemma: "osvoboditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "osvojiti" => &[
         VerbDictionaryEntry { lemma: "osvojiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -5299,6 +6010,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "osvęćati" => &[
         VerbDictionaryEntry { lemma: "osvęćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "osvědamjati sę" => &[
+        VerbDictionaryEntry { lemma: "osvědamjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "osvědomiti sę" => &[
+        VerbDictionaryEntry { lemma: "osvědomiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "osvětiti" => &[
         VerbDictionaryEntry { lemma: "osvětiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -5335,6 +6052,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "osȯvrěmennjati" => &[
         VerbDictionaryEntry { lemma: "osȯvrěmennjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "oteliti sę" => &[
+        VerbDictionaryEntry { lemma: "oteliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "otišati" => &[
         VerbDictionaryEntry { lemma: "otišati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -5465,6 +6185,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "ozlobiti" => &[
         VerbDictionaryEntry { lemma: "ozlobiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "ozlobiti sę" => &[
+        VerbDictionaryEntry { lemma: "ozlobiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "oznamenovati" => &[
         VerbDictionaryEntry { lemma: "oznamenovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -5521,8 +6244,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "ošalěti" => &[
         VerbDictionaryEntry { lemma: "ošalěti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "oščeniti sę" => &[
+        VerbDictionaryEntry { lemma: "oščeniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "oženiti" => &[
         VerbDictionaryEntry { lemma: "oženiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "oženiti sę" => &[
+        VerbDictionaryEntry { lemma: "oženiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "ožiti" => &[
         VerbDictionaryEntry { lemma: "ožiti", addition: "(ožive)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -5535,6 +6264,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "oživjati" => &[
         VerbDictionaryEntry { lemma: "oživjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "ožrěbiti sę" => &[
+        VerbDictionaryEntry { lemma: "ožrěbiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "ožȯltěti" => &[
         VerbDictionaryEntry { lemma: "ožȯltěti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -5566,15 +6298,24 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "parfumovati" => &[
         VerbDictionaryEntry { lemma: "parfumovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "parfumovati sę" => &[
+        VerbDictionaryEntry { lemma: "parfumovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "pariti" => &[
         VerbDictionaryEntry { lemma: "pariti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "parkovati" => &[
         VerbDictionaryEntry { lemma: "parkovati", addition: "", transitive: true, imperfective: true, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "parkovati sę" => &[
+        VerbDictionaryEntry { lemma: "parkovati sę", addition: "", transitive: false, imperfective: true, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "pasti" => &[
         VerbDictionaryEntry { lemma: "pasti", addition: "(pade)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
         VerbDictionaryEntry { lemma: "pasti", addition: "(pase)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "pasti sę" => &[
+        VerbDictionaryEntry { lemma: "pasti sę", addition: "(pase)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "patronizovati" => &[
         VerbDictionaryEntry { lemma: "patronizovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -5584,6 +6325,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "pekti" => &[
         VerbDictionaryEntry { lemma: "pekti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "pekti sę" => &[
+        VerbDictionaryEntry { lemma: "pekti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "pečatati" => &[
         VerbDictionaryEntry { lemma: "pečatati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -5717,8 +6461,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "poddati" => &[
         VerbDictionaryEntry { lemma: "poddati", addition: "(podda)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "poddati sę" => &[
+        VerbDictionaryEntry { lemma: "poddati sę", addition: "(podda)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "poddavati" => &[
         VerbDictionaryEntry { lemma: "poddavati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "poddavati sę" => &[
+        VerbDictionaryEntry { lemma: "poddavati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "poddŕžati" => &[
         VerbDictionaryEntry { lemma: "poddŕžati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -5759,8 +6509,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "podključati" => &[
         VerbDictionaryEntry { lemma: "podključati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "podključati sę" => &[
+        VerbDictionaryEntry { lemma: "podključati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "podključiti" => &[
         VerbDictionaryEntry { lemma: "podključiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "podključiti sę" => &[
+        VerbDictionaryEntry { lemma: "podključiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "podkopati" => &[
         VerbDictionaryEntry { lemma: "podkopati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -5810,6 +6566,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "podnurjati" => &[
         VerbDictionaryEntry { lemma: "podnurjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "podobati sę" => &[
+        VerbDictionaryEntry { lemma: "podobati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "podpaliti" => &[
         VerbDictionaryEntry { lemma: "podpaliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -5828,6 +6587,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "podporiti" => &[
         VerbDictionaryEntry { lemma: "podporiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "podružiti sę" => &[
+        VerbDictionaryEntry { lemma: "podružiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "podråzděliti" => &[
         VerbDictionaryEntry { lemma: "podråzděliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -5845,6 +6607,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "podslušivati" => &[
         VerbDictionaryEntry { lemma: "podslušivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "podsměhati sę" => &[
+        VerbDictionaryEntry { lemma: "podsměhati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "podsměhnųti sę" => &[
+        VerbDictionaryEntry { lemma: "podsměhnųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "podstrěkati" => &[
         VerbDictionaryEntry { lemma: "podstrěkati", addition: "(podstrěče)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -5905,6 +6673,15 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "poděliti" => &[
         VerbDictionaryEntry { lemma: "poděliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "poděliti sę" => &[
+        VerbDictionaryEntry { lemma: "poděliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "poděti sę" => &[
+        VerbDictionaryEntry { lemma: "poděti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "poděvati sę" => &[
+        VerbDictionaryEntry { lemma: "poděvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "podȯjdti" => &[
         VerbDictionaryEntry { lemma: "podȯjdti", addition: "(podȯjde; podšėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -5981,6 +6758,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "poiskyvati" => &[
         VerbDictionaryEntry { lemma: "poiskyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "pojaviti sę" => &[
+        VerbDictionaryEntry { lemma: "pojaviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "pojavjati sę" => &[
+        VerbDictionaryEntry { lemma: "pojavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "pojdti" => &[
         VerbDictionaryEntry { lemma: "pojdti", addition: "(pojde; pošėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
@@ -5995,6 +6778,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "pojęti" => &[
         VerbDictionaryEntry { lemma: "pojęti", addition: "(pojme)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "pokajati sę" => &[
+        VerbDictionaryEntry { lemma: "pokajati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "pokarati" => &[
         VerbDictionaryEntry { lemma: "pokarati", addition: "(pokare)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6014,6 +6800,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "poklicati" => &[
         VerbDictionaryEntry { lemma: "poklicati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "pokloniti sę" => &[
+        VerbDictionaryEntry { lemma: "pokloniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "pokoriti" => &[
         VerbDictionaryEntry { lemma: "pokoriti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6086,6 +6875,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "pomyliti" => &[
         VerbDictionaryEntry { lemma: "pomyliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "pomyliti sę" => &[
+        VerbDictionaryEntry { lemma: "pomyliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "pomysliti" => &[
         VerbDictionaryEntry { lemma: "pomysliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6180,14 +6972,38 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "poråvniti" => &[
         VerbDictionaryEntry { lemma: "poråvniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "poråzuměti sę" => &[
+        VerbDictionaryEntry { lemma: "poråzuměti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "poråzuměvati sę" => &[
+        VerbDictionaryEntry { lemma: "poråzuměvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "porųbati" => &[
         VerbDictionaryEntry { lemma: "porųbati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "porųčati sę" => &[
+        VerbDictionaryEntry { lemma: "porųčati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "porųčiti sę" => &[
+        VerbDictionaryEntry { lemma: "porųčiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "poscati sę" => &[
+        VerbDictionaryEntry { lemma: "poscati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "poskųpiti sę" => &[
+        VerbDictionaryEntry { lemma: "poskųpiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "poslati" => &[
         VerbDictionaryEntry { lemma: "poslati", addition: "(pošlje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "poslizgnųti sę" => &[
+        VerbDictionaryEntry { lemma: "poslizgnųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "poslušati" => &[
         VerbDictionaryEntry { lemma: "poslušati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "posluživati sę" => &[
+        VerbDictionaryEntry { lemma: "posluživati sę", addition: "(+5)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(5) },
     ],
     "posoliti" => &[
         VerbDictionaryEntry { lemma: "posoliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6212,6 +7028,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "postanoviti" => &[
         VerbDictionaryEntry { lemma: "postanoviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "postarati sę" => &[
+        VerbDictionaryEntry { lemma: "postarati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "postarěti" => &[
         VerbDictionaryEntry { lemma: "postarěti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -6289,6 +7108,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "potelefonovati" => &[
         VerbDictionaryEntry { lemma: "potelefonovati", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "potiti sę" => &[
+        VerbDictionaryEntry { lemma: "potiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "potopiti" => &[
         VerbDictionaryEntry { lemma: "potopiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -6333,6 +7155,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "považiti" => &[
         VerbDictionaryEntry { lemma: "považiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "poveseliti sę" => &[
+        VerbDictionaryEntry { lemma: "poveseliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "povraćati" => &[
         VerbDictionaryEntry { lemma: "povraćati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -6433,11 +7258,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "počinati" => &[
         VerbDictionaryEntry { lemma: "počinati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "počinati sę" => &[
+        VerbDictionaryEntry { lemma: "počinati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "počrveněti" => &[
         VerbDictionaryEntry { lemma: "počrveněti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
     "počęti" => &[
         VerbDictionaryEntry { lemma: "počęti", addition: "(počne)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "počęti sę" => &[
+        VerbDictionaryEntry { lemma: "počęti sę", addition: "(počne)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "poškoditi" => &[
         VerbDictionaryEntry { lemma: "poškoditi", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -6481,6 +7312,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prašćati" => &[
         VerbDictionaryEntry { lemma: "prašćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prašćati sę" => &[
+        VerbDictionaryEntry { lemma: "prašćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "preferovati" => &[
         VerbDictionaryEntry { lemma: "preferovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -6489,6 +7323,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "pribivati" => &[
         VerbDictionaryEntry { lemma: "pribivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "približati sę" => &[
+        VerbDictionaryEntry { lemma: "približati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "približiti sę" => &[
+        VerbDictionaryEntry { lemma: "približiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "pribyti" => &[
         VerbDictionaryEntry { lemma: "pribyti", addition: "(pribųde)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -6517,14 +7357,29 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "priděljati" => &[
         VerbDictionaryEntry { lemma: "priděljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "pridŕživati sę" => &[
+        VerbDictionaryEntry { lemma: "pridŕživati sę", addition: "(+2)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(2) },
+    ],
+    "prigađati sę" => &[
+        VerbDictionaryEntry { lemma: "prigađati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "priględati" => &[
         VerbDictionaryEntry { lemma: "priględati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "priględati sę" => &[
+        VerbDictionaryEntry { lemma: "priględati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "priględěti" => &[
         VerbDictionaryEntry { lemma: "priględěti", addition: "(priględi)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "priględěti sę" => &[
+        VerbDictionaryEntry { lemma: "priględěti sę", addition: "(priględi)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prignųti" => &[
         VerbDictionaryEntry { lemma: "prignųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prigoditi sę" => &[
+        VerbDictionaryEntry { lemma: "prigoditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "prigotoviti" => &[
         VerbDictionaryEntry { lemma: "prigotoviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6535,8 +7390,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prihoditi" => &[
         VerbDictionaryEntry { lemma: "prihoditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "prijateliti sę" => &[
+        VerbDictionaryEntry { lemma: "prijateliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "prijati" => &[
         VerbDictionaryEntry { lemma: "prijati", addition: "(+3)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: Some(3) },
+    ],
+    "prijaviti sę" => &[
+        VerbDictionaryEntry { lemma: "prijaviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "prijavjati sę" => &[
+        VerbDictionaryEntry { lemma: "prijavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "prijdti" => &[
         VerbDictionaryEntry { lemma: "prijdti", addition: "(prijde; prišėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -6550,8 +7414,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prijmati" => &[
         VerbDictionaryEntry { lemma: "prijmati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prijmati sę" => &[
+        VerbDictionaryEntry { lemma: "prijmati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "prijęti" => &[
         VerbDictionaryEntry { lemma: "prijęti", addition: "(prijme)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prijęti sę" => &[
+        VerbDictionaryEntry { lemma: "prijęti sę", addition: "(prijme)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "prikazati" => &[
         VerbDictionaryEntry { lemma: "prikazati", addition: "(prikaže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6571,14 +7441,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prilěpiti" => &[
         VerbDictionaryEntry { lemma: "prilěpiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prilěpiti sę" => &[
+        VerbDictionaryEntry { lemma: "prilěpiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prilětati" => &[
         VerbDictionaryEntry { lemma: "prilětati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "prilųčati" => &[
         VerbDictionaryEntry { lemma: "prilųčati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prilųčati sę" => &[
+        VerbDictionaryEntry { lemma: "prilųčati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "prilųčiti" => &[
         VerbDictionaryEntry { lemma: "prilųčiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prilųčiti sę" => &[
+        VerbDictionaryEntry { lemma: "prilųčiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "priměniti" => &[
         VerbDictionaryEntry { lemma: "priměniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6655,8 +7534,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prisjediniti" => &[
         VerbDictionaryEntry { lemma: "prisjediniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prisjediniti sę" => &[
+        VerbDictionaryEntry { lemma: "prisjediniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prisjedinjati" => &[
         VerbDictionaryEntry { lemma: "prisjedinjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prisjedinjati sę" => &[
+        VerbDictionaryEntry { lemma: "prisjedinjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "prislati" => &[
         VerbDictionaryEntry { lemma: "prislati", addition: "(prišlje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6709,6 +7594,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "pritisknųti" => &[
         VerbDictionaryEntry { lemma: "pritisknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "pritvarjati sę" => &[
+        VerbDictionaryEntry { lemma: "pritvarjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "pritvoriti sę" => &[
+        VerbDictionaryEntry { lemma: "pritvoriti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "pritęgati" => &[
         VerbDictionaryEntry { lemma: "pritęgati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -6718,8 +7609,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "priučati" => &[
         VerbDictionaryEntry { lemma: "priučati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "priučati sę" => &[
+        VerbDictionaryEntry { lemma: "priučati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "priučiti" => &[
         VerbDictionaryEntry { lemma: "priučiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "priučiti sę" => &[
+        VerbDictionaryEntry { lemma: "priučiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "privabiti" => &[
         VerbDictionaryEntry { lemma: "privabiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6760,14 +7657,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "privykati" => &[
         VerbDictionaryEntry { lemma: "privykati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "privykati sę" => &[
+        VerbDictionaryEntry { lemma: "privykati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "privyknųti" => &[
         VerbDictionaryEntry { lemma: "privyknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "privyknųti sę" => &[
+        VerbDictionaryEntry { lemma: "privyknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "privęzati" => &[
         VerbDictionaryEntry { lemma: "privęzati", addition: "(privęže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "privęzyvati" => &[
         VerbDictionaryEntry { lemma: "privęzyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prizemjati sę" => &[
+        VerbDictionaryEntry { lemma: "prizemjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "prizemjiti sę" => &[
+        VerbDictionaryEntry { lemma: "prizemjiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "priznati" => &[
         VerbDictionaryEntry { lemma: "priznati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6790,14 +7699,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prišiti" => &[
         VerbDictionaryEntry { lemma: "prišiti", addition: "(prišije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "probijati sę" => &[
+        VerbDictionaryEntry { lemma: "probijati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "probiti" => &[
         VerbDictionaryEntry { lemma: "probiti", addition: "(probije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "probiti sę" => &[
+        VerbDictionaryEntry { lemma: "probiti sę", addition: "(probije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "probivati" => &[
         VerbDictionaryEntry { lemma: "probivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "probovati" => &[
         VerbDictionaryEntry { lemma: "probovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "probuditi sę" => &[
+        VerbDictionaryEntry { lemma: "probuditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "procitovati" => &[
         VerbDictionaryEntry { lemma: "procitovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6811,17 +7729,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prodavati" => &[
         VerbDictionaryEntry { lemma: "prodavati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prodirati sę" => &[
+        VerbDictionaryEntry { lemma: "prodirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "prodiraviti" => &[
         VerbDictionaryEntry { lemma: "prodiraviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "prodiravjati" => &[
         VerbDictionaryEntry { lemma: "prodiravjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prodrěti sę" => &[
+        VerbDictionaryEntry { lemma: "prodrěti sę", addition: "(prodere)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "produkovati" => &[
         VerbDictionaryEntry { lemma: "produkovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "produmati" => &[
         VerbDictionaryEntry { lemma: "produmati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prodŕti sę" => &[
+        VerbDictionaryEntry { lemma: "prodŕti sę", addition: "(prodere)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "prodȯlžati" => &[
         VerbDictionaryEntry { lemma: "prodȯlžati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -6856,8 +7783,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prohlåditi" => &[
         VerbDictionaryEntry { lemma: "prohlåditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prohlåditi sę" => &[
+        VerbDictionaryEntry { lemma: "prohlåditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prohoditi" => &[
         VerbDictionaryEntry { lemma: "prohoditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prohoditi sę" => &[
+        VerbDictionaryEntry { lemma: "prohoditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "proigrati" => &[
         VerbDictionaryEntry { lemma: "proigrati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -6974,8 +7907,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "proslaviti" => &[
         VerbDictionaryEntry { lemma: "proslaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "proslaviti sę" => &[
+        VerbDictionaryEntry { lemma: "proslaviti sę", addition: "(+5)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: Some(5) },
+    ],
     "proslavjati" => &[
         VerbDictionaryEntry { lemma: "proslavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "proslavjati sę" => &[
+        VerbDictionaryEntry { lemma: "proslavjati sę", addition: "(+5)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(5) },
     ],
     "prospati" => &[
         VerbDictionaryEntry { lemma: "prospati", addition: "(prospi)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -6987,8 +7926,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prostiti" => &[
         VerbDictionaryEntry { lemma: "prostiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prostiti sę" => &[
+        VerbDictionaryEntry { lemma: "prostiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prostrěti" => &[
         VerbDictionaryEntry { lemma: "prostrěti", addition: "(prostre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prostuditi sę" => &[
+        VerbDictionaryEntry { lemma: "prostuditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "prostuđati sę" => &[
+        VerbDictionaryEntry { lemma: "prostuđati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "prostŕti" => &[
         VerbDictionaryEntry { lemma: "prostŕti", addition: "(prostre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7008,11 +7956,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "protivdějati" => &[
         VerbDictionaryEntry { lemma: "protivdějati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "protiviti sę" => &[
+        VerbDictionaryEntry { lemma: "protiviti sę", addition: "(+3)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(3) },
+    ],
     "protivrěčiti" => &[
         VerbDictionaryEntry { lemma: "protivrěčiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "protrěti" => &[
         VerbDictionaryEntry { lemma: "protrěti", addition: "(protre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "protęgati sę" => &[
+        VerbDictionaryEntry { lemma: "protęgati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "protęgnųti sę" => &[
+        VerbDictionaryEntry { lemma: "protęgnųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "protěkati" => &[
         VerbDictionaryEntry { lemma: "protěkati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -7068,6 +8025,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "prošćati" => &[
         VerbDictionaryEntry { lemma: "prošćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prošćati sę" => &[
+        VerbDictionaryEntry { lemma: "prošćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "proživati" => &[
         VerbDictionaryEntry { lemma: "proživati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -7211,6 +8171,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěględěti" => &[
         VerbDictionaryEntry { lemma: "prěględěti", addition: "(prěględi)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěhlađati sę" => &[
+        VerbDictionaryEntry { lemma: "prěhlađati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "prěhlåditi sę" => &[
+        VerbDictionaryEntry { lemma: "prěhlåditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěhoditi" => &[
         VerbDictionaryEntry { lemma: "prěhoditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -7250,6 +8216,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěključiti" => &[
         VerbDictionaryEntry { lemma: "prěključiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěkryvati sę" => &[
+        VerbDictionaryEntry { lemma: "prěkryvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěložiti" => &[
         VerbDictionaryEntry { lemma: "prěložiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -7277,14 +8246,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěměniti" => &[
         VerbDictionaryEntry { lemma: "prěměniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěměniti sę" => &[
+        VerbDictionaryEntry { lemma: "prěměniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěměnjati" => &[
         VerbDictionaryEntry { lemma: "prěměnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prěměnjati sę" => &[
+        VerbDictionaryEntry { lemma: "prěměnjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "prěměstiti" => &[
         VerbDictionaryEntry { lemma: "prěměstiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěměstiti sę" => &[
+        VerbDictionaryEntry { lemma: "prěměstiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěměšćati" => &[
         VerbDictionaryEntry { lemma: "prěměšćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prěměšćati sę" => &[
+        VerbDictionaryEntry { lemma: "prěměšćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "prěmȯlviti" => &[
         VerbDictionaryEntry { lemma: "prěmȯlviti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -7331,6 +8312,15 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěocěnjati" => &[
         VerbDictionaryEntry { lemma: "prěocěnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěoděti sę" => &[
+        VerbDictionaryEntry { lemma: "prěoděti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "prěoděvati sę" => &[
+        VerbDictionaryEntry { lemma: "prěoděvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "prěpirati sę" => &[
+        VerbDictionaryEntry { lemma: "prěpirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěpisati" => &[
         VerbDictionaryEntry { lemma: "prěpisati", addition: "(prěpiše)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -7364,6 +8354,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěrastati" => &[
         VerbDictionaryEntry { lemma: "prěrastati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěroditi sę" => &[
+        VerbDictionaryEntry { lemma: "prěroditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěrvati" => &[
         VerbDictionaryEntry { lemma: "prěrvati", addition: "(prěrve)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -7379,14 +8372,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěråzkazyvati" => &[
         VerbDictionaryEntry { lemma: "prěråzkazyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěrěkati sę" => &[
+        VerbDictionaryEntry { lemma: "prěrěkati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "prěrěkti sę" => &[
+        VerbDictionaryEntry { lemma: "prěrěkti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěrězati" => &[
         VerbDictionaryEntry { lemma: "prěrězati", addition: "(prěrěže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "prěseliti" => &[
         VerbDictionaryEntry { lemma: "prěseliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěseliti sę" => &[
+        VerbDictionaryEntry { lemma: "prěseliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěseljati" => &[
         VerbDictionaryEntry { lemma: "prěseljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prěseljati sę" => &[
+        VerbDictionaryEntry { lemma: "prěseljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "prěslušati" => &[
         VerbDictionaryEntry { lemma: "prěslušati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7409,6 +8414,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěspati" => &[
         VerbDictionaryEntry { lemma: "prěspati", addition: "(prěspi)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "prěstarati sę" => &[
+        VerbDictionaryEntry { lemma: "prěstarati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěstati" => &[
         VerbDictionaryEntry { lemma: "prěstati", addition: "(prěstane)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
@@ -7418,8 +8426,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "prěstaviti" => &[
         VerbDictionaryEntry { lemma: "prěstaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "prěstaviti sę" => &[
+        VerbDictionaryEntry { lemma: "prěstaviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "prěstavjati" => &[
         VerbDictionaryEntry { lemma: "prěstavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "prěstavjati sę" => &[
+        VerbDictionaryEntry { lemma: "prěstavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "prěstigati" => &[
         VerbDictionaryEntry { lemma: "prěstigati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -7634,6 +8648,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "radovati" => &[
         VerbDictionaryEntry { lemma: "radovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "radovati sę" => &[
+        VerbDictionaryEntry { lemma: "radovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "raniti" => &[
         VerbDictionaryEntry { lemma: "raniti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -7715,6 +8732,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "roditi" => &[
         VerbDictionaryEntry { lemma: "roditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "roditi sę" => &[
+        VerbDictionaryEntry { lemma: "roditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "rojiti sę" => &[
+        VerbDictionaryEntry { lemma: "rojiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "rokirovati" => &[
         VerbDictionaryEntry { lemma: "rokirovati", addition: "", transitive: false, imperfective: true, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
@@ -7736,6 +8759,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "rvati" => &[
         VerbDictionaryEntry { lemma: "rvati", addition: "(rve)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "rvati sę" => &[
+        VerbDictionaryEntry { lemma: "rvati sę", addition: "(rve)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "rydati" => &[
         VerbDictionaryEntry { lemma: "rydati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -7747,6 +8773,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "rymovati" => &[
         VerbDictionaryEntry { lemma: "rymovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "rymovati sę" => &[
+        VerbDictionaryEntry { lemma: "rymovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "rysovati" => &[
         VerbDictionaryEntry { lemma: "rysovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -7766,6 +8795,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råvniti" => &[
         VerbDictionaryEntry { lemma: "råvniti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råvniti sę" => &[
+        VerbDictionaryEntry { lemma: "råvniti sę", addition: "(+3)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(3) },
+    ],
     "råzbirati" => &[
         VerbDictionaryEntry { lemma: "råzbirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -7775,11 +8807,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzbivati" => &[
         VerbDictionaryEntry { lemma: "råzbivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzbolěti sę" => &[
+        VerbDictionaryEntry { lemma: "råzbolěti sę", addition: "(råzbolěje)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzbolěvati sę" => &[
+        VerbDictionaryEntry { lemma: "råzbolěvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzbrati" => &[
         VerbDictionaryEntry { lemma: "råzbrati", addition: "(råzbere)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "råzbuditi" => &[
         VerbDictionaryEntry { lemma: "råzbuditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzběgati sę" => &[
+        VerbDictionaryEntry { lemma: "råzběgati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzběgti sę" => &[
+        VerbDictionaryEntry { lemma: "råzběgti sę", addition: "(råzběži)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzběsniti" => &[
         VerbDictionaryEntry { lemma: "råzběsniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7801,6 +8845,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "råzdirati" => &[
         VerbDictionaryEntry { lemma: "råzdirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzdniti sę" => &[
+        VerbDictionaryEntry { lemma: "råzdniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzdražniti" => &[
         VerbDictionaryEntry { lemma: "råzdražniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7832,8 +8879,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzděti" => &[
         VerbDictionaryEntry { lemma: "råzděti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzděti sę" => &[
+        VerbDictionaryEntry { lemma: "råzděti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzděvati" => &[
         VerbDictionaryEntry { lemma: "råzděvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzděvati sę" => &[
+        VerbDictionaryEntry { lemma: "råzděvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzdŕti" => &[
         VerbDictionaryEntry { lemma: "råzdŕti", addition: "(råzdere)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7859,6 +8912,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzganjati" => &[
         VerbDictionaryEntry { lemma: "råzganjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzgarjati sę" => &[
+        VerbDictionaryEntry { lemma: "råzgarjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzgladiti" => &[
         VerbDictionaryEntry { lemma: "råzgladiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -7874,8 +8930,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzględati" => &[
         VerbDictionaryEntry { lemma: "råzględati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzględati sę" => &[
+        VerbDictionaryEntry { lemma: "råzględati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzględěti" => &[
         VerbDictionaryEntry { lemma: "råzględěti", addition: "(råzględi)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzględěti sę" => &[
+        VerbDictionaryEntry { lemma: "råzględěti sę", addition: "(råzględi)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzgnati" => &[
         VerbDictionaryEntry { lemma: "råzgnati", addition: "(råzgone)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7883,8 +8945,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzgněvati" => &[
         VerbDictionaryEntry { lemma: "råzgněvati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzgorěti sę" => &[
+        VerbDictionaryEntry { lemma: "råzgorěti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzgovarjati" => &[
         VerbDictionaryEntry { lemma: "råzgovarjati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "råzgovoriti sę" => &[
+        VerbDictionaryEntry { lemma: "råzgovoriti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzgrabiti" => &[
         VerbDictionaryEntry { lemma: "råzgrabiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7919,11 +8987,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzgrěvati" => &[
         VerbDictionaryEntry { lemma: "råzgrěvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzhoditi sę" => &[
+        VerbDictionaryEntry { lemma: "råzhoditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzigrati" => &[
         VerbDictionaryEntry { lemma: "råzigrati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzigrati sę" => &[
+        VerbDictionaryEntry { lemma: "råzigrati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzigryvati" => &[
         VerbDictionaryEntry { lemma: "råzigryvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzigryvati sę" => &[
+        VerbDictionaryEntry { lemma: "råzigryvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råziskati" => &[
         VerbDictionaryEntry { lemma: "råziskati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -7958,8 +9035,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzjedinjati" => &[
         VerbDictionaryEntry { lemma: "råzjedinjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzjehati sę" => &[
+        VerbDictionaryEntry { lemma: "råzjehati sę", addition: "(råzjede)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzjesti" => &[
         VerbDictionaryEntry { lemma: "råzjesti", addition: "(råzje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzježđati sę" => &[
+        VerbDictionaryEntry { lemma: "råzježđati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzkajati sę" => &[
+        VerbDictionaryEntry { lemma: "råzkajati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzkalati" => &[
         VerbDictionaryEntry { lemma: "råzkalati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8000,6 +9086,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzkrajati" => &[
         VerbDictionaryEntry { lemma: "råzkrajati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzkričati sę" => &[
+        VerbDictionaryEntry { lemma: "råzkričati sę", addition: "(råzkriči)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzkrojiti" => &[
         VerbDictionaryEntry { lemma: "råzkrojiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8012,8 +9101,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzkrųtiti" => &[
         VerbDictionaryEntry { lemma: "råzkrųtiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzkrųtiti sę" => &[
+        VerbDictionaryEntry { lemma: "råzkrųtiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzkrųćati" => &[
         VerbDictionaryEntry { lemma: "råzkrųćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzkrųćati sę" => &[
+        VerbDictionaryEntry { lemma: "råzkrųćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzkrȯšiti" => &[
         VerbDictionaryEntry { lemma: "råzkrȯšiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8036,11 +9131,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzlagati" => &[
         VerbDictionaryEntry { lemma: "råzlagati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzlajati sę" => &[
+        VerbDictionaryEntry { lemma: "råzlajati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzlamyvati" => &[
         VerbDictionaryEntry { lemma: "råzlamyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "råzlađati" => &[
         VerbDictionaryEntry { lemma: "råzlađati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzlegati sę" => &[
+        VerbDictionaryEntry { lemma: "råzlegati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzlegti sę" => &[
+        VerbDictionaryEntry { lemma: "råzlegti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzletěti sę" => &[
+        VerbDictionaryEntry { lemma: "råzletěti sę", addition: "(råzleti)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzlikovati sę" => &[
+        VerbDictionaryEntry { lemma: "råzlikovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzliti" => &[
         VerbDictionaryEntry { lemma: "råzliti", addition: "(råzlije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8051,6 +9161,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzličati" => &[
         VerbDictionaryEntry { lemma: "råzličati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzličati sę" => &[
+        VerbDictionaryEntry { lemma: "råzličati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzličiti" => &[
         VerbDictionaryEntry { lemma: "råzličiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8059,6 +9172,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "råzložiti" => &[
         VerbDictionaryEntry { lemma: "råzložiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzlěniti sę" => &[
+        VerbDictionaryEntry { lemma: "råzlěniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzlětati sę" => &[
+        VerbDictionaryEntry { lemma: "råzlětati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzlųčati" => &[
         VerbDictionaryEntry { lemma: "råzlųčati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8081,6 +9200,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzmetyvati" => &[
         VerbDictionaryEntry { lemma: "råzmetyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzminovati sę" => &[
+        VerbDictionaryEntry { lemma: "råzminovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzminųti sę" => &[
+        VerbDictionaryEntry { lemma: "råzminųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzmlåtiti" => &[
         VerbDictionaryEntry { lemma: "råzmlåtiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8090,8 +9215,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzmnažati" => &[
         VerbDictionaryEntry { lemma: "råzmnažati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzmnažati sę" => &[
+        VerbDictionaryEntry { lemma: "råzmnažati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzmnožiti" => &[
         VerbDictionaryEntry { lemma: "råzmnožiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzmnožiti sę" => &[
+        VerbDictionaryEntry { lemma: "råzmnožiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzmokati" => &[
         VerbDictionaryEntry { lemma: "råzmokati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -8162,8 +9293,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råznesti" => &[
         VerbDictionaryEntry { lemma: "råznesti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råznesti sę" => &[
+        VerbDictionaryEntry { lemma: "råznesti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzniti sę" => &[
+        VerbDictionaryEntry { lemma: "råzniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råznositi" => &[
         VerbDictionaryEntry { lemma: "råznositi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råznositi sę" => &[
+        VerbDictionaryEntry { lemma: "råznositi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzorati" => &[
         VerbDictionaryEntry { lemma: "råzorati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8186,6 +9326,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzočarovyvati" => &[
         VerbDictionaryEntry { lemma: "råzočarovyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzpadati sę" => &[
+        VerbDictionaryEntry { lemma: "råzpadati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzpakovati" => &[
         VerbDictionaryEntry { lemma: "råzpakovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8195,11 +9338,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzpaliti" => &[
         VerbDictionaryEntry { lemma: "råzpaliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzpaliti sę" => &[
+        VerbDictionaryEntry { lemma: "råzpaliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzpaljati" => &[
         VerbDictionaryEntry { lemma: "råzpaljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzpaljati sę" => &[
+        VerbDictionaryEntry { lemma: "råzpaljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzparjati" => &[
         VerbDictionaryEntry { lemma: "råzparjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzpasti sę" => &[
+        VerbDictionaryEntry { lemma: "råzpasti sę", addition: "(råzpade)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzpečatati" => &[
         VerbDictionaryEntry { lemma: "råzpečatati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8215,6 +9367,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "råzpletati" => &[
         VerbDictionaryEntry { lemma: "råzpletati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzplyvati sę" => &[
+        VerbDictionaryEntry { lemma: "råzplyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzplyvti sę" => &[
+        VerbDictionaryEntry { lemma: "råzplyvti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzporęditi" => &[
         VerbDictionaryEntry { lemma: "råzporęditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8240,11 +9398,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzprostirati" => &[
         VerbDictionaryEntry { lemma: "råzprostirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzprostirati sę" => &[
+        VerbDictionaryEntry { lemma: "råzprostirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzprostranjati" => &[
         VerbDictionaryEntry { lemma: "råzprostranjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzprostranjati sę" => &[
+        VerbDictionaryEntry { lemma: "råzprostranjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzprostråniti" => &[
         VerbDictionaryEntry { lemma: "råzprostråniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzprostråniti sę" => &[
+        VerbDictionaryEntry { lemma: "råzprostråniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzprostrěti" => &[
         VerbDictionaryEntry { lemma: "råzprostrěti", addition: "(råzprostre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8279,8 +9446,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzradovati" => &[
         VerbDictionaryEntry { lemma: "råzradovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzrastati sę" => &[
+        VerbDictionaryEntry { lemma: "råzrastati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzraznjati" => &[
         VerbDictionaryEntry { lemma: "råzraznjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzruměniti sę" => &[
+        VerbDictionaryEntry { lemma: "råzruměniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzrušati" => &[
         VerbDictionaryEntry { lemma: "råzrušati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8302,6 +9475,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "råzråbotyvati" => &[
         VerbDictionaryEntry { lemma: "råzråbotyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzråsti sę" => &[
+        VerbDictionaryEntry { lemma: "råzråsti sę", addition: "(råzråste)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råzråzniti" => &[
         VerbDictionaryEntry { lemma: "råzråzniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8348,11 +9524,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzsmotriti" => &[
         VerbDictionaryEntry { lemma: "råzsmotriti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzsmějati sę" => &[
+        VerbDictionaryEntry { lemma: "råzsmějati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzsměšati" => &[
         VerbDictionaryEntry { lemma: "råzsměšati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "råzsměšiti" => &[
         VerbDictionaryEntry { lemma: "råzsměšiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzstati sę" => &[
+        VerbDictionaryEntry { lemma: "råzstati sę", addition: "(råzstane)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzstavati sę" => &[
+        VerbDictionaryEntry { lemma: "råzstavati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzstaviti" => &[
         VerbDictionaryEntry { lemma: "råzstaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8377,6 +9562,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "råzsvirěpěti" => &[
         VerbDictionaryEntry { lemma: "råzsvirěpěti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
+    ],
+    "råzsvětliti sę" => &[
+        VerbDictionaryEntry { lemma: "råzsvětliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzsvětljati sę" => &[
+        VerbDictionaryEntry { lemma: "råzsvětljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzsylati" => &[
         VerbDictionaryEntry { lemma: "råzsylati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8413,6 +9604,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "råztapjati" => &[
         VerbDictionaryEntry { lemma: "råztapjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råztekti sę" => &[
+        VerbDictionaryEntry { lemma: "råztekti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "råztirati" => &[
         VerbDictionaryEntry { lemma: "råztirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8456,8 +9650,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råztęgati" => &[
         VerbDictionaryEntry { lemma: "råztęgati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råztęgati sę" => &[
+        VerbDictionaryEntry { lemma: "råztęgati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råztęgnųti" => &[
         VerbDictionaryEntry { lemma: "råztęgnųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råztęgnųti sę" => &[
+        VerbDictionaryEntry { lemma: "råztęgnųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råztěkati sę" => &[
+        VerbDictionaryEntry { lemma: "råztěkati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råztŕti" => &[
         VerbDictionaryEntry { lemma: "råztŕti", addition: "(råztre)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8483,11 +9686,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzuměti" => &[
         VerbDictionaryEntry { lemma: "råzuměti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzuti sę" => &[
+        VerbDictionaryEntry { lemma: "råzuti sę", addition: "(råzuje)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "råzuvati sę" => &[
+        VerbDictionaryEntry { lemma: "råzuvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzvaliti" => &[
         VerbDictionaryEntry { lemma: "råzvaliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzvaliti sę" => &[
+        VerbDictionaryEntry { lemma: "råzvaliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzvaljati" => &[
         VerbDictionaryEntry { lemma: "råzvaljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzvaljati sę" => &[
+        VerbDictionaryEntry { lemma: "råzvaljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzvažati" => &[
         VerbDictionaryEntry { lemma: "råzvažati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8505,17 +9720,29 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
         VerbDictionaryEntry { lemma: "råzvesti", addition: "(råzvede)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
         VerbDictionaryEntry { lemma: "råzvesti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzvesti sę" => &[
+        VerbDictionaryEntry { lemma: "råzvesti sę", addition: "(råzvede)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzvezti" => &[
         VerbDictionaryEntry { lemma: "råzvezti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "råzviti" => &[
         VerbDictionaryEntry { lemma: "råzviti", addition: "(råzvije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzviti sę" => &[
+        VerbDictionaryEntry { lemma: "råzviti sę", addition: "(råzvije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzvivati" => &[
         VerbDictionaryEntry { lemma: "råzvivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzvivati sę" => &[
+        VerbDictionaryEntry { lemma: "råzvivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzvoditi" => &[
         VerbDictionaryEntry { lemma: "råzvoditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzvoditi sę" => &[
+        VerbDictionaryEntry { lemma: "råzvoditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzvoziti" => &[
         VerbDictionaryEntry { lemma: "råzvoziti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8553,8 +9780,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzširiti" => &[
         VerbDictionaryEntry { lemma: "råzširiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzširiti sę" => &[
+        VerbDictionaryEntry { lemma: "råzširiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "råzširjati" => &[
         VerbDictionaryEntry { lemma: "råzširjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "råzširjati sę" => &[
+        VerbDictionaryEntry { lemma: "råzširjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "råzšnurovati" => &[
         VerbDictionaryEntry { lemma: "råzšnurovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8583,6 +9816,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "råzžuvati" => &[
         VerbDictionaryEntry { lemma: "råzžuvati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "råzȯjdti sę" => &[
+        VerbDictionaryEntry { lemma: "råzȯjdti sę", addition: "(råzȯjde; råzšėl)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "rěkti" => &[
         VerbDictionaryEntry { lemma: "rěkti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8610,6 +9846,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "rųkovoditi" => &[
         VerbDictionaryEntry { lemma: "rųkovoditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "rųčiti sę" => &[
+        VerbDictionaryEntry { lemma: "rųčiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "sabotovati" => &[
         VerbDictionaryEntry { lemma: "sabotovati", addition: "", transitive: true, imperfective: true, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8622,11 +9861,29 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sbirati" => &[
         VerbDictionaryEntry { lemma: "sbirati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "sbirati sę" => &[
+        VerbDictionaryEntry { lemma: "sbirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "sbližati sę" => &[
+        VerbDictionaryEntry { lemma: "sbližati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "sbližiti sę" => &[
+        VerbDictionaryEntry { lemma: "sbližiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "sbudovati" => &[
         VerbDictionaryEntry { lemma: "sbudovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "sběgati sę" => &[
+        VerbDictionaryEntry { lemma: "sběgati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "sběgti sę" => &[
+        VerbDictionaryEntry { lemma: "sběgti sę", addition: "(sběži)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "scati" => &[
         VerbDictionaryEntry { lemma: "scati", addition: "(sci)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "sdavati sę" => &[
+        VerbDictionaryEntry { lemma: "sdavati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "sdeformovati" => &[
         VerbDictionaryEntry { lemma: "sdeformovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8658,6 +9915,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sedlati" => &[
         VerbDictionaryEntry { lemma: "sedlati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "seliti sę" => &[
+        VerbDictionaryEntry { lemma: "seliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "sgnesti" => &[
         VerbDictionaryEntry { lemma: "sgnesti", addition: "(sgnete)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8673,6 +9933,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "shoditi" => &[
         VerbDictionaryEntry { lemma: "shoditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "shoditi sę" => &[
+        VerbDictionaryEntry { lemma: "shoditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "shovati" => &[
         VerbDictionaryEntry { lemma: "shovati", addition: "(shovaje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8681,6 +9944,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "shråniti" => &[
         VerbDictionaryEntry { lemma: "shråniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "shråniti sę" => &[
+        VerbDictionaryEntry { lemma: "shråniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "shudnųti" => &[
         VerbDictionaryEntry { lemma: "shudnųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -8693,6 +9959,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "sikati" => &[
         VerbDictionaryEntry { lemma: "sikati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "siliti sę" => &[
+        VerbDictionaryEntry { lemma: "siliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "simbolizovati" => &[
         VerbDictionaryEntry { lemma: "simbolizovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8718,8 +9987,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sjediniti" => &[
         VerbDictionaryEntry { lemma: "sjediniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "sjediniti sę" => &[
+        VerbDictionaryEntry { lemma: "sjediniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "sjedinjati" => &[
         VerbDictionaryEntry { lemma: "sjedinjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "sjedinjati sę" => &[
+        VerbDictionaryEntry { lemma: "sjedinjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "sjesti" => &[
         VerbDictionaryEntry { lemma: "sjesti", addition: "(sje)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8733,11 +10008,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "skanovati" => &[
         VerbDictionaryEntry { lemma: "skanovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "skaržiti sę" => &[
+        VerbDictionaryEntry { lemma: "skaržiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "skazati" => &[
         VerbDictionaryEntry { lemma: "skazati", addition: "(skaže)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "skladati" => &[
         VerbDictionaryEntry { lemma: "skladati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "skladati sę" => &[
+        VerbDictionaryEntry { lemma: "skladati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "skladovati" => &[
         VerbDictionaryEntry { lemma: "skladovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8766,6 +10047,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "skončiti" => &[
         VerbDictionaryEntry { lemma: "skončiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "skončiti sę" => &[
+        VerbDictionaryEntry { lemma: "skončiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "skopiti" => &[
         VerbDictionaryEntry { lemma: "skopiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -8790,8 +10074,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "skryti" => &[
         VerbDictionaryEntry { lemma: "skryti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "skryti sę" => &[
+        VerbDictionaryEntry { lemma: "skryti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "skryvati" => &[
         VerbDictionaryEntry { lemma: "skryvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "skryvati sę" => &[
+        VerbDictionaryEntry { lemma: "skryvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "skråtiti" => &[
         VerbDictionaryEntry { lemma: "skråtiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -8808,6 +10098,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "skvrčati" => &[
         VerbDictionaryEntry { lemma: "skvrčati", addition: "(skvrči)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "skųpiti sę" => &[
+        VerbDictionaryEntry { lemma: "skųpiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "slaběti" => &[
         VerbDictionaryEntry { lemma: "slaběti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -8817,14 +10110,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "slaviti" => &[
         VerbDictionaryEntry { lemma: "slaviti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "slaviti sę" => &[
+        VerbDictionaryEntry { lemma: "slaviti sę", addition: "(+5)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: Some(5) },
+    ],
     "slgati" => &[
         VerbDictionaryEntry { lemma: "slgati", addition: "(slže)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
     "sliti" => &[
         VerbDictionaryEntry { lemma: "sliti", addition: "(slije)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "sliti sę" => &[
+        VerbDictionaryEntry { lemma: "sliti sę", addition: "(slije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "slivati" => &[
         VerbDictionaryEntry { lemma: "slivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "slivati sę" => &[
+        VerbDictionaryEntry { lemma: "slivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "slizgati" => &[
         VerbDictionaryEntry { lemma: "slizgati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -8840,6 +10142,15 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "složiti" => &[
         VerbDictionaryEntry { lemma: "složiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "složiti sę" => &[
+        VerbDictionaryEntry { lemma: "složiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "slučati sę" => &[
+        VerbDictionaryEntry { lemma: "slučati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "slučiti sę" => &[
+        VerbDictionaryEntry { lemma: "slučiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "slušati" => &[
         VerbDictionaryEntry { lemma: "slušati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8892,8 +10203,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "smrkati" => &[
         VerbDictionaryEntry { lemma: "smrkati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "smrkati sę" => &[
+        VerbDictionaryEntry { lemma: "smrkati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "smrščiti" => &[
         VerbDictionaryEntry { lemma: "smrščiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "smrščiti sę" => &[
+        VerbDictionaryEntry { lemma: "smrščiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "smućati" => &[
         VerbDictionaryEntry { lemma: "smućati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8915,6 +10232,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "smęčkati" => &[
         VerbDictionaryEntry { lemma: "smęčkati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "smějati sę" => &[
+        VerbDictionaryEntry { lemma: "smějati sę", addition: "(směje)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "směti" => &[
         VerbDictionaryEntry { lemma: "směti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -8989,6 +10309,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "spakovati" => &[
         VerbDictionaryEntry { lemma: "spakovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "spakovati sę" => &[
+        VerbDictionaryEntry { lemma: "spakovati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "spaliti" => &[
         VerbDictionaryEntry { lemma: "spaliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -9005,6 +10328,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "spekulovati" => &[
         VerbDictionaryEntry { lemma: "spekulovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "spirati sę" => &[
+        VerbDictionaryEntry { lemma: "spirati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "spisyvati" => &[
         VerbDictionaryEntry { lemma: "spisyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -9013,6 +10339,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "sploditi" => &[
         VerbDictionaryEntry { lemma: "sploditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "spodobati sę" => &[
+        VerbDictionaryEntry { lemma: "spodobati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "spolupracovati" => &[
         VerbDictionaryEntry { lemma: "spolupracovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -9035,14 +10364,29 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sporiti" => &[
         VerbDictionaryEntry { lemma: "sporiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "spotiti sę" => &[
+        VerbDictionaryEntry { lemma: "spotiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "spotknųti sę" => &[
+        VerbDictionaryEntry { lemma: "spotknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "spotrěbiti" => &[
         VerbDictionaryEntry { lemma: "spotrěbiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "spotrěbovati" => &[
         VerbDictionaryEntry { lemma: "spotrěbovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "spotykati sę" => &[
+        VerbDictionaryEntry { lemma: "spotykati sę", addition: "(spotyče)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "spotěti" => &[
         VerbDictionaryEntry { lemma: "spotěti", addition: "(spoti)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
+    ],
+    "spozdniti sę" => &[
+        VerbDictionaryEntry { lemma: "spozdniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "spozdnjati sę" => &[
+        VerbDictionaryEntry { lemma: "spozdnjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "spoznati" => &[
         VerbDictionaryEntry { lemma: "spoznati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9053,8 +10397,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sprašati" => &[
         VerbDictionaryEntry { lemma: "sprašati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "sprijateliti sę" => &[
+        VerbDictionaryEntry { lemma: "sprijateliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "sprositi" => &[
         VerbDictionaryEntry { lemma: "sprositi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "sprotiviti sę" => &[
+        VerbDictionaryEntry { lemma: "sprotiviti sę", addition: "(+3)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: Some(3) },
     ],
     "spręgati" => &[
         VerbDictionaryEntry { lemma: "spręgati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -9062,14 +10412,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "spręsti" => &[
         VerbDictionaryEntry { lemma: "spręsti", addition: "(spręde)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "sprěti sę" => &[
+        VerbDictionaryEntry { lemma: "sprěti sę", addition: "(spre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "spuhnųti" => &[
         VerbDictionaryEntry { lemma: "spuhnųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
     "spustiti" => &[
         VerbDictionaryEntry { lemma: "spustiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "spustiti sę" => &[
+        VerbDictionaryEntry { lemma: "spustiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "spušćati" => &[
         VerbDictionaryEntry { lemma: "spušćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "spušćati sę" => &[
+        VerbDictionaryEntry { lemma: "spušćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "spytati" => &[
         VerbDictionaryEntry { lemma: "spytati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9080,6 +10439,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "spěšiti" => &[
         VerbDictionaryEntry { lemma: "spěšiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "spŕti sę" => &[
+        VerbDictionaryEntry { lemma: "spŕti sę", addition: "(spre)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "srastati sę" => &[
+        VerbDictionaryEntry { lemma: "srastati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "srati" => &[
         VerbDictionaryEntry { lemma: "srati", addition: "(sere)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -9088,6 +10453,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "sråmiti" => &[
         VerbDictionaryEntry { lemma: "sråmiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "sråsti sę" => &[
+        VerbDictionaryEntry { lemma: "sråsti sę", addition: "(sråste)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "sråvniti" => &[
         VerbDictionaryEntry { lemma: "sråvniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9104,6 +10472,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "srųbyvati" => &[
         VerbDictionaryEntry { lemma: "srųbyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "ssědati sę" => &[
+        VerbDictionaryEntry { lemma: "ssědati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "ssěsti sę" => &[
+        VerbDictionaryEntry { lemma: "ssěsti sę", addition: "(ssěde)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "stabilizovati" => &[
         VerbDictionaryEntry { lemma: "stabilizovati", addition: "", transitive: true, imperfective: true, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -9119,6 +10493,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "stapjati" => &[
         VerbDictionaryEntry { lemma: "stapjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "starati sę" => &[
+        VerbDictionaryEntry { lemma: "starati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "startovati" => &[
         VerbDictionaryEntry { lemma: "startovati", addition: "", transitive: true, imperfective: true, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -9127,6 +10504,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "stati" => &[
         VerbDictionaryEntry { lemma: "stati", addition: "(stane)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "stati sę" => &[
+        VerbDictionaryEntry { lemma: "stati sę", addition: "(stane)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "stavati" => &[
         VerbDictionaryEntry { lemma: "stavati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -9210,6 +10590,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "strěgti" => &[
         VerbDictionaryEntry { lemma: "strěgti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "strěgti sę" => &[
+        VerbDictionaryEntry { lemma: "strěgti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "strěliti" => &[
         VerbDictionaryEntry { lemma: "strěliti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -9219,8 +10602,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "strěsti" => &[
         VerbDictionaryEntry { lemma: "strěsti", addition: "(strěte)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "strěsti sę" => &[
+        VerbDictionaryEntry { lemma: "strěsti sę", addition: "(strěte)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "strěćati" => &[
         VerbDictionaryEntry { lemma: "strěćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "strěćati sę" => &[
+        VerbDictionaryEntry { lemma: "strěćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "studiovati" => &[
         VerbDictionaryEntry { lemma: "studiovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -9267,6 +10656,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "svarjati" => &[
         VerbDictionaryEntry { lemma: "svarjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "svatiti sę" => &[
+        VerbDictionaryEntry { lemma: "svatiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "svistati" => &[
         VerbDictionaryEntry { lemma: "svistati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -9287,6 +10679,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "svědčiti" => &[
         VerbDictionaryEntry { lemma: "svědčiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "svěriti sę" => &[
+        VerbDictionaryEntry { lemma: "svěriti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "svěrjati sę" => &[
+        VerbDictionaryEntry { lemma: "svěrjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "světiti" => &[
         VerbDictionaryEntry { lemma: "světiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -9345,8 +10743,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sųditi" => &[
         VerbDictionaryEntry { lemma: "sųditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "sųglašati sę" => &[
+        VerbDictionaryEntry { lemma: "sųglašati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "sųglåsiti sę" => &[
+        VerbDictionaryEntry { lemma: "sųglåsiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "sųharmonizovati" => &[
         VerbDictionaryEntry { lemma: "sųharmonizovati", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
+    ],
+    "sųmněvati sę" => &[
+        VerbDictionaryEntry { lemma: "sųmněvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "sųmŕkati sę" => &[
+        VerbDictionaryEntry { lemma: "sųmŕkati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "sųmŕknųti sę" => &[
+        VerbDictionaryEntry { lemma: "sųmŕknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "sųpostaviti" => &[
         VerbDictionaryEntry { lemma: "sųpostaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9366,8 +10779,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sųsrědotočati" => &[
         VerbDictionaryEntry { lemma: "sųsrědotočati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "sųsrědotočati sę" => &[
+        VerbDictionaryEntry { lemma: "sųsrědotočati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "sųsrědotočiti" => &[
         VerbDictionaryEntry { lemma: "sųsrědotočiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "sųsrědotočiti sę" => &[
+        VerbDictionaryEntry { lemma: "sųsrědotočiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "sųstrěsti" => &[
         VerbDictionaryEntry { lemma: "sųstrěsti", addition: "(sųstrěte)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9387,11 +10806,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sȯbrati" => &[
         VerbDictionaryEntry { lemma: "sȯbrati", addition: "(sbere)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "sȯbrati sę" => &[
+        VerbDictionaryEntry { lemma: "sȯbrati sę", addition: "(sbere)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "sȯdŕžati" => &[
         VerbDictionaryEntry { lemma: "sȯdŕžati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "sȯdŕživati" => &[
         VerbDictionaryEntry { lemma: "sȯdŕživati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "sȯglašati sę" => &[
+        VerbDictionaryEntry { lemma: "sȯglašati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "sȯglåsiti sę" => &[
+        VerbDictionaryEntry { lemma: "sȯglåsiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "sȯhnųti" => &[
         VerbDictionaryEntry { lemma: "sȯhnųti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -9399,11 +10827,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "sȯjdti" => &[
         VerbDictionaryEntry { lemma: "sȯjdti", addition: "(sȯjde; sȯšėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "sȯjdti sę" => &[
+        VerbDictionaryEntry { lemma: "sȯjdti sę", addition: "(sȯjde; sȯšėl)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "sȯmknųti" => &[
         VerbDictionaryEntry { lemma: "sȯmknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
     "sȯobćati" => &[
         VerbDictionaryEntry { lemma: "sȯobćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "sȯobćati sę" => &[
+        VerbDictionaryEntry { lemma: "sȯobćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "sȯobćiti" => &[
         VerbDictionaryEntry { lemma: "sȯobćiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9479,6 +10913,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "telefonovati" => &[
         VerbDictionaryEntry { lemma: "telefonovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "teliti sę" => &[
+        VerbDictionaryEntry { lemma: "teliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "tesati" => &[
         VerbDictionaryEntry { lemma: "tesati", addition: "(teše)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -9500,6 +10937,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "tknųti" => &[
         VerbDictionaryEntry { lemma: "tknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "tknųti sę" => &[
+        VerbDictionaryEntry { lemma: "tknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "tlěti" => &[
         VerbDictionaryEntry { lemma: "tlěti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -9511,6 +10951,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "točiti" => &[
         VerbDictionaryEntry { lemma: "točiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "točiti sę" => &[
+        VerbDictionaryEntry { lemma: "točiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "trajati" => &[
         VerbDictionaryEntry { lemma: "trajati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -9548,14 +10991,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "trimati" => &[
         VerbDictionaryEntry { lemma: "trimati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "truditi sę" => &[
+        VerbDictionaryEntry { lemma: "truditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "trvati" => &[
         VerbDictionaryEntry { lemma: "trvati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
     "trėvožiti" => &[
         VerbDictionaryEntry { lemma: "trėvožiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "trėvožiti sę" => &[
+        VerbDictionaryEntry { lemma: "trėvožiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "tręsti" => &[
         VerbDictionaryEntry { lemma: "tręsti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "tręsti sę" => &[
+        VerbDictionaryEntry { lemma: "tręsti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "trěbovati" => &[
         VerbDictionaryEntry { lemma: "trěbovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -9585,6 +11037,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
         VerbDictionaryEntry { lemma: "tykati", addition: "(tyče)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
         VerbDictionaryEntry { lemma: "tykati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "tykati sę" => &[
+        VerbDictionaryEntry { lemma: "tykati sę", addition: "(tyče)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "tėmněti" => &[
         VerbDictionaryEntry { lemma: "tėmněti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -9607,6 +11062,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "tųžiti" => &[
         VerbDictionaryEntry { lemma: "tųžiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
+    "tųžiti sę" => &[
+        VerbDictionaryEntry { lemma: "tųžiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "tȯlkti" => &[
         VerbDictionaryEntry { lemma: "tȯlkti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -9622,6 +11080,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "uběditi" => &[
         VerbDictionaryEntry { lemma: "uběditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "uběditi sę" => &[
+        VerbDictionaryEntry { lemma: "uběditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "uběgati" => &[
         VerbDictionaryEntry { lemma: "uběgati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -9630,6 +11091,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "uběđati" => &[
         VerbDictionaryEntry { lemma: "uběđati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "uběđati sę" => &[
+        VerbDictionaryEntry { lemma: "uběđati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "udaliti" => &[
         VerbDictionaryEntry { lemma: "udaliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9642,6 +11106,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "udarjati" => &[
         VerbDictionaryEntry { lemma: "udarjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "udati sę" => &[
+        VerbDictionaryEntry { lemma: "udati sę", addition: "(uda)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "udavati sę" => &[
+        VerbDictionaryEntry { lemma: "udavati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "udaviti" => &[
         VerbDictionaryEntry { lemma: "udaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9805,6 +11275,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "umoriti" => &[
         VerbDictionaryEntry { lemma: "umoriti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "umoriti sę" => &[
+        VerbDictionaryEntry { lemma: "umoriti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "umožniti" => &[
         VerbDictionaryEntry { lemma: "umožniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -9892,11 +11365,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "uperiti" => &[
         VerbDictionaryEntry { lemma: "uperiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "upiti sę" => &[
+        VerbDictionaryEntry { lemma: "upiti sę", addition: "(upije)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "upivati sę" => &[
+        VerbDictionaryEntry { lemma: "upivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "upodabnjati" => &[
         VerbDictionaryEntry { lemma: "upodabnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "upodabnjati sę" => &[
+        VerbDictionaryEntry { lemma: "upodabnjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "upodobniti" => &[
         VerbDictionaryEntry { lemma: "upodobniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "upodobniti sę" => &[
+        VerbDictionaryEntry { lemma: "upodobniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "upokarnjati" => &[
         VerbDictionaryEntry { lemma: "upokarnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -9936,6 +11421,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "uroditi" => &[
         VerbDictionaryEntry { lemma: "uroditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "uroditi sę" => &[
+        VerbDictionaryEntry { lemma: "uroditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "urvati" => &[
         VerbDictionaryEntry { lemma: "urvati", addition: "(urve)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -9987,6 +11475,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "uslyšati" => &[
         VerbDictionaryEntry { lemma: "uslyšati", addition: "(uslyši)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "usměhati sę" => &[
+        VerbDictionaryEntry { lemma: "usměhati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "usměhnųti sę" => &[
+        VerbDictionaryEntry { lemma: "usměhnųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "usmŕtiti" => &[
         VerbDictionaryEntry { lemma: "usmŕtiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -10092,11 +11586,20 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "utopiti" => &[
         VerbDictionaryEntry { lemma: "utopiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "utopiti sę" => &[
+        VerbDictionaryEntry { lemma: "utopiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "utratiti" => &[
         VerbDictionaryEntry { lemma: "utratiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "utratiti sę" => &[
+        VerbDictionaryEntry { lemma: "utratiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "utraćati" => &[
         VerbDictionaryEntry { lemma: "utraćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "utraćati sę" => &[
+        VerbDictionaryEntry { lemma: "utraćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "utrudniti" => &[
         VerbDictionaryEntry { lemma: "utrudniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -10152,6 +11655,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "uvaljnjati" => &[
         VerbDictionaryEntry { lemma: "uvaljnjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "uvaljnjati sę" => &[
+        VerbDictionaryEntry { lemma: "uvaljnjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "uvažati" => &[
         VerbDictionaryEntry { lemma: "uvažati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -10172,6 +11678,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "uvoljniti" => &[
         VerbDictionaryEntry { lemma: "uvoljniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "uvoljniti sę" => &[
+        VerbDictionaryEntry { lemma: "uvoljniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "uvędati" => &[
         VerbDictionaryEntry { lemma: "uvędati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -10194,8 +11703,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "uvěriti" => &[
         VerbDictionaryEntry { lemma: "uvěriti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "uvěriti sę" => &[
+        VerbDictionaryEntry { lemma: "uvěriti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "uvěrjati" => &[
         VerbDictionaryEntry { lemma: "uvěrjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "uvěrjati sę" => &[
+        VerbDictionaryEntry { lemma: "uvěrjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "uzdravjati" => &[
         VerbDictionaryEntry { lemma: "uzdravjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -10224,6 +11739,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "učiti" => &[
         VerbDictionaryEntry { lemma: "učiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "učiti sę" => &[
+        VerbDictionaryEntry { lemma: "učiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "učęstvovati" => &[
         VerbDictionaryEntry { lemma: "učęstvovati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -10242,6 +11760,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "vabiti" => &[
         VerbDictionaryEntry { lemma: "vabiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "vagati sę" => &[
+        VerbDictionaryEntry { lemma: "vagati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "vajati" => &[
         VerbDictionaryEntry { lemma: "vajati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -10250,6 +11771,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "valjati" => &[
         VerbDictionaryEntry { lemma: "valjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "valjati sę" => &[
+        VerbDictionaryEntry { lemma: "valjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "valjcevati" => &[
         VerbDictionaryEntry { lemma: "valjcevati", addition: "", transitive: false, imperfective: true, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -10287,14 +11811,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "veseliti" => &[
         VerbDictionaryEntry { lemma: "veseliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "veseliti sę" => &[
+        VerbDictionaryEntry { lemma: "veseliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "vesti" => &[
         VerbDictionaryEntry { lemma: "vesti", addition: "(vede)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "vezti" => &[
         VerbDictionaryEntry { lemma: "vezti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "vezti sę" => &[
+        VerbDictionaryEntry { lemma: "vezti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "večerjati" => &[
         VerbDictionaryEntry { lemma: "večerjati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "vględati sę" => &[
+        VerbDictionaryEntry { lemma: "vględati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "vględěti sę" => &[
+        VerbDictionaryEntry { lemma: "vględěti sę", addition: "(vględi)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "vhoditi" => &[
         VerbDictionaryEntry { lemma: "vhoditi", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -10313,6 +11849,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "viti" => &[
         VerbDictionaryEntry { lemma: "viti", addition: "(vije)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "viti sę" => &[
+        VerbDictionaryEntry { lemma: "viti sę", addition: "(vije)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "vjehati" => &[
         VerbDictionaryEntry { lemma: "vjehati", addition: "(vjede)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -10341,11 +11880,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "vlagati" => &[
         VerbDictionaryEntry { lemma: "vlagati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "vlamyvati sę" => &[
+        VerbDictionaryEntry { lemma: "vlamyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "vlastniti" => &[
         VerbDictionaryEntry { lemma: "vlastniti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "vlivati" => &[
         VerbDictionaryEntry { lemma: "vlivati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "vlomiti sę" => &[
+        VerbDictionaryEntry { lemma: "vlomiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "vložiti" => &[
         VerbDictionaryEntry { lemma: "vložiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -10371,8 +11916,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "vměšati" => &[
         VerbDictionaryEntry { lemma: "vměšati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "vměšati sę" => &[
+        VerbDictionaryEntry { lemma: "vměšati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "vměšivati" => &[
         VerbDictionaryEntry { lemma: "vměšivati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "vměšivati sę" => &[
+        VerbDictionaryEntry { lemma: "vměšivati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "vměšćati" => &[
         VerbDictionaryEntry { lemma: "vměšćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -10403,6 +11954,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "voziti" => &[
         VerbDictionaryEntry { lemma: "voziti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "voziti sę" => &[
+        VerbDictionaryEntry { lemma: "voziti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "voščiti" => &[
         VerbDictionaryEntry { lemma: "voščiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -10449,8 +12003,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "vraćati" => &[
         VerbDictionaryEntry { lemma: "vraćati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "vraćati sę" => &[
+        VerbDictionaryEntry { lemma: "vraćati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "vråtiti" => &[
         VerbDictionaryEntry { lemma: "vråtiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "vråtiti sę" => &[
+        VerbDictionaryEntry { lemma: "vråtiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "vråžiti" => &[
         VerbDictionaryEntry { lemma: "vråžiti", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -10602,9 +12162,18 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "vŕnųti" => &[
         VerbDictionaryEntry { lemma: "vŕnųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "vŕnųti sę" => &[
+        VerbDictionaryEntry { lemma: "vŕnųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "vŕtěti" => &[
         VerbDictionaryEntry { lemma: "vŕtěti", addition: "(vŕti)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
         VerbDictionaryEntry { lemma: "vŕtěti", addition: "(vŕti)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "vžiti sę" => &[
+        VerbDictionaryEntry { lemma: "vžiti sę", addition: "(vžive)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "vživati sę" => &[
+        VerbDictionaryEntry { lemma: "vživati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "vȯjdti" => &[
         VerbDictionaryEntry { lemma: "vȯjdti", addition: "(vȯjde; všėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -10647,6 +12216,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "vȯzdyhati" => &[
         VerbDictionaryEntry { lemma: "vȯzdyhati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "vȯzdŕžati sę" => &[
+        VerbDictionaryEntry { lemma: "vȯzdŕžati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "vȯzdŕživati sę" => &[
+        VerbDictionaryEntry { lemma: "vȯzdŕživati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "vȯzdȯhnųti" => &[
         VerbDictionaryEntry { lemma: "vȯzdȯhnųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -10841,8 +12416,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zadovaljati" => &[
         VerbDictionaryEntry { lemma: "zadovaljati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "zadovaljati sę" => &[
+        VerbDictionaryEntry { lemma: "zadovaljati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "zadovoliti" => &[
         VerbDictionaryEntry { lemma: "zadovoliti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zadovoliti sę" => &[
+        VerbDictionaryEntry { lemma: "zadovoliti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "zadrěmati" => &[
         VerbDictionaryEntry { lemma: "zadrěmati", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -10853,8 +12434,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zadŕžati" => &[
         VerbDictionaryEntry { lemma: "zadŕžati", addition: "(zadŕži)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "zadŕžati sę" => &[
+        VerbDictionaryEntry { lemma: "zadŕžati sę", addition: "(zadŕži)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zadŕživati" => &[
         VerbDictionaryEntry { lemma: "zadŕživati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zadŕživati sę" => &[
+        VerbDictionaryEntry { lemma: "zadŕživati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "zagladiti" => &[
         VerbDictionaryEntry { lemma: "zagladiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -10889,14 +12476,26 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zainteresovati" => &[
         VerbDictionaryEntry { lemma: "zainteresovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "zainteresovati sę" => &[
+        VerbDictionaryEntry { lemma: "zainteresovati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zajdti" => &[
         VerbDictionaryEntry { lemma: "zajdti", addition: "(zajde; zašėl)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
+    ],
+    "zajikati sę" => &[
+        VerbDictionaryEntry { lemma: "zajikati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "zajmati" => &[
         VerbDictionaryEntry { lemma: "zajmati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "zajmati sę" => &[
+        VerbDictionaryEntry { lemma: "zajmati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "zajęti" => &[
         VerbDictionaryEntry { lemma: "zajęti", addition: "(zajme)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zajęti sę" => &[
+        VerbDictionaryEntry { lemma: "zajęti sę", addition: "(zajme)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "zakazyvati" => &[
         VerbDictionaryEntry { lemma: "zakazyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -10939,6 +12538,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zakopyvati" => &[
         VerbDictionaryEntry { lemma: "zakopyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "zakoreniti sę" => &[
+        VerbDictionaryEntry { lemma: "zakoreniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zakričati" => &[
         VerbDictionaryEntry { lemma: "zakričati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -10950,6 +12552,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "zalajati" => &[
         VerbDictionaryEntry { lemma: "zalajati", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
+    ],
+    "zaljubiti sę" => &[
+        VerbDictionaryEntry { lemma: "zaljubiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "založiti" => &[
         VerbDictionaryEntry { lemma: "založiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -11035,8 +12640,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zanedbati" => &[
         VerbDictionaryEntry { lemma: "zanedbati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "zanedbati sę" => &[
+        VerbDictionaryEntry { lemma: "zanedbati sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zanedbyvati" => &[
         VerbDictionaryEntry { lemma: "zanedbyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zanedbyvati sę" => &[
+        VerbDictionaryEntry { lemma: "zanedbyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "zanepokojiti" => &[
         VerbDictionaryEntry { lemma: "zanepokojiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -11080,8 +12691,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zapisati" => &[
         VerbDictionaryEntry { lemma: "zapisati", addition: "(zapiše)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "zapisati sę" => &[
+        VerbDictionaryEntry { lemma: "zapisati sę", addition: "(zapiše)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zapisyvati" => &[
         VerbDictionaryEntry { lemma: "zapisyvati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zapisyvati sę" => &[
+        VerbDictionaryEntry { lemma: "zapisyvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "zaplakati" => &[
         VerbDictionaryEntry { lemma: "zaplakati", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
@@ -11118,6 +12735,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "zaprojektovati" => &[
         VerbDictionaryEntry { lemma: "zaprojektovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zapropastiti sę" => &[
+        VerbDictionaryEntry { lemma: "zapropastiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "zapråšiti" => &[
         VerbDictionaryEntry { lemma: "zapråšiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -11167,6 +12787,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zarezervovati" => &[
         VerbDictionaryEntry { lemma: "zarezervovati", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "zaroditi sę" => &[
+        VerbDictionaryEntry { lemma: "zaroditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zarydati" => &[
         VerbDictionaryEntry { lemma: "zarydati", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
@@ -11179,11 +12802,23 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zaråsti" => &[
         VerbDictionaryEntry { lemma: "zaråsti", addition: "(zaråste)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
+    "zarěkati sę" => &[
+        VerbDictionaryEntry { lemma: "zarěkati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "zarěkti sę" => &[
+        VerbDictionaryEntry { lemma: "zarěkti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zarųčati" => &[
         VerbDictionaryEntry { lemma: "zarųčati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "zarųčati sę" => &[
+        VerbDictionaryEntry { lemma: "zarųčati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "zarųčiti" => &[
         VerbDictionaryEntry { lemma: "zarųčiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zarųčiti sę" => &[
+        VerbDictionaryEntry { lemma: "zarųčiti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "zasaditi" => &[
         VerbDictionaryEntry { lemma: "zasaditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -11203,11 +12838,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zasluživati" => &[
         VerbDictionaryEntry { lemma: "zasluživati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "zasmějati sę" => &[
+        VerbDictionaryEntry { lemma: "zasmějati sę", addition: "(+2)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: Some(2) },
+    ],
     "zasnųti" => &[
         VerbDictionaryEntry { lemma: "zasnųti", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
     ],
     "zaspati" => &[
         VerbDictionaryEntry { lemma: "zaspati", addition: "(zaspi)", transitive: false, imperfective: false, perfective: true, reflexive: false, intransitive: true, governs: None },
+    ],
+    "zaspati sę" => &[
+        VerbDictionaryEntry { lemma: "zaspati sę", addition: "(zaspi)", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "zasramjati" => &[
         VerbDictionaryEntry { lemma: "zasramjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
@@ -11266,6 +12907,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zatknųti" => &[
         VerbDictionaryEntry { lemma: "zatknųti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "zatknųti sę" => &[
+        VerbDictionaryEntry { lemma: "zatknųti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zatopiti" => &[
         VerbDictionaryEntry { lemma: "zatopiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -11287,6 +12931,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zatykati" => &[
         VerbDictionaryEntry { lemma: "zatykati", addition: "(zatyče)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "zatykati sę" => &[
+        VerbDictionaryEntry { lemma: "zatykati sę", addition: "(zatyče)", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "zatėmniti" => &[
         VerbDictionaryEntry { lemma: "zatėmniti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
@@ -11296,8 +12943,14 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "zaustaviti" => &[
         VerbDictionaryEntry { lemma: "zaustaviti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
     ],
+    "zaustaviti sę" => &[
+        VerbDictionaryEntry { lemma: "zaustaviti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
     "zaustavjati" => &[
         VerbDictionaryEntry { lemma: "zaustavjati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zaustavjati sę" => &[
+        VerbDictionaryEntry { lemma: "zaustavjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "zautrakati" => &[
         VerbDictionaryEntry { lemma: "zautrakati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -11362,8 +13015,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "začinati" => &[
         VerbDictionaryEntry { lemma: "začinati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "začrveniti sę" => &[
+        VerbDictionaryEntry { lemma: "začrveniti sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
+    ],
+    "začrvenjati sę" => &[
+        VerbDictionaryEntry { lemma: "začrvenjati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "začuditi" => &[
         VerbDictionaryEntry { lemma: "začuditi", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
+    ],
+    "začuditi sę" => &[
+        VerbDictionaryEntry { lemma: "začuditi sę", addition: "", transitive: false, imperfective: false, perfective: true, reflexive: true, intransitive: false, governs: None },
     ],
     "začęti" => &[
         VerbDictionaryEntry { lemma: "začęti", addition: "(začne)", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -11409,6 +13071,12 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "zlobiti" => &[
         VerbDictionaryEntry { lemma: "zlobiti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "zlobiti sę" => &[
+        VerbDictionaryEntry { lemma: "zlobiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
+    "zloradovati sę" => &[
+        VerbDictionaryEntry { lemma: "zloradovati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "zloupotrěbiti" => &[
         VerbDictionaryEntry { lemma: "zloupotrěbiti", addition: "", transitive: true, imperfective: false, perfective: true, reflexive: false, intransitive: false, governs: None },
@@ -11507,11 +13175,17 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "čuditi" => &[
         VerbDictionaryEntry { lemma: "čuditi", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "čuditi sę" => &[
+        VerbDictionaryEntry { lemma: "čuditi sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "čuti" => &[
         VerbDictionaryEntry { lemma: "čuti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
     "čuvati" => &[
         VerbDictionaryEntry { lemma: "čuvati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
+    ],
+    "čuvati sę" => &[
+        VerbDictionaryEntry { lemma: "čuvati sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "čučati" => &[
         VerbDictionaryEntry { lemma: "čučati", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
@@ -11564,6 +13238,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "ščekotati" => &[
         VerbDictionaryEntry { lemma: "ščekotati", addition: "(ščekoče)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "ščeniti sę" => &[
+        VerbDictionaryEntry { lemma: "ščeniti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "ščipati" => &[
         VerbDictionaryEntry { lemma: "ščipati", addition: "(ščipe)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -11582,6 +13259,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "žaliti" => &[
         VerbDictionaryEntry { lemma: "žaliti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "žaliti sę" => &[
+        VerbDictionaryEntry { lemma: "žaliti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "žariti" => &[
         VerbDictionaryEntry { lemma: "žariti", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
@@ -11594,6 +13274,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     "želati" => &[
         VerbDictionaryEntry { lemma: "želati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
     ],
+    "ženiti sę" => &[
+        VerbDictionaryEntry { lemma: "ženiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
+    ],
     "žiti" => &[
         VerbDictionaryEntry { lemma: "žiti", addition: "(žive)", transitive: false, imperfective: true, perfective: false, reflexive: false, intransitive: true, governs: None },
     ],
@@ -11602,6 +13285,9 @@ pub(crate) static VERB_METADATA: phf::Map<&'static str, &'static [VerbDictionary
     ],
     "žrtvovati" => &[
         VerbDictionaryEntry { lemma: "žrtvovati", addition: "", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },
+    ],
+    "žrěbiti sę" => &[
+        VerbDictionaryEntry { lemma: "žrěbiti sę", addition: "", transitive: false, imperfective: true, perfective: false, reflexive: true, intransitive: false, governs: None },
     ],
     "žrěti" => &[
         VerbDictionaryEntry { lemma: "žrěti", addition: "(žre)", transitive: true, imperfective: true, perfective: false, reflexive: false, intransitive: false, governs: None },

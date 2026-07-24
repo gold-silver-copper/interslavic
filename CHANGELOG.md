@@ -5,6 +5,35 @@ strings and consumers bless first-variant outputs into their expectations:
 reordering variants is a breaking change and must be called out explicitly
 in the release notes (fenced by `tests/variant_order.rs`).
 
+## 0.14.0 — 2026-07-24
+
+Additive release exposing dictionary government and conditional
+construction parts to higher-level syntax consumers.
+
+### Added
+
+- **`verb_info().governs: Option<Case>`** — the dictionary's `(+N)`
+  object-government annotations (2=Gen, 3=Dat, 4=Acc, 5=Ins, 7=Loc,
+  the same community-dictionary numbering the preposition table was
+  curated from), extracted into the verb PHF for single-word lemmas
+  AND reflexive `X sę` constructions. A reflexive row is stored under
+  its FULL lemma (`verb_info("ostrěgati sę")` → `Some(Gen)`,
+  `verb_info("ostrěgati")` → `None`), so its metadata never disturbs
+  the bare key's first-entry order. Scope is deliberate: of the 78
+  annotated verb rows, phrasal lemmas naming a preposition
+  ("bazovati na (+6)") are NOT extracted — their annotation belongs to
+  the preposition, which `Option<Case>` cannot represent. A marker
+  coexisting with a present-stem hint survives on both sides
+  (`izběgti (izběži) (+2)`). Conjugation inputs untouched: paradigm
+  fingerprint and parity scopes byte-stable. Multi-entry lemmas follow
+  the first-entry convention (`izbaviti`'s plain row precedes its
+  `(+2)` row → `None`; documented and pinned).
+- **`conditional_parts()`** — returns `ConditionalParts { auxiliary,
+  participle }` without requiring consumers to generate and decode an
+  entire paradigm. The accessor and paradigm generation share one
+  conditional-auxiliary table, while the facade continues to resolve
+  dictionary stem hints before delegating to the core implementation.
+
 ## 0.13.0 — 2026-07-22
 
 One-item additive patch from the mrzavec 0.12.0 adoption.
