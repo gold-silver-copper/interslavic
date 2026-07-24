@@ -47,6 +47,40 @@ fn nested_relative_clitics_never_migrate_to_the_parent_domain() {
 }
 
 #[test]
+fn coincident_relative_and_coordination_commas_are_emitted_once() {
+    let coordinated_subject = clause(
+        coordinate(
+            Conj::I,
+            vec![
+                np("mųž")
+                    .relative(RelClause::subject_gap(vp("spati")))
+                    .into(),
+                np("žena").into(),
+                np("otėc").into(),
+            ],
+        ),
+        vp("stojati"),
+    );
+    assert_eq!(
+        sentence(&coordinated_subject),
+        "Mųž, ktory spi, žena i otėc stojęt."
+    );
+
+    let coordinated_vps = clause(
+        np("žena"),
+        vp("viděti").object(np("mųž").relative(RelClause::subject_gap(vp("spati")))),
+    )
+    .and_vp(vp("čitati"))
+    .unwrap()
+    .and_vp(vp("pisati"))
+    .unwrap();
+    assert_eq!(
+        sentence(&coordinated_vps),
+        "Žena vidi mųža, ktory spi, čitaje i piše."
+    );
+}
+
+#[test]
 fn one_complement_edge_assigns_one_case_to_the_whole_coordination() {
     let tree = clause(
         np("krålj"),
@@ -74,6 +108,49 @@ fn one_complement_edge_assigns_one_case_to_the_whole_coordination() {
             ..
         }] if path == "clause.core.vp[0].object"
     ));
+}
+
+#[test]
+fn information_object_is_the_first_object_that_exists() {
+    let tree = clause(np("žena"), vp("spati"))
+        .and_vp(vp("viděti").object(np("mųž")))
+        .unwrap()
+        .topic(SlotRef::Object);
+    assert_eq!(sentence(&tree), "Mųža žena spi i vidi.");
+
+    // Default li ordering must leave a later object's ownership intact:
+    // only an explicitly selected topic/focus may detach it from VP1.
+    let question = clause(np("žena"), vp("spati"))
+        .and_vp(vp("viděti").object(np("mųž")))
+        .unwrap()
+        .force(Force::LiQuestion);
+    assert_eq!(sentence(&question), "Spi li žena i vidi mųža?");
+}
+
+#[test]
+fn object_relative_gaps_share_explicit_case_resolution() {
+    let tree = clause(
+        np("zemja").relative(RelClause::object_gap_case(
+            Case::Gen,
+            np("krålj"),
+            vp("vladati"),
+        )),
+        vp("ležati"),
+    );
+    let realized = realize_checked(&tree, RealizeOpts::sentence()).unwrap();
+    assert!(matches!(
+        realized.warnings.as_slice(),
+        [PhraseWarning::GovernsConflict {
+            path,
+            dictionary: Case::Ins,
+            used: Case::Gen,
+            ..
+        }] if path == "clause.subject.relative.gap"
+    ));
+
+    let printed = print(&tree);
+    assert!(printed.contains(":gap obj :case gen"));
+    assert_eq!(clause_from_str(&printed).unwrap(), tree);
 }
 
 #[test]
@@ -110,6 +187,61 @@ fn discourse_pronominalization_preserves_the_complement_case_edge() {
     assert_eq!(
         narrate(story, RealizeOpts::sentence()).unwrap(),
         "Krålj čitaje knigy. Potom on čitaje jej."
+    );
+
+    let explicit_clitic = vec![
+        DiscourseSentence::new(clause(
+            np("žena"),
+            vp("viděti").object(np("mųž").entity("man").referential(ReferentialForm::Clitic)),
+        )),
+        DiscourseSentence::new(clause(
+            np("žena"),
+            vp("viděti").object(np("mųž").entity("man").referential(ReferentialForm::Clitic)),
+        ))
+        .connective(Connective::Potom),
+    ];
+    assert_eq!(
+        narrate(explicit_clitic, RealizeOpts::sentence()).unwrap(),
+        "Žena vidi go. Potom žena vidi go."
+    );
+}
+
+#[test]
+fn discourse_aggregation_requires_explicit_coreference() {
+    let untagged = vec![
+        DiscourseSentence::new(clause(np("krålj"), vp("čitati"))),
+        DiscourseSentence::new(clause(np("krålj"), vp("pisati"))),
+    ];
+    assert_eq!(
+        narrate(untagged, RealizeOpts::sentence()).unwrap(),
+        "Krålj čitaje. Krålj piše."
+    );
+
+    let tagged = vec![
+        DiscourseSentence::new(clause(np("krålj").entity("king"), vp("čitati"))),
+        DiscourseSentence::new(clause(np("krålj").entity("king"), vp("pisati"))),
+    ];
+    assert_eq!(
+        narrate(tagged, RealizeOpts::sentence()).unwrap(),
+        "Krålj čitaje i piše."
+    );
+}
+
+#[test]
+fn discourse_salience_follows_surface_information_order() {
+    let story = vec![
+        DiscourseSentence::new(
+            clause(
+                np("krålj").entity("a"),
+                vp("viděti").object(np("otėc").entity("b")),
+            )
+            .topic(SlotRef::Object),
+        ),
+        DiscourseSentence::new(clause(np("krålj").entity("a"), vp("spati"))),
+    ];
+    assert_eq!(
+        narrate(story, RealizeOpts::sentence()).unwrap(),
+        "Otca krålj vidi. On spi."
     );
 }
 
@@ -194,6 +326,7 @@ fn typed_and_sexpr_inputs_share_structured_validation() {
           (vp (v kupiti) (object (np (n moneta))))
           :voice passive)";
     let error = clause_from_str(sexpr).unwrap_err();
+    assert_eq!(error.at, sexpr.find("(object").unwrap());
     assert!(error.msg.contains("clause.core.vp[0].object"));
     assert!(error.msg.contains("passive clause promotes the patient"));
 }
@@ -261,7 +394,7 @@ fn object_gap_valence_is_resolved_like_an_overt_direct_object() {
         Err(PhraseError::Resolution(ResolutionErrors(errors)))
             if errors.iter().any(|error| {
                 error.path
-                    == "clause.subject.relative.vp.object"
+                    == "clause.subject.relative.gap"
                     && matches!(
                         error.kind,
                         ResolutionErrorKind::ObjectOfIntransitive { .. }
@@ -388,6 +521,8 @@ fn discourse_tracks_but_does_not_pronominalize_nominal_predicates() {
 
 fn generated_atoms() -> Vec<String> {
     let mut atoms = vec![
+        "(".to_string(),
+        ")".to_string(),
         "two words".to_string(),
         ":leading-key-shape".to_string(),
         "(parentheses)".to_string(),
@@ -482,4 +617,42 @@ fn generated_malformed_sexprs_never_panic() {
             "parser panicked for generated input {input:?}"
         );
     }
+
+    let deeply_nested = format!("{}x{}", "(".repeat(100_000), ")".repeat(100_000));
+    let result = catch_unwind(AssertUnwindSafe(|| parse(&deeply_nested)));
+    assert!(matches!(
+        result,
+        Ok(Err(error)) if error.msg.contains("maximum nesting depth")
+    ));
+
+    let mut value = Value::Sym("x".into(), 0);
+    for at in 0..600 {
+        value = Value::List(vec![value], at);
+    }
+    let result = catch_unwind(AssertUnwindSafe(|| compile_clause(&value)));
+    assert!(matches!(
+        result,
+        Ok(Err(error)) if error.msg.contains("maximum nesting depth")
+    ));
+}
+
+#[test]
+fn typed_and_serialized_depth_share_one_validation_limit() {
+    let mut nominal: Nominal = np("dom").into();
+    for _ in 0..=MAX_STRUCTURE_DEPTH {
+        nominal = coordinate(Conj::I, vec![nominal]);
+    }
+    assert!(matches!(
+        validate(&clause(nominal, vp("stojati"))),
+        Err(ValidationErrors(errors))
+            if matches!(
+                errors.as_slice(),
+                [ValidationError {
+                    kind: ValidationErrorKind::MaximumDepth {
+                        limit: MAX_STRUCTURE_DEPTH
+                    },
+                    ..
+                }]
+            )
+    ));
 }

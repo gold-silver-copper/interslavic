@@ -63,5 +63,6 @@ pub use realize::{
 pub use resolve::{ResolutionError, ResolutionErrorKind, ResolutionErrors};
 pub use sexpr::{SexprError, Value, clause_from_str, compile_clause, parse, print};
 pub use validate::{
-    AstPath, ValidatedClause, ValidationError, ValidationErrorKind, ValidationErrors, validate,
+    AstPath, MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationError, ValidationErrorKind,
+    ValidationErrors, validate,
 };

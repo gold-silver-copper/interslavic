@@ -81,6 +81,8 @@ input.
 
 The early 0.1 spelling with a nominal directly inside `(vp ...)` is
 accepted for migration, but `print` always emits `(object ...)`.
+Object-relative gaps may likewise own an explicit case as
+`:gap obj :case CASE`.
 
 ## Validation and verification
 
@@ -88,7 +90,8 @@ Validation rejects empty coordination, contradictory relative gaps,
 invalid preposition/case pairs, passive clauses retaining an object,
 unsupported force/mood/voice/tense combinations, invalid predicate
 case, missing or duplicate information-structure slots, and
-pronominal references that would suppress a relative proposition.
+pronominal references that would suppress a relative proposition, and
+trees deeper than the shared `MAX_STRUCTURE_DEPTH` safety bound.
 Resolution separately reports dictionary-valence errors and government
 conflicts.
 

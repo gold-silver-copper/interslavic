@@ -15,13 +15,14 @@ pub(crate) enum CaseSource {
     Subject,
     DefaultAccusative,
     Dictionary,
-    ExplicitComplement,
+    ExplicitObject,
     Preposition,
     Predicate,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct ResolvedNominal {
+    pub path: String,
     pub kind: ResolvedNominalKind,
     pub case: Case,
     pub case_source: CaseSource,
@@ -288,6 +289,7 @@ fn resolve_nominal(
         },
     };
     ResolvedNominal {
+        path: path.to_string(),
         kind,
         case,
         case_source: source,
@@ -297,7 +299,7 @@ fn resolve_nominal(
 
 fn resolve_vp(
     vp: &VerbPhrase,
-    gap: Option<&GapRole>,
+    gap: Option<(&GapRole, &str)>,
     path: &str,
     conflicts: &mut Vec<GovernmentConflict>,
     errors: &mut Vec<ResolutionError>,
@@ -305,35 +307,36 @@ fn resolve_vp(
     let (bare_verb, lemma_reflexive, info) = verb_context(&vp.verb);
     let reflexive = lemma_reflexive || info.as_ref().is_some_and(|entry| entry.reflexive);
     let dictionary = info.as_ref().and_then(|entry| entry.governs);
-    let has_direct_object = vp.object.is_some() || gap == Some(&GapRole::Object);
+    let object_gap = gap.and_then(|(gap, path)| match gap {
+        GapRole::Object { requested_case } => Some((*requested_case, path)),
+        GapRole::Subject | GapRole::PpObject { .. } => None,
+    });
+    let has_direct_object = vp.object.is_some() || object_gap.is_some();
     if has_direct_object
         && info.as_ref().and_then(|entry| entry.transitive) == Some(false)
         && dictionary.is_none()
     {
         errors.push(ResolutionError {
-            path: format!("{path}.object"),
+            path: object_gap.map_or_else(
+                || format!("{path}.object"),
+                |(_, gap_path)| gap_path.to_string(),
+            ),
             kind: ResolutionErrorKind::ObjectOfIntransitive {
                 verb: bare_verb.clone(),
             },
         });
     }
-    let (object, object_case) = if gap == Some(&GapRole::Object) {
-        (None, dictionary.or(Some(Case::Acc)))
+    let (object, object_case) = if let Some((requested, gap_path)) = object_gap {
+        let (case, _) = resolve_object_case(requested, dictionary, gap_path, &bare_verb, conflicts);
+        (None, Some(case))
     } else if let Some(complement) = &vp.object {
-        let (case, source) = match (complement.requested_case, dictionary) {
-            (Some(used), Some(marked)) if used != marked => {
-                conflicts.push(GovernmentConflict {
-                    path: format!("{path}.object"),
-                    verb: bare_verb.clone(),
-                    dictionary: marked,
-                    used,
-                });
-                (used, CaseSource::ExplicitComplement)
-            }
-            (Some(used), _) => (used, CaseSource::ExplicitComplement),
-            (None, Some(marked)) => (marked, CaseSource::Dictionary),
-            (None, None) => (Case::Acc, CaseSource::DefaultAccusative),
-        };
+        let (case, source) = resolve_object_case(
+            complement.requested_case,
+            dictionary,
+            &format!("{path}.object"),
+            &bare_verb,
+            conflicts,
+        );
         (
             Some(resolve_nominal(
                 &complement.nominal,
@@ -380,6 +383,29 @@ fn resolve_vp(
     }
 }
 
+fn resolve_object_case(
+    requested: Option<Case>,
+    dictionary: Option<Case>,
+    path: &str,
+    verb: &str,
+    conflicts: &mut Vec<GovernmentConflict>,
+) -> (Case, CaseSource) {
+    match (requested, dictionary) {
+        (Some(used), Some(marked)) if used != marked => {
+            conflicts.push(GovernmentConflict {
+                path: path.to_string(),
+                verb: verb.to_string(),
+                dictionary: marked,
+                used,
+            });
+            (used, CaseSource::ExplicitObject)
+        }
+        (Some(used), _) => (used, CaseSource::ExplicitObject),
+        (None, Some(marked)) => (marked, CaseSource::Dictionary),
+        (None, None) => (Case::Acc, CaseSource::DefaultAccusative),
+    }
+}
+
 fn resolve_relative(
     relative: &RelClause,
     parent_path: &str,
@@ -387,16 +413,17 @@ fn resolve_relative(
     errors: &mut Vec<ResolutionError>,
 ) -> ResolvedRelative {
     let path = format!("{parent_path}.relative");
+    let gap_path = format!("{path}.gap");
     let vp = resolve_vp(
         &relative.vp,
-        Some(&relative.gap),
+        Some((&relative.gap, &gap_path)),
         &format!("{path}.vp"),
         conflicts,
         errors,
     );
     let gap_case = match &relative.gap {
         GapRole::Subject => Case::Nom,
-        GapRole::Object => vp
+        GapRole::Object { .. } => vp
             .object_case
             .expect("object gaps receive a case during resolution"),
         GapRole::PpObject { case, .. } => *case,

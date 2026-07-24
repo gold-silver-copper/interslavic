@@ -36,8 +36,11 @@
 //! `clause_from_str(print(tree)) == tree`.
 
 use crate::ast::*;
+use crate::validate::MAX_STRUCTURE_DEPTH;
 use interslavic::{Case, Gender, Number, Person};
 use std::fmt;
+
+const MAX_NESTING_DEPTH: usize = MAX_STRUCTURE_DEPTH * 4;
 
 /// A parse or compile error with the byte offset it refers to.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -69,6 +72,22 @@ pub enum Value {
     List(Vec<Value>, usize),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Token {
+    Value(Value),
+    Open(usize),
+    Close(usize),
+}
+
+impl Token {
+    fn at(&self) -> usize {
+        match self {
+            Token::Value(value) => value.at(),
+            Token::Open(at) | Token::Close(at) => *at,
+        }
+    }
+}
+
 impl Value {
     fn at(&self) -> usize {
         match self {
@@ -80,24 +99,66 @@ impl Value {
 /// Parse exactly one toplevel form. Never panics; malformed input returns
 /// a spanned error.
 pub fn parse(input: &str) -> Result<Value, SexprError> {
-    let mut tokens = tokenize(input)?;
-    tokens.reverse();
-    let value = parse_value(&mut tokens)?;
-    if let Some(extra) = tokens.pop() {
-        return err(extra.at(), "trailing input after the toplevel form");
+    let tokens = tokenize(input)?;
+    let mut stack: Vec<(usize, Vec<Value>)> = Vec::new();
+    let mut root = None;
+
+    for token in tokens {
+        if root.is_some() && stack.is_empty() {
+            return err(token.at(), "trailing input after the toplevel form");
+        }
+        match token {
+            Token::Open(at) => {
+                if stack.len() == MAX_NESTING_DEPTH {
+                    return err(
+                        at,
+                        format!("maximum nesting depth of {MAX_NESTING_DEPTH} exceeded"),
+                    );
+                }
+                stack.push((at, Vec::new()));
+            }
+            Token::Close(at) => {
+                let Some((open_at, items)) = stack.pop() else {
+                    return err(at, "unexpected `)`");
+                };
+                let value = Value::List(items, open_at);
+                if let Some((_, parent)) = stack.last_mut() {
+                    parent.push(value);
+                } else {
+                    root = Some(value);
+                }
+            }
+            Token::Value(value) => {
+                if let Some((_, items)) = stack.last_mut() {
+                    items.push(value);
+                } else {
+                    root = Some(value);
+                }
+            }
+        }
     }
-    Ok(value)
+
+    if let Some((at, _)) = stack.last() {
+        return err(*at, "unclosed `(`");
+    }
+    root.ok_or_else(|| SexprError {
+        at: 0,
+        msg: "unexpected end of input".to_string(),
+    })
 }
 
-fn tokenize(input: &str) -> Result<Vec<Value>, SexprError> {
+fn tokenize(input: &str) -> Result<Vec<Token>, SexprError> {
     let mut out = Vec::new();
     let mut chars = input.char_indices().peekable();
     while let Some(&(at, c)) = chars.peek() {
         if c.is_whitespace() {
             chars.next();
-        } else if c == '(' || c == ')' {
+        } else if c == '(' {
             chars.next();
-            out.push(Value::Sym(c.to_string(), at));
+            out.push(Token::Open(at));
+        } else if c == ')' {
+            chars.next();
+            out.push(Token::Close(at));
         } else if c == '"' {
             chars.next();
             let mut atom = String::new();
@@ -129,7 +190,7 @@ fn tokenize(input: &str) -> Result<Vec<Value>, SexprError> {
             if !closed {
                 return err(at, "unterminated quoted atom");
             }
-            out.push(Value::Sym(atom, at));
+            out.push(Token::Value(Value::Sym(atom, at)));
         } else {
             let mut atom = String::new();
             while let Some(&(_, c)) = chars.peek() {
@@ -139,7 +200,7 @@ fn tokenize(input: &str) -> Result<Vec<Value>, SexprError> {
                 atom.push(c);
                 chars.next();
             }
-            out.push(if let Some(key) = atom.strip_prefix(':') {
+            let value = if let Some(key) = atom.strip_prefix(':') {
                 if key.is_empty() {
                     return err(at, "bare `:` is not a keyword");
                 }
@@ -154,31 +215,11 @@ fn tokenize(input: &str) -> Result<Vec<Value>, SexprError> {
                 )
             } else {
                 Value::Sym(atom, at)
-            });
+            };
+            out.push(Token::Value(value));
         }
     }
     Ok(out)
-}
-
-fn parse_value(tokens: &mut Vec<Value>) -> Result<Value, SexprError> {
-    match tokens.pop() {
-        None => err(0, "unexpected end of input"),
-        Some(Value::Sym(s, at)) if s == "(" => {
-            let mut items = Vec::new();
-            loop {
-                match tokens.last() {
-                    None => return err(at, "unclosed `(`"),
-                    Some(Value::Sym(s, _)) if s == ")" => {
-                        tokens.pop();
-                        return Ok(Value::List(items, at));
-                    }
-                    _ => items.push(parse_value(tokens)?),
-                }
-            }
-        }
-        Some(Value::Sym(s, at)) if s == ")" => err(at, "unexpected `)`"),
-        Some(token) => Ok(token),
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -251,6 +292,7 @@ fn mark_once(seen_at: &mut Option<usize>, at: usize, what: &str) -> Result<(), S
 }
 
 pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
+    ensure_value_depth(value)?;
     let Value::List(items, at) = value else {
         return err(value.at(), "expected `(clause …)`");
     };
@@ -443,10 +485,141 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
         focus,
     };
     crate::validate(&clause).map_err(|errors| SexprError {
-        at: *at,
+        at: errors
+            .0
+            .first()
+            .and_then(|error| source_at_for_path(value, &error.path.0))
+            .unwrap_or(*at),
         msg: errors.to_string(),
     })?;
     Ok(clause)
+}
+
+fn list_items(value: &Value) -> Option<&[Value]> {
+    match value {
+        Value::List(items, _) => Some(items),
+        _ => None,
+    }
+}
+
+fn form_head(value: &Value) -> Option<&str> {
+    match list_items(value)?.first() {
+        Some(Value::Sym(head, _)) => Some(head),
+        _ => None,
+    }
+}
+
+fn direct_form<'a>(value: &'a Value, head: &str, index: usize) -> Option<&'a Value> {
+    list_items(value)?
+        .iter()
+        .filter(|child| form_head(child) == Some(head))
+        .nth(index)
+}
+
+fn is_nominal_form(value: &Value) -> bool {
+    matches!(form_head(value), Some("np" | "pron" | "name" | "coord"))
+}
+
+fn direct_nominal(value: &Value, index: usize) -> Option<&Value> {
+    list_items(value)?
+        .iter()
+        .filter(|child| is_nominal_form(child))
+        .nth(index)
+}
+
+fn direct_key<'a>(value: &'a Value, name: &str) -> Option<&'a Value> {
+    list_items(value)?
+        .iter()
+        .find(|child| matches!(child, Value::Key(key, _) if key == name))
+}
+
+fn indexed_segment(segment: &str, prefix: &str) -> Option<usize> {
+    segment
+        .strip_prefix(prefix)?
+        .strip_prefix('[')?
+        .strip_suffix(']')?
+        .parse()
+        .ok()
+}
+
+/// Map a shared validator path back to the closest source form. The
+/// compiler has already established the grammar, so this traversal can
+/// follow canonical semantic roles instead of maintaining a second
+/// mutable span table while compiling.
+fn source_at_for_path(value: &Value, path: &str) -> Option<usize> {
+    let segments: Vec<_> = path.split('.').collect();
+    let mut current = value;
+    for (position, segment) in segments.iter().enumerate().skip(1) {
+        let last = position + 1 == segments.len();
+        current = match *segment {
+            "core" | "verbal" => current,
+            "subject" => direct_nominal(current, 0).unwrap_or(current),
+            "predicate" => {
+                let pred = direct_form(current, "pred", 0)?;
+                list_items(pred)?
+                    .iter()
+                    .find(|child| matches!(child, Value::List(_, _)))?
+            }
+            "nominal" => direct_nominal(current, 0)?,
+            "object" => match form_head(current) {
+                Some("vp") => direct_form(current, "object", 0)?,
+                Some("pp") => direct_nominal(current, 0)?,
+                _ => direct_form(current, "object", 0).unwrap_or(current),
+            },
+            "head" => direct_form(current, "n", 0)?,
+            "determiner" => direct_form(current, "det", 0)?,
+            "relative" => direct_form(current, "rel", 0)?,
+            "verb" => direct_form(current, "v", 0)?,
+            "preposition" => direct_form(current, "prep", 0)?,
+            "gap" if last => direct_key(current, "gap").unwrap_or(current),
+            "gap" => current,
+            "case" | "mood" | "voice" | "tense" | "topic" | "focus" | "entity" | "referential"
+            | "pred_case" => {
+                let key = match *segment {
+                    "referential" => "refer",
+                    "pred_case" => "pred-case",
+                    other => other,
+                };
+                direct_key(current, key).unwrap_or(current)
+            }
+            segment if indexed_segment(segment, "vp").is_some() => {
+                direct_form(current, "vp", indexed_segment(segment, "vp")?)?
+            }
+            segment if indexed_segment(segment, "pp").is_some() => {
+                direct_form(current, "pp", indexed_segment(segment, "pp")?)?
+            }
+            segment if indexed_segment(segment, "adverb").is_some() => {
+                direct_form(current, "adv", indexed_segment(segment, "adverb")?)?
+            }
+            segment if indexed_segment(segment, "adjective").is_some() => {
+                direct_form(current, "adj", indexed_segment(segment, "adjective")?)?
+            }
+            segment if indexed_segment(segment, "item").is_some() => {
+                direct_nominal(current, indexed_segment(segment, "item")?)?
+            }
+            _ => current,
+        };
+    }
+    Some(current.at())
+}
+
+/// `compile_clause` is public independently of `parse`, so callers can
+/// supply a hand-built `Value`. Preflight it iteratively before the
+/// recursive form compiler sees it.
+fn ensure_value_depth(value: &Value) -> Result<(), SexprError> {
+    let mut stack = vec![(value, 0_usize)];
+    while let Some((value, depth)) = stack.pop() {
+        if depth >= MAX_NESTING_DEPTH {
+            return err(
+                value.at(),
+                format!("maximum nesting depth of {MAX_NESTING_DEPTH} exceeded"),
+            );
+        }
+        if let Value::List(items, _) = value {
+            stack.extend(items.iter().map(|item| (item, depth + 1)));
+        }
+    }
+    Ok(())
 }
 
 fn tense_of(text: &str, at: usize) -> Result<TenseSpec, SexprError> {
@@ -657,10 +830,9 @@ fn compile_rel(items: &[Value], at: usize) -> Result<RelClause, SexprError> {
             if let Some(gap_prep_at) = gap_prep_at {
                 return err(gap_prep_at, "`(prep …)` requires `:gap pp`");
             }
-            if let Some(gap_case_at) = gap_case_at {
-                return err(gap_case_at, "`:case` requires `:gap pp`");
+            GapRole::Object {
+                requested_case: gap_case,
             }
-            GapRole::Object
         }
         Some("pp") => GapRole::PpObject {
             preposition: gap_prep.ok_or_else(|| SexprError {
@@ -1155,7 +1327,13 @@ fn print_rel(rel: &RelClause, out: &mut String) {
     out.push_str("(rel :gap ");
     match &rel.gap {
         GapRole::Subject => out.push_str("subj"),
-        GapRole::Object => out.push_str("obj"),
+        GapRole::Object { requested_case } => {
+            out.push_str("obj");
+            if let Some(case) = requested_case {
+                out.push_str(" :case ");
+                out.push_str(case_name(*case));
+            }
+        }
         GapRole::PpObject { preposition, case } => {
             out.push_str("pp (prep ");
             push_atom(out, preposition);

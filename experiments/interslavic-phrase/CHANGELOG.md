@@ -16,8 +16,9 @@ and S-expression canonical output changed.
 - Dictionary-backed verb government, including pure reflexive
   constructions, with explicit conflict diagnostics.
 - Subject, object, and prepositional relative gaps with `ktory`
-  agreement. `iže` is explicitly unsupported until the facade exposes
-  its paradigm.
+  agreement. Object gaps may explicitly override case and share the
+  overt-object government resolver. `iže` is explicitly unsupported
+  until the facade exposes its paradigm.
 - Nominal and VP coordination, postverbal and second-position clitic
   styles, per-verb clitic domains, topic/focus ordering, and pathful
   ambiguity warnings.
@@ -45,12 +46,18 @@ and S-expression canonical output changed.
   under an explicit count of one.
 - Added structured, pathful validation and resolution diagnostics.
   Invalid raw trees fail before planning; already validated trees have a
-  dedicated realization entry point.
+  dedicated realization entry point. A shared structure-depth invariant
+  protects typed trees, parsed input, and direct `Value` compilation.
 - Added quoted S-expression atoms with escaping. Canonical object output
   is now `(object [:case CASE] NOMINAL)`; `:case` is no longer accepted
   on an NP. Referential choice is serialized as `:refer pron|clitic`.
   Valid trees now satisfy `clause_from_str(print(tree)) == tree`,
-  including single-item nominal coordination.
+  including single-item nominal coordination and quoted delimiter atoms.
+- Made generic object topic/focus target the first object that actually
+  exists, kept later objects with their owning VP under default `li`
+  order, and made discourse salience follow typed surface order.
+- Coalesced coincident punctuation boundaries, such as a relative-clause
+  closing comma that is also a coordination delimiter.
 
 ### Testing
 

@@ -135,10 +135,15 @@ fn pronominalize_nominal(nominal: &mut Nominal, mentions: &mut Mentions) {
                 // A relative contributes a proposition of its own. Only
                 // replace a repeated NP when doing so cannot discard that
                 // content or its nested mentions.
-                if mentions.mention(&id, features) && np.relative.is_none() {
+                if mentions.mention(&id, features)
+                    && np.relative.is_none()
+                    && np.referential == ReferentialForm::Full
+                {
                     // Change only the requested referential form. The
                     // lexical NP, entity identity, and the grammatical
-                    // role edge that owns case remain intact.
+                    // role edge that owns case remain intact. An explicit
+                    // caller request for Pronoun/Clitic remains stronger
+                    // than the planner's default choice.
                     np.referential = ReferentialForm::Pronoun;
                     return;
                 }
@@ -170,52 +175,138 @@ fn pronominalize_relative(relative: &mut RelClause, mentions: &mut Mentions) {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum MentionSlot {
+    Subject,
+    Object(usize),
+    PpObject { vp: usize, pp: usize },
+    Predicate,
+}
+
 fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
-    pronominalize_nominal(&mut clause.subject, mentions);
-    match &mut clause.core {
+    // Build the nominal traversal from typed slots in the same order as
+    // realization. Salience follows what the reader encounters, not
+    // storage order in the AST.
+    let mut slots = Vec::new();
+    if !clause.prodrop && !matches!(clause.force, Force::Imperative(_)) {
+        slots.push(MentionSlot::Subject);
+    }
+    match &clause.core {
         ClauseCore::Verbal(coordination) => {
-            for verb_phrase in &mut coordination.items {
-                if let Some(object) = &mut verb_phrase.object {
-                    pronominalize_nominal(&mut object.nominal, mentions);
+            for (vp, verb_phrase) in coordination.items.iter().enumerate() {
+                if verb_phrase.object.is_some() {
+                    slots.push(MentionSlot::Object(vp));
                 }
-                for pp in &mut verb_phrase.pps {
-                    pronominalize_nominal(&mut pp.object, mentions);
+                for pp in 0..verb_phrase.pps.len() {
+                    slots.push(MentionSlot::PpObject { vp, pp });
                 }
             }
         }
         ClauseCore::Copular { predicate, .. } => {
-            if let Predicate::Nominal(np) = predicate {
+            if matches!(predicate, Predicate::Nominal(_)) {
+                slots.push(MentionSlot::Predicate);
+            }
+        }
+    }
+
+    let object_slot = match &clause.core {
+        ClauseCore::Verbal(_) => information_object_index(&clause.core).map(MentionSlot::Object),
+        ClauseCore::Copular { .. } => Some(MentionSlot::Predicate),
+    };
+    let slot_of = |slot| match slot {
+        SlotRef::Subject => Some(MentionSlot::Subject),
+        SlotRef::Object => object_slot,
+    };
+    let take = |slots: &mut Vec<MentionSlot>, slot: MentionSlot| {
+        slots
+            .iter()
+            .position(|candidate| *candidate == slot)
+            .map(|index| slots.remove(index))
+    };
+
+    if clause.force == Force::LiQuestion {
+        let mut ordered = Vec::new();
+        if let Some(topic) = clause.topic.and_then(slot_of) {
+            ordered.extend(take(&mut slots, topic));
+        }
+        if let Some(focus) = clause.focus.and_then(slot_of) {
+            ordered.extend(take(&mut slots, focus));
+        }
+        ordered.extend(take(&mut slots, MentionSlot::Subject));
+        ordered.extend(take(&mut slots, MentionSlot::Object(0)));
+        ordered.append(&mut slots);
+        slots = ordered;
+    } else {
+        if let Some(topic) = clause.topic.and_then(slot_of)
+            && let Some(slot) = take(&mut slots, topic)
+        {
+            slots.insert(0, slot);
+        }
+        if let Some(focus) = clause.focus.and_then(slot_of)
+            && let Some(slot) = take(&mut slots, focus)
+        {
+            slots.push(slot);
+        }
+    }
+
+    for slot in slots {
+        match slot {
+            MentionSlot::Subject => pronominalize_nominal(&mut clause.subject, mentions),
+            MentionSlot::Object(vp) => {
+                let ClauseCore::Verbal(coordination) = &mut clause.core else {
+                    unreachable!("object mention slots belong to verbal cores");
+                };
+                let object = coordination.items[vp]
+                    .object
+                    .as_mut()
+                    .expect("slot was derived from an existing object");
+                pronominalize_nominal(&mut object.nominal, mentions);
+            }
+            MentionSlot::PpObject { vp, pp } => {
+                let ClauseCore::Verbal(coordination) = &mut clause.core else {
+                    unreachable!("PP mention slots belong to verbal cores");
+                };
+                pronominalize_nominal(&mut coordination.items[vp].pps[pp].object, mentions);
+            }
+            MentionSlot::Predicate => {
+                let ClauseCore::Copular {
+                    predicate: Predicate::Nominal(np),
+                    ..
+                } = &mut clause.core
+                else {
+                    unreachable!("predicate mention slot was derived from a nominal predicate");
+                };
                 let requested = np.referential;
                 let mut wrapped = Nominal::Np(np.clone());
                 pronominalize_nominal(&mut wrapped, mentions);
-                if let Nominal::Np(mut new_np) = wrapped {
-                    // A nominal predicate is not an argumental referring
-                    // expression: changing it to a pronoun produces
-                    // "on jest on"-shaped output. Track its mentions and
-                    // nested propositions, but preserve the caller's
-                    // original referential request.
-                    new_np.referential = requested;
-                    *np = new_np;
-                }
+                let Nominal::Np(mut new_np) = wrapped else {
+                    unreachable!("the wrapper remains a noun phrase");
+                };
+                // A nominal predicate is not an argumental referring
+                // expression: changing it to a pronoun produces
+                // "on jest on"-shaped output. Track its mentions and
+                // nested propositions, but preserve the caller's
+                // original referential request.
+                new_np.referential = requested;
+                *np = new_np;
             }
         }
     }
 }
 
 /// Can the first subject safely stand for the second during aggregation?
-/// Exact trees are safe. For same-entity NPs, the first surface must
-/// contain every modifier/proposition present on the second; a later bare
-/// reference may be elided, but later-added content must keep its sentence.
+/// Both subjects must be NPs with the same explicit entity. The first
+/// surface must contain every modifier/proposition present on the second;
+/// a later bare reference may be elided, but later-added content must keep
+/// its sentence. Lexical identity alone is not evidence of coreference.
 fn first_subject_covers_second(first: &Nominal, second: &Nominal) -> bool {
-    if first == second {
-        return true;
-    }
     match (first, second) {
         (Nominal::Np(a), Nominal::Np(b)) => {
             a.entity.is_some()
                 && a.entity == b.entity
                 && a.head == b.head
                 && a.count == b.count
+                && a.referential == b.referential
                 && b.determiner
                     .as_ref()
                     .is_none_or(|det| a.determiner.as_ref() == Some(det))
@@ -392,7 +483,14 @@ fn prefix_error(error: PhraseError, sentence: usize) -> PhraseError {
                     .collect(),
             ))
         }
-        other => other,
+        PhraseError::GuessedHead { path, lemma } => PhraseError::GuessedHead {
+            path: prefix(path),
+            lemma,
+        },
+        PhraseError::Unsupported { path, feature } => PhraseError::Unsupported {
+            path: prefix(path),
+            feature,
+        },
     }
 }
 

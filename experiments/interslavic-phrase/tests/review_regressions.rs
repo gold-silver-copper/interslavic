@@ -271,7 +271,8 @@ fn narrate_honors_caller_options() {
     ];
     assert!(matches!(
         narrate(story, RealizeOpts::sentence().strict()),
-        Err(PhraseError::GuessedHead { .. })
+        Err(PhraseError::GuessedHead { path, .. })
+            if path == "sentence[1].clause.subject"
     ));
 
     // Clitic style is uniform across connective and connective-free
@@ -303,4 +304,17 @@ fn narrate_honors_caller_options() {
         .unwrap(),
         "Krålj go vidi. Potom žena go vidi."
     );
+}
+
+#[test]
+fn strict_guessed_applies_before_np_referential_reduction() {
+    let tree = clause(
+        np("glorbina").referential(ReferentialForm::Pronoun),
+        vp("spati"),
+    );
+    assert!(matches!(
+        realize(&tree, RealizeOpts::sentence().strict()),
+        Err(PhraseError::GuessedHead { path, lemma })
+            if path == "clause.subject" && lemma == "glorbina"
+    ));
 }

@@ -57,7 +57,7 @@ reuse a validation result.
 | punctuation and casing | `ClausePlan::stringify` | Surface nodes flatten once; no morphology is rewritten afterward. |
 
 Case resolution records whether a case came from subject position,
-default accusative, dictionary government, an explicit complement,
+default accusative, dictionary government, an explicit object edge,
 preposition, or predicate position. Coordination members receive the
 same resolved case recursively. This prevents PP objects, nested NPs,
 predicate NPs, or individual conjuncts from reopening the decision.
@@ -75,11 +75,12 @@ has an `AstPath`, such as `clause.core.vp[0].object`. It checks:
 - relative gap versus overt subject/object coherence;
 - ordinary and relative-gap preposition government;
 - referential choices that would suppress a relative proposition.
+- a shared maximum syntax depth before any recursive consumer runs.
 
 The supported combination rule is compact:
 
-- indicative non-imperatives support present, past, and future in active
-  or passive voice;
+- indicative non-imperative verbal clauses support present, past, and
+  future in active or passive voice; copular clauses are active;
 - conditionals use their own auxiliary/participle construction and
   cannot carry independent past/future tense;
 - imperatives are present, active, and indicative;
@@ -88,10 +89,10 @@ The supported combination rule is compact:
 
 Dictionary valence requires lexical metadata and therefore belongs to
 grammar resolution. `ResolutionErrors` is also pathful. An explicit
-complement case that differs from dictionary government remains
-realizable and emits one `GovernsConflict` warning; an object on a
-dictionary-intransitive verb is an error. Object gaps pass through the
-same valence and government resolution as overt objects.
+overt-object or object-gap case that differs from dictionary government
+remains realizable and emits one `GovernsConflict` warning; an object on
+a dictionary-intransitive verb is an error. Object gaps pass through the
+same case, valence, and government resolver as overt objects.
 
 ## Hierarchical clitic domains
 
@@ -121,16 +122,16 @@ The relative `sę` and `go` are not visible to the parent VP.
 `narrate_checked` validates every input before discourse planning.
 Planning then operates on owned syntax-tree clones, and each transformed
 output is validated again before resolution. Entity tracking stores
-referent features from the central nominal profile. On a repeated
-unambiguous mention it changes only `ReferentialForm`; the NP, entity
-ID, modifiers, lexical head, and the surrounding complement/PP role
-remain.
+referent features from the central nominal profile and visits mentions
+in typed surface order, including topic/focus movement. On a repeated
+unambiguous mention it changes only `ReferentialForm`; the NP, entity ID,
+modifiers, lexical head, and the surrounding complement/PP role remain.
 
 An NP with a relative proposition stays full. Explicitly requesting a
 pronominal form on such an NP is rejected because realizing only the
-pronoun would silently drop asserted content. Aggregation is permitted
-only when all surface-significant clause features and conjunction scope
-are compatible.
+pronoun would silently drop asserted content. Aggregation requires the
+same explicit subject entity and is permitted only when all
+surface-significant clause features and conjunction scope are compatible.
 
 `narrate_checked` returns `Narrated { text, warnings }` and prefixes
 warning paths with `sentence[index]`. `narrate` deliberately discards
@@ -181,8 +182,12 @@ output. Quoted atoms escape:
 | carriage return | `\r` |
 | tab | `\t` |
 
-All other Unicode is preserved. For every valid serializable tree,
-`clause_from_str(print(tree)) == tree`. A deterministic bounded
+All other Unicode is preserved. Validation imposes
+`MAX_STRUCTURE_DEPTH` before recursive consumers run, and the reader
+uses a larger derived list-depth bound. This applies equally to typed
+trees, parsed input, and callers that construct `Value` directly. For
+every valid serializable tree, `clause_from_str(print(tree)) == tree`.
+A deterministic bounded
 generator covers hundreds of arbitrary combinations in noun,
 determiner, adjective, entity, name, verb, adverb, predicate, and
 relative fields. Another generator proves malformed inputs do not
@@ -203,6 +208,10 @@ or rewritten after the facade returns them.
   predicates.
 - Replace `np.case(CASE)` on direct objects with
   `vp.object_case(CASE, nominal)` or `Complement::new(nominal).case(CASE)`.
+- Use `RelClause::object_gap_case(CASE, subject, vp)` for an explicitly
+  marked relative object gap.
+- Handle `BuildError` from `Clause::and_vp` and `Clause::conj`; these
+  builders reject copular cores instead of panicking or doing nothing.
 - In S-expressions, replace a direct `(np ...)` object with
   `(object (np ...))`; the reader accepts the old spelling, while
   canonical output uses the new edge.

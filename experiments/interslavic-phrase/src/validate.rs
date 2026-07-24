@@ -8,6 +8,14 @@ use crate::ast::*;
 use interslavic::preposition_cases;
 use std::fmt;
 
+/// Maximum recursive syntax depth accepted by the shared validator.
+///
+/// This bounds every recursive consumer of a validated tree. The
+/// S-expression reader uses a larger derived list-depth bound because
+/// wrapper forms such as `(object …)` do not correspond one-for-one to
+/// AST nodes.
+pub const MAX_STRUCTURE_DEPTH: usize = 128;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AstPath(pub String);
 
@@ -21,6 +29,9 @@ impl fmt::Display for AstPath {
 pub enum ValidationErrorKind {
     EmptyCoordination,
     EmptyLeaf(&'static str),
+    MaximumDepth {
+        limit: usize,
+    },
     IncoherentClause(&'static str),
     InvalidRelative(&'static str),
     UnknownPreposition(String),
@@ -75,6 +86,9 @@ impl ValidatedClause {
 }
 
 pub fn validate(clause: &Clause) -> Result<ValidatedClause, ValidationErrors> {
+    if let Some(error) = validate_structure_depth(clause) {
+        return Err(ValidationErrors(vec![error]));
+    }
     let mut errors = Vec::new();
     validate_clause(clause, "clause", &mut errors);
     if errors.is_empty() {
@@ -84,6 +98,117 @@ pub fn validate(clause: &Clause) -> Result<ValidatedClause, ValidationErrors> {
     } else {
         Err(ValidationErrors(errors))
     }
+}
+
+enum StructureNode<'a> {
+    Clause(&'a Clause),
+    Nominal(&'a Nominal),
+    Np(&'a NounPhrase),
+    Relative(&'a RelClause),
+    Vp(&'a VerbPhrase),
+    Pp(&'a PrepPhrase),
+}
+
+/// Iterative preflight: callers may construct arbitrarily deep public
+/// typed trees, so check depth before entering the recursive semantic
+/// validator. This also makes the parser/printer round-trip contract a
+/// property of `validate`, rather than a parser-only implementation cap.
+fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
+    let mut stack = vec![(StructureNode::Clause(clause), 0, "clause".to_string())];
+    while let Some((node, depth, path)) = stack.pop() {
+        if depth > MAX_STRUCTURE_DEPTH {
+            return Some(ValidationError {
+                path: AstPath(path),
+                kind: ValidationErrorKind::MaximumDepth {
+                    limit: MAX_STRUCTURE_DEPTH,
+                },
+            });
+        }
+        let next = depth + 1;
+        match node {
+            StructureNode::Clause(clause) => {
+                stack.push((
+                    StructureNode::Nominal(&clause.subject),
+                    next,
+                    format!("{path}.subject"),
+                ));
+                match &clause.core {
+                    ClauseCore::Verbal(coordination) => {
+                        for (index, vp) in coordination.items.iter().enumerate() {
+                            stack.push((
+                                StructureNode::Vp(vp),
+                                next,
+                                format!("{path}.core.vp[{index}]"),
+                            ));
+                        }
+                    }
+                    ClauseCore::Copular { predicate, .. } => {
+                        if let Predicate::Nominal(np) = predicate {
+                            stack.push((
+                                StructureNode::Np(np),
+                                next,
+                                format!("{path}.core.predicate"),
+                            ));
+                        }
+                    }
+                }
+            }
+            StructureNode::Nominal(nominal) => match nominal {
+                Nominal::Np(np) => {
+                    stack.push((StructureNode::Np(np), next, path));
+                }
+                Nominal::Coord(coordination) => {
+                    for (index, item) in coordination.items.iter().enumerate() {
+                        stack.push((
+                            StructureNode::Nominal(item),
+                            next,
+                            format!("{path}.item[{index}]"),
+                        ));
+                    }
+                }
+                Nominal::Pron { .. } | Nominal::Name { .. } => {}
+            },
+            StructureNode::Np(np) => {
+                if let Some(relative) = &np.relative {
+                    stack.push((
+                        StructureNode::Relative(relative),
+                        next,
+                        format!("{path}.relative"),
+                    ));
+                }
+            }
+            StructureNode::Relative(relative) => {
+                if let Some(subject) = &relative.subject {
+                    stack.push((
+                        StructureNode::Nominal(subject),
+                        next,
+                        format!("{path}.subject"),
+                    ));
+                }
+                stack.push((StructureNode::Vp(&relative.vp), next, format!("{path}.vp")));
+            }
+            StructureNode::Vp(vp) => {
+                if let Some(object) = &vp.object {
+                    stack.push((
+                        StructureNode::Nominal(&object.nominal),
+                        next,
+                        format!("{path}.object.nominal"),
+                    ));
+                }
+                for (index, pp) in vp.pps.iter().enumerate() {
+                    stack.push((StructureNode::Pp(pp), next, format!("{path}.pp[{index}]")));
+                }
+            }
+            StructureNode::Pp(pp) => {
+                stack.push((
+                    StructureNode::Nominal(&pp.object),
+                    next,
+                    format!("{path}.object"),
+                ));
+            }
+        }
+    }
+    None
 }
 
 fn push(errors: &mut Vec<ValidationError>, path: impl Into<String>, kind: ValidationErrorKind) {
@@ -145,10 +270,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
                     errors,
                 );
             }
-            coordination
-                .items
-                .first()
-                .is_some_and(|vp| vp.object.is_some())
+            information_object_index(&clause.core).is_some()
         }
         ClauseCore::Copular {
             predicate,
@@ -368,7 +490,7 @@ fn validate_relative(relative: &RelClause, path: &str, errors: &mut Vec<Validati
                 );
             }
         }
-        GapRole::Object => {
+        GapRole::Object { .. } => {
             if relative.subject.is_none() {
                 push(
                     errors,

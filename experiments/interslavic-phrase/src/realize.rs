@@ -94,8 +94,8 @@ impl RealizeOpts {
 pub enum PhraseError {
     Validation(ValidationErrors),
     Resolution(ResolutionErrors),
-    GuessedHead { lemma: String },
-    Unsupported(&'static str),
+    GuessedHead { path: String, lemma: String },
+    Unsupported { path: String, feature: &'static str },
 }
 
 impl fmt::Display for PhraseError {
@@ -103,13 +103,15 @@ impl fmt::Display for PhraseError {
         match self {
             PhraseError::Validation(errors) => write!(f, "invalid phrase tree: {errors}"),
             PhraseError::Resolution(errors) => write!(f, "cannot resolve phrase tree: {errors}"),
-            PhraseError::GuessedHead { lemma } => {
+            PhraseError::GuessedHead { path, lemma } => {
                 write!(
                     f,
-                    "`{lemma}` is not a dictionary noun (gender/animacy would be guessed)"
+                    "{path}: `{lemma}` is not a dictionary noun (gender/animacy would be guessed)"
                 )
             }
-            PhraseError::Unsupported(what) => write!(f, "unsupported: {what}"),
+            PhraseError::Unsupported { path, feature } => {
+                write!(f, "{path}: unsupported: {feature}")
+            }
         }
     }
 }
@@ -224,6 +226,13 @@ fn render_nominal(
             })
         }
         ResolvedNominalKind::Np { source, relative } => {
+            let info = interslavic::noun_info(&source.head);
+            if ctx.opts.strict_guessed && info.provenance == Provenance::Guessed {
+                return Err(PhraseError::GuessedHead {
+                    path: nominal.path.clone(),
+                    lemma: source.head.clone(),
+                });
+            }
             if source.referential != ReferentialForm::Full {
                 return Ok(render_pronoun_plan(
                     Person::Third,
@@ -244,6 +253,12 @@ fn render_nominal(
                 // carry the stress a conjunct bears).
                 rendered.push(render_nominal(item, style, CliticContext::ForceFull, ctx)?);
             }
+            debug_assert!(
+                rendered.iter().all(|item| {
+                    item.case == nominal.case && item.case_source == nominal.case_source
+                }),
+                "one governing edge must assign one case and source to every conjunct"
+            );
             let mut body = Vec::new();
             let last = rendered.len() - 1;
             for (index, item) in rendered.into_iter().enumerate() {
@@ -306,11 +321,6 @@ fn render_np(
 ) -> Result<NominalPlan, PhraseError> {
     let slot_case = resolved.case;
     let info = interslavic::noun_info(&np.head);
-    if ctx.opts.strict_guessed && info.provenance == Provenance::Guessed {
-        return Err(PhraseError::GuessedHead {
-            lemma: np.head.clone(),
-        });
-    }
     let (gender, animacy) = (info.gender, info.animacy);
 
     let modifier = |lemma: &str, case: Case, number: Number| -> String {
@@ -450,9 +460,10 @@ fn build_complex(
         )?;
         tokens.append(&mut copula);
         let participle = passive_participle(lemma, Case::Nom, number, gender, subject_animacy)
-            .ok_or(PhraseError::Unsupported(
-                "no passive participle (intransitive verb?)",
-            ))?;
+            .ok_or(PhraseError::Unsupported {
+                path: path.to_string(),
+                feature: "no passive participle (intransitive verb?)",
+            })?;
         tokens.push(word(surface(&participle)));
         return Ok(tokens);
     }
@@ -588,9 +599,10 @@ fn render_relative(
     ctx: &mut Ctx,
 ) -> Result<RelativePlan, PhraseError> {
     if rel.relativizer == Relativizer::Iže {
-        return Err(PhraseError::Unsupported(
-            "the iže relativizer (no facade paradigm)",
-        ));
+        return Err(PhraseError::Unsupported {
+            path: format!("{}.relativizer", rel.path),
+            feature: "the iže relativizer (no facade paradigm)",
+        });
     }
     let relativizer = pronoun(
         "ktory",
@@ -828,11 +840,11 @@ pub(crate) fn realize_validated_with_lead_in(
     // full pronoun forms (a clitic cannot be topicalized or focused).
     let object_marked =
         clause.topic == Some(SlotRef::Object) || clause.focus == Some(SlotRef::Object);
-    let object_clitics = if object_marked {
-        CliticContext::ForceFull
-    } else {
-        CliticContext::Allowed
+    let information_object_index = match &clause.core {
+        ResolvedCore::Verbal { vps, .. } => vps.iter().position(|vp| vp.object.is_some()),
+        ResolvedCore::Copular(_) => Some(0),
     };
+    let information_object_slot = information_object_index.map(SlotKind::Object);
 
     // Build labeled constituents.
     let mut constituents: Vec<Constituent> = Vec::new();
@@ -845,9 +857,9 @@ pub(crate) fn realize_validated_with_lead_in(
 
     // Per-VP clusters, held aside for placement after ordering.
     let mut clusters: Vec<(usize, Vec<String>)> = Vec::new();
-    // The case VP 0's object was actually rendered in — the syncretism
-    // guard fires only for a genuinely accusative object.
-    let mut first_object_case: Option<Case> = None;
+    // The case of the generic information-structure object. The
+    // syncretism guard fires only for a genuinely accusative object.
+    let mut information_object_case: Option<Case> = None;
 
     match &clause.core {
         ResolvedCore::Copular(predicate) => {
@@ -889,9 +901,10 @@ pub(crate) fn realize_validated_with_lead_in(
                         gender,
                         subject.profile.animacy,
                     )
-                    .ok_or(PhraseError::Unsupported(
-                        "no passive participle (intransitive verb?)",
-                    ))?;
+                    .ok_or(PhraseError::Unsupported {
+                        path: "clause.core.predicate".to_string(),
+                        feature: "no passive participle (intransitive verb?)",
+                    })?;
                     vec![word(surface(&participle))]
                 }
             };
@@ -920,8 +933,8 @@ pub(crate) fn realize_validated_with_lead_in(
                     number,
                     gender,
                     subject.profile.animacy,
-                    if index == 0 {
-                        object_clitics
+                    if object_marked && information_object_index == Some(index) {
+                        CliticContext::ForceFull
                     } else {
                         CliticContext::Allowed
                     },
@@ -931,8 +944,8 @@ pub(crate) fn realize_validated_with_lead_in(
                     slot: SlotKind::Verb(index),
                     nodes: vp.complex,
                 });
-                if index == 0 {
-                    first_object_case = vp.object_case;
+                if information_object_index == Some(index) {
+                    information_object_case = vp.object_case;
                 }
                 if !vp.cluster.is_empty() {
                     clusters.push((index, vp.cluster));
@@ -954,21 +967,27 @@ pub(crate) fn realize_validated_with_lead_in(
     }
 
     // --- Ordering (labels, not strings) --------------------------------
-    order_constituents(&mut constituents, clause);
+    order_constituents(
+        &mut constituents,
+        clause,
+        information_object_slot.unwrap_or(SlotKind::Object(0)),
+    );
 
     // Syncretism guard on the ACTUAL final order: warn only when subject
-    // and first object genuinely inverted, the object was rendered in
+    // and the information object genuinely inverted, the object was rendered in
     // the accusative (an oblique form already disambiguates), and both
     // are Nom/Acc-ambiguous (steen's clarity caveat). Pure probe: no
     // re-rendering side effects.
     let position = |slot: SlotKind| constituents.iter().position(|c| c.slot == slot);
-    if let (Some(subject_at), Some(object_at)) =
-        (position(SlotKind::Subject), position(SlotKind::Object(0)))
-    {
+    if let (Some(subject_at), Some(object_at)) = (
+        position(SlotKind::Subject),
+        information_object_slot.and_then(position),
+    ) {
         if object_at < subject_at
-            && first_object_case == Some(Case::Acc)
+            && information_object_case == Some(Case::Acc)
             && nom_acc_syncretic(&clause.subject)
-            && resolved_first_object(clause).is_some_and(nom_acc_syncretic)
+            && resolved_information_object(clause, information_object_index)
+                .is_some_and(nom_acc_syncretic)
         {
             ctx.warnings.push(PhraseWarning::AmbiguousOrder {
                 path: "clause.order".to_string(),
@@ -979,7 +998,9 @@ pub(crate) fn realize_validated_with_lead_in(
     // --- li, či, and clitic placement (structural) ----------------------
     if clause.force == Force::LiQuestion {
         let focus_slot = match clause.focus {
-            Some(SlotRef::Object) => SlotKind::Object(0),
+            Some(SlotRef::Object) => {
+                information_object_slot.expect("validated object focus has a target")
+            }
             Some(SlotRef::Subject) => SlotKind::Subject,
             None => SlotKind::Verb(0),
         };
@@ -1052,9 +1073,12 @@ pub fn realize(clause: &Clause, opts: RealizeOpts) -> Result<String, PhraseError
     realize_checked(clause, opts).map(|realized| realized.text)
 }
 
-fn resolved_first_object(clause: &ResolvedClause) -> Option<&ResolvedNominal> {
+fn resolved_information_object(
+    clause: &ResolvedClause,
+    index: Option<usize>,
+) -> Option<&ResolvedNominal> {
     match &clause.core {
-        ResolvedCore::Verbal { vps, .. } => vps.first().and_then(|vp| vp.object.as_ref()),
+        ResolvedCore::Verbal { vps, .. } => index.and_then(|index| vps.get(index)?.object.as_ref()),
         ResolvedCore::Copular(_) => None,
     }
 }
@@ -1064,7 +1088,11 @@ fn resolved_first_object(clause: &ResolvedClause) -> Option<&ResolvedNominal> {
 /// rheme-last — functional sentence perspective). LiQuestions front an
 /// explicit topic, then the focused slot (default: the verb), and follow
 /// with verb–subject–object (steen's own example order).
-fn order_constituents(constituents: &mut Vec<Constituent>, clause: &ResolvedClause) {
+fn order_constituents(
+    constituents: &mut Vec<Constituent>,
+    clause: &ResolvedClause,
+    information_object_slot: SlotKind,
+) {
     let take = |constituents: &mut Vec<Constituent>, slot: SlotKind| -> Option<Constituent> {
         constituents
             .iter()
@@ -1073,7 +1101,7 @@ fn order_constituents(constituents: &mut Vec<Constituent>, clause: &ResolvedClau
     };
     let slot_of = |slot: SlotRef| match slot {
         SlotRef::Subject => SlotKind::Subject,
-        SlotRef::Object => SlotKind::Object(0),
+        SlotRef::Object => information_object_slot,
     };
 
     if clause.force == Force::LiQuestion {
@@ -1084,6 +1112,9 @@ fn order_constituents(constituents: &mut Vec<Constituent>, clause: &ResolvedClau
         let focus = take(constituents, focus_slot);
         let verb = take(constituents, SlotKind::Verb(0));
         let subject = take(constituents, SlotKind::Subject);
+        // Only VP0's object belongs to the special default
+        // verb0–subject–object sequence. A later VP's object stays with
+        // its own conjunct unless explicitly selected as topic/focus.
         let object = take(constituents, SlotKind::Object(0));
         let mut ordered = Vec::new();
         ordered.extend(topic);

@@ -330,7 +330,8 @@ fn relative_clauses() {
     );
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::Unsupported(_))
+        Err(PhraseError::Unsupported { path, .. })
+            if path == "clause.subject.relative.relativizer"
     ));
 }
 

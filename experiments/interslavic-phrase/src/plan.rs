@@ -109,7 +109,14 @@ enum FlatToken {
 fn flatten(node: SurfaceNode, out: &mut Vec<FlatToken>) {
     match node {
         SurfaceNode::Word(text) => out.push(FlatToken::Word(text)),
-        SurfaceNode::Punct(mark) => out.push(FlatToken::Punct(mark)),
+        SurfaceNode::Punct(mark) => {
+            // Boundaries can coincide: a relative's closing comma may
+            // also be the delimiter before the next coordination item.
+            // They are one orthographic boundary, not two marks.
+            if out.last() != Some(&FlatToken::Punct(mark)) {
+                out.push(FlatToken::Punct(mark));
+            }
+        }
         SurfaceNode::Nominal(plan) => {
             debug_assert!(
                 plan.direct_clitic.is_none(),

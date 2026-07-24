@@ -104,7 +104,7 @@ pub enum Relativizer {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GapRole {
     Subject,
-    Object,
+    Object { requested_case: Option<Case> },
     PpObject { preposition: String, case: Case },
 }
 
@@ -139,7 +139,22 @@ impl RelClause {
         Self::new(GapRole::Subject, None, vp)
     }
     pub fn object_gap(subject: impl Into<Nominal>, vp: VerbPhrase) -> Self {
-        Self::new(GapRole::Object, Some(subject.into()), vp)
+        Self::new(
+            GapRole::Object {
+                requested_case: None,
+            },
+            Some(subject.into()),
+            vp,
+        )
+    }
+    pub fn object_gap_case(case: Case, subject: impl Into<Nominal>, vp: VerbPhrase) -> Self {
+        Self::new(
+            GapRole::Object {
+                requested_case: Some(case),
+            },
+            Some(subject.into()),
+            vp,
+        )
     }
     pub fn pp_gap(
         preposition: &str,
@@ -380,6 +395,18 @@ pub enum ClauseCore {
     },
 }
 
+/// The generic `SlotRef::Object` denotes the first object that actually
+/// exists in surface order, rather than being tied to VP index zero.
+/// A copular predicate occupies object slot zero.
+pub(crate) fn information_object_index(core: &ClauseCore) -> Option<usize> {
+    match core {
+        ClauseCore::Verbal(coordination) => {
+            coordination.items.iter().position(|vp| vp.object.is_some())
+        }
+        ClauseCore::Copular { .. } => Some(0),
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TenseSpec {
     Present,
@@ -438,6 +465,8 @@ pub enum Force {
 }
 
 /// A constituent reference for information-structure marking.
+/// `Object` selects the first object that exists in surface VP order
+/// (or the predicate of a copular clause).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SlotRef {
     Subject,
