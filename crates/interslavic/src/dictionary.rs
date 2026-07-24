@@ -34,7 +34,7 @@ pub(crate) struct VerbDictionaryEntry {
     pub reflexive: bool,
     pub intransitive: bool,
     /// Object-government case code from the dictionary's `(+N)`
-    /// annotation (2=Gen, 3=Dat, 4=Acc, 5=Ins, 7=Loc); `None` = unmarked.
+    /// annotation (2=Gen, 3=Dat, 4=Acc, 5=Ins, 6=Loc); `None` = unmarked.
     pub governs: Option<u8>,
 }
 

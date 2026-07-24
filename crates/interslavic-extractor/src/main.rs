@@ -263,7 +263,7 @@ fn write_verb_phf(map: &BTreeMap<String, Vec<VerbEntry>>) -> String {
 
 /// The dictionary's object-government annotation in the addition column:
 /// `(+N)` with the community dictionary's case numbering (2=Gen, 3=Dat,
-/// 4=Acc, 5=Ins, 7=Loc) — the same convention the preposition table was
+/// 4=Acc, 5=Ins, 6=Loc) — the same convention the preposition table was
 /// curated from. May coexist with a present-stem hint
 /// ("izběgti (izběži) (+2)"); the hint parser strips the marker on its
 /// side, so extracting it here clobbers nothing.
@@ -456,7 +456,7 @@ mod tests {
 
     #[test]
     fn government_markers_are_extracted_without_clobbering_hints() {
-        for number in [2, 3, 4, 5, 7] {
+        for number in [2, 3, 4, 5, 6] {
             assert_eq!(parse_governs(&format!("(+{number})")), Some(number));
         }
         assert_eq!(parse_governs("(izběži) (+2)"), Some(2));

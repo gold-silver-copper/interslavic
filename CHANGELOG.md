@@ -13,7 +13,7 @@ construction parts to higher-level syntax consumers.
 ### Added
 
 - **`verb_info().governs: Option<Case>`** — the dictionary's `(+N)`
-  object-government annotations (2=Gen, 3=Dat, 4=Acc, 5=Ins, 7=Loc,
+  object-government annotations (2=Gen, 3=Dat, 4=Acc, 5=Ins, 6=Loc,
   the same community-dictionary numbering the preposition table was
   curated from), extracted into the verb PHF for single-word lemmas
   AND reflexive `X sę` constructions. A reflexive row is stored under

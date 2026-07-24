@@ -449,20 +449,24 @@ pub fn verb_info(infinitive: &str) -> Option<VerbInfo> {
     } else {
         None
     };
-    let governs = match entry.governs {
-        Some(2) => Some(Case::Gen),
-        Some(3) => Some(Case::Dat),
-        Some(4) => Some(Case::Acc),
-        Some(5) => Some(Case::Ins),
-        Some(7) => Some(Case::Loc),
-        _ => None,
-    };
+    let governs = case_from_government_code(entry.governs);
     Some(VerbInfo {
         aspect,
         transitive,
         reflexive: entry.reflexive,
         governs,
     })
+}
+
+fn case_from_government_code(code: Option<u8>) -> Option<Case> {
+    match code {
+        Some(2) => Some(Case::Gen),
+        Some(3) => Some(Case::Dat),
+        Some(4) => Some(Case::Acc),
+        Some(5) => Some(Case::Ins),
+        Some(6) => Some(Case::Loc),
+        _ => None,
+    }
 }
 
 /// Whether a [`NounInfo`] came from a dictionary row or from the same
@@ -1292,6 +1296,23 @@ fn dictionary_gender_to_api(gender: DictionaryGender) -> Gender {
         DictionaryGender::Masculine | DictionaryGender::MasculineFeminine => Gender::Masculine,
         DictionaryGender::Feminine => Gender::Feminine,
         DictionaryGender::Neuter => Gender::Neuter,
+    }
+}
+
+#[cfg(test)]
+mod government_mapping_tests {
+    use super::*;
+
+    #[test]
+    fn dictionary_case_numbers_map_exhaustively() {
+        assert_eq!(case_from_government_code(Some(2)), Some(Case::Gen));
+        assert_eq!(case_from_government_code(Some(3)), Some(Case::Dat));
+        assert_eq!(case_from_government_code(Some(4)), Some(Case::Acc));
+        assert_eq!(case_from_government_code(Some(5)), Some(Case::Ins));
+        assert_eq!(case_from_government_code(Some(6)), Some(Case::Loc));
+        assert_eq!(case_from_government_code(Some(1)), None);
+        assert_eq!(case_from_government_code(Some(7)), None);
+        assert_eq!(case_from_government_code(None), None);
     }
 }
 
