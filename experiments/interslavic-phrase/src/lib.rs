@@ -28,17 +28,22 @@
 //! );
 //! ```
 //!
-//! Deferred by design (do not look for them here): relative clauses,
-//! coordination, topicalization beyond the question focus, clitic
-//! clusters, genitive of negation, spelled-out numerals.
+//! Deferred by design (do not look for them here): genitive of
+//! negation, spelled-out numerals, the `iže` relativizer, the passive
+//! imperative, preposition-phrasal verb government ("bazovati na").
 
 mod ast;
+pub mod discourse;
 mod realize;
 mod sexpr;
 
 pub use ast::{
-    Clause, Force, Nominal, NounPhrase, Polarity, PrepPhrase, TenseSpec, VerbPhrase, clause, np,
-    pp, pron, vp,
+    Addressee, Clause, ClauseCore, Conj, Coordination, Force, GapRole, Mood, Nominal, NounPhrase,
+    Polarity, PredCase, Predicate, PrepPhrase, RelClause, Relativizer, SlotRef, TenseSpec,
+    VerbPhrase, Voice, clause, coordinate, copular, name, np, pp, pron, pron_clitic, vp,
 };
-pub use realize::{PhraseError, RealizeOpts, realize};
+pub use realize::{
+    CliticStyle, PhraseError, PhraseWarning, RealizeOpts, Realized, realize, realize_checked,
+    realize_with_lead_in,
+};
 pub use sexpr::{SexprError, Value, clause_from_str, compile_clause, parse, print};
