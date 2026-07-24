@@ -560,9 +560,12 @@ fn source_at_for_path(value: &Value, path: &str) -> Option<usize> {
                     .iter()
                     .find(|child| matches!(child, Value::List(_, _)))?
             }
+            "nominal" if is_nominal_form(current) => current,
             "nominal" => direct_nominal(current, 0)?,
             "object" => match form_head(current) {
-                Some("vp") => direct_form(current, "object", 0)?,
+                Some("vp") => {
+                    direct_form(current, "object", 0).or_else(|| direct_nominal(current, 0))?
+                }
                 Some("pp") => direct_nominal(current, 0)?,
                 _ => direct_form(current, "object", 0).unwrap_or(current),
             },

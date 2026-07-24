@@ -228,7 +228,7 @@ fn discourse_aggregation_requires_explicit_coreference() {
 }
 
 #[test]
-fn discourse_salience_follows_surface_information_order() {
+fn discourse_salience_follows_typed_information_order() {
     let story = vec![
         DiscourseSentence::new(
             clause(
@@ -329,6 +329,13 @@ fn typed_and_sexpr_inputs_share_structured_validation() {
     assert_eq!(error.at, sexpr.find("(object").unwrap());
     assert!(error.msg.contains("clause.core.vp[0].object"));
     assert!(error.msg.contains("passive clause promotes the patient"));
+
+    let legacy = "\
+        (clause (np (n kniga))
+          (vp (v kupiti) (np (n moneta)))
+          :voice passive)";
+    let error = clause_from_str(legacy).unwrap_err();
+    assert_eq!(error.at, legacy.find("(np (n moneta))").unwrap());
 }
 
 #[test]

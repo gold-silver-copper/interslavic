@@ -123,7 +123,10 @@ The relative `sę` and `go` are not visible to the parent VP.
 Planning then operates on owned syntax-tree clones, and each transformed
 output is validated again before resolution. Entity tracking stores
 referent features from the central nominal profile and visits mentions
-in typed surface order, including topic/focus movement. On a repeated
+in typed constituent order after topic/focus movement and before
+clitic-cluster placement. Token displacement inside a clitic domain does
+not redefine discourse salience; this keeps microplanning independent of
+the later grammar-resolution stage. On a repeated
 unambiguous mention it changes only `ReferentialForm`; the NP, entity ID,
 modifiers, lexical head, and the surrounding complement/PP role remain.
 

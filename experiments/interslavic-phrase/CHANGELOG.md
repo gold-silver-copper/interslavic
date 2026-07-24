@@ -55,7 +55,8 @@ and S-expression canonical output changed.
   including single-item nominal coordination and quoted delimiter atoms.
 - Made generic object topic/focus target the first object that actually
   exists, kept later objects with their owning VP under default `li`
-  order, and made discourse salience follow typed surface order.
+  order, and made discourse salience follow typed constituent order
+  after information-structure movement.
 - Coalesced coincident punctuation boundaries, such as a relative-clause
   closing comma that is also a coordination delimiter.
 

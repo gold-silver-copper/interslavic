@@ -9,7 +9,10 @@
 //!   entity-tagged NPs render in full on first mention and pronominalize
 //!   afterwards; the full NP returns after an interfering same-featured
 //!   entity. The salience model is deliberately just recency +
-//!   interference — no scoring.
+//!   interference — no scoring. Recency follows typed constituent order
+//!   after topic/focus movement and before clitic-cluster placement; token
+//!   displacement inside a clitic domain does not redefine discourse
+//!   salience.
 //! - **Aggregation**: adjacent clauses sharing subject entity, tense,
 //!   polarity, mood, voice, prodrop, and declarative force merge into
 //!   one clause with `i` VP coordination ("Krålj kupil knigų i pročital
