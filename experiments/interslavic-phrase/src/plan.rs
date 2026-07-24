@@ -47,7 +47,14 @@ pub(crate) enum SlotKind {
     Subject,
     Verb(usize),
     Object(usize),
+    QuestionParticle(QuestionParticle),
     Fixed,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum QuestionParticle {
+    Li,
+    Ci,
 }
 
 #[derive(Debug, Clone)]

@@ -990,7 +990,7 @@ pub(crate) fn realize_validated_with_lead_in(
         constituents.insert(
             index + 1,
             Constituent {
-                slot: SlotKind::Fixed,
+                slot: SlotKind::QuestionParticle(QuestionParticle::Li),
                 nodes: vec![word("li")],
             },
         );
@@ -1003,7 +1003,7 @@ pub(crate) fn realize_validated_with_lead_in(
         constituents.insert(
             0,
             Constituent {
-                slot: SlotKind::Fixed,
+                slot: SlotKind::QuestionParticle(QuestionParticle::Ci),
                 nodes: vec![word("či")],
             },
         );
@@ -1120,7 +1120,7 @@ fn place_cluster(
     style: CliticStyle,
 ) {
     let is_li_particle = |constituent: &Constituent| {
-        constituent.slot == SlotKind::Fixed && constituent.nodes == vec![word("li")]
+        constituent.slot == SlotKind::QuestionParticle(QuestionParticle::Li)
     };
     let after_li = |constituents: &[Constituent], mut index: usize| -> usize {
         if constituents.get(index).is_some_and(is_li_particle) {
