@@ -6,7 +6,7 @@
 //!                :mood cond, :voice passive, :force li|či|intonation|imp,
 //!                :addressee 1pl|2pl, :conj, :topic, :focus, :pred-case ins
 //!   cores:       (vp …)+ (coordinated), (pred (np …)|(adj …)|(part …))
-//!   np:          :case, :entity, (det …), (num …), (adj …)+, (rel …)
+//!   np:          :entity, :refer, (det …), (num …), (adj …)+, (rel …)
 //!   rel:         :gap subj|obj|pp (+ (prep …) :case), :tense, :neg,
 //!                :relativizer iže
 //!   pron:        person/number/gender flags, :clitic
@@ -14,9 +14,8 @@
 //!   coord:       every conjunction (i, ili, a, ale)
 //!   vp:          (v … sę), (adv …), object, (pp … :case …)
 //!
-//! Contract (see `print`): parse ∘ print = id for canonical trees;
-//! print(parse(print(t))) == print(t) for all trees (print
-//! canonicalizes — e.g. single-item coordinations print as their item).
+//! Contract (see `print`): parse ∘ print = id for every valid tree,
+//! including single-item coordination and referential choice.
 
 use interslavic::{Case, Gender, Number, Person};
 use interslavic_phrase::*;
@@ -50,7 +49,7 @@ fn trees() -> Vec<Clause> {
         .prodrop(),
         clause(
             np("otėc"),
-            vp("kupiti").object(np("kniga").case(Case::Gen)).pp(pp(
+            vp("kupiti").object_case(Case::Gen, np("kniga")).pp(pp(
                 "za",
                 pron(Person::Third, Number::Singular, Gender::Neuter),
             )
@@ -104,17 +103,8 @@ fn trees() -> Vec<Clause> {
             Predicate::Adjectival("dobry".into()),
         ),
         copular(
-            np("dom").relative(RelClause {
-                gap: GapRole::PpObject {
-                    preposition: "v".into(),
-                    case: Case::Loc,
-                },
-                subject: Some(np("krålj").into()),
-                vp: vp("spati"),
-                tense: TenseSpec::Present,
-                polarity: Polarity::Negative,
-                relativizer: Relativizer::Ktory,
-            }),
+            np("dom")
+                .relative(RelClause::pp_gap("v", Case::Loc, np("krålj"), vp("spati")).negated()),
             Predicate::Adjectival("veliky".into()),
         ),
         copular(
@@ -147,7 +137,9 @@ fn trees() -> Vec<Clause> {
         ),
         clause(np("krålj"), vp("kupiti"))
             .and_vp(vp("pročitati").object(np("kniga")))
+            .unwrap()
             .conj(Conj::Ale)
+            .unwrap()
             .past(),
         // Pronoun clitics, names, information structure, entities.
         clause(
@@ -196,21 +188,15 @@ fn print_parse_roundtrip_is_identity_on_canonical_trees() {
 }
 
 #[test]
-fn print_canonicalizes_single_item_coordination() {
-    // A single-item coordination is surface-indistinguishable from its
-    // item; print normalizes it, and re-parsing yields the canonical
-    // tree. print(parse(print(t))) == print(t) still holds.
+fn single_item_coordination_roundtrips_without_losing_structure() {
     let tree = clause(
-        Nominal::Coord(Coordination {
-            conjunction: Conj::I,
-            items: vec![np("otėc").into()],
-        }),
+        Nominal::Coord(Coordination::new(Conj::I, vec![np("otėc").into()])),
         vp("spati"),
     );
     let printed = print(&tree);
-    assert_eq!(printed, "(clause (np (n otėc)) (vp (v spati)))");
+    assert_eq!(printed, "(clause (coord i (np (n otėc))) (vp (v spati)))");
     let reparsed = clause_from_str(&printed).unwrap();
-    assert_eq!(reparsed, clause(np("otėc"), vp("spati")));
+    assert_eq!(reparsed, tree);
     assert_eq!(print(&reparsed), printed);
 }
 

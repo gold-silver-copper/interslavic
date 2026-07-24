@@ -83,6 +83,7 @@ fn main() {
         .past(),
         clause(np("krålj"), vp("kupiti"))
             .and_vp(vp("pročitati").object(np("kniga")))
+            .unwrap()
             .past(),
         clause(
             np("krålj"),

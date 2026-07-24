@@ -1,19 +1,20 @@
 //! Abstract syntax: typed nodes over citation-form leaves.
 //!
 //! Leaves carry the flavored citation forms the `interslavic` facade
-//! expects (Nom-sg nouns, masc-Nom-sg adjectives, infinitives). Case is
-//! assigned by the *slot* a nominal occupies (subject → Nom, object →
-//! the verb's dictionary government or Acc, PP → the preposition's
-//! government); [`NounPhrase::case_override`] exists only for marked
-//! constructions.
+//! expects (Nom-sg nouns, masc-Nom-sg adjectives, infinitives). A
+//! [`NounPhrase`] has no case: case constraints belong to grammatical
+//! role edges such as [`Complement`], [`PrepPhrase`], predicate case,
+//! and relative gaps. Resolution therefore produces one authoritative
+//! case for each nominal slot before linearization.
 //!
-//! 0.2.0 is a breaking revision of the 0.1.0 AST (the crate README
-//! warned 0.1.x would move): `Clause.vp` became [`Clause::core`]
-//! (verbal cores are coordinations; copular cores are new), `Pron`
-//! gained `clitic`, `NounPhrase` gained `relative`/`entity`, and
-//! `Force` gained `Imperative`.
+//! 0.2.0 is a breaking revision of the 0.1.0 AST: `Clause.vp` became
+//! [`Clause::core`] (verbal cores are coordinations; copular cores are
+//! new), direct objects gained an explicit [`Complement`] edge, `Pron`
+//! gained `clitic`, `NounPhrase` gained `relative`/`entity`/
+//! `referential`, and `Force` gained `Imperative`.
 
 use interslavic::{Case, Gender, Number, Person};
+use std::fmt;
 
 /// A noun phrase: optional determiner and count, adjective modifiers,
 /// the head noun that fixes gender/animacy for the whole phrase, an
@@ -21,13 +22,13 @@ use interslavic::{Case, Gender, Number, Person};
 /// (consumed by [`crate::discourse`]; plain realization ignores it).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NounPhrase {
-    pub determiner: Option<String>,
-    pub count: Option<u64>,
-    pub adjectives: Vec<String>,
-    pub head: String,
-    pub case_override: Option<Case>,
-    pub relative: Option<Box<RelClause>>,
-    pub entity: Option<String>,
+    pub(crate) determiner: Option<String>,
+    pub(crate) count: Option<u64>,
+    pub(crate) adjectives: Vec<String>,
+    pub(crate) head: String,
+    pub(crate) relative: Option<Box<RelClause>>,
+    pub(crate) entity: Option<String>,
+    pub(crate) referential: ReferentialForm,
 }
 
 impl NounPhrase {
@@ -37,9 +38,9 @@ impl NounPhrase {
             count: None,
             adjectives: Vec::new(),
             head: head.trim().to_string(),
-            case_override: None,
             relative: None,
             entity: None,
+            referential: ReferentialForm::Full,
         }
     }
     pub fn det(mut self, determiner: &str) -> Self {
@@ -54,10 +55,6 @@ impl NounPhrase {
         self.adjectives.push(adjective.trim().to_string());
         self
     }
-    pub fn case(mut self, case: Case) -> Self {
-        self.case_override = Some(case);
-        self
-    }
     pub fn relative(mut self, rel: RelClause) -> Self {
         self.relative = Some(Box::new(rel));
         self
@@ -66,6 +63,26 @@ impl NounPhrase {
         self.entity = Some(id.to_string());
         self
     }
+    pub fn referential(mut self, form: ReferentialForm) -> Self {
+        self.referential = form;
+        self
+    }
+
+    pub fn head(&self) -> &str {
+        &self.head
+    }
+}
+
+/// How an entity-bearing lexical NP should be referred to at the
+/// discourse-planning boundary. Changing this never discards the NP's
+/// lexical content, modifiers, relative propositions, entity identity,
+/// or the case constraint owned by its grammatical role.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ReferentialForm {
+    #[default]
+    Full,
+    Pronoun,
+    Clitic,
 }
 
 /// The relativizer lexeme. `Ktory` is the neutral default; `Iže` is the
@@ -95,34 +112,49 @@ pub enum GapRole {
 /// `subject` is `None` exactly when the gap IS the subject.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RelClause {
-    pub gap: GapRole,
-    pub subject: Option<Nominal>,
-    pub vp: VerbPhrase,
-    pub tense: TenseSpec,
-    pub polarity: Polarity,
-    pub relativizer: Relativizer,
+    pub(crate) gap: GapRole,
+    pub(crate) subject: Option<Nominal>,
+    pub(crate) vp: VerbPhrase,
+    pub(crate) tense: TenseSpec,
+    pub(crate) polarity: Polarity,
+    pub(crate) relativizer: Relativizer,
 }
 
 impl RelClause {
-    pub fn subject_gap(vp: VerbPhrase) -> Self {
+    /// Construct a raw relative clause. Prefer the gap-specific smart
+    /// constructors below for ordinary authoring; this constructor exists
+    /// for data-driven front ends whose output is checked by [`crate::validate`].
+    pub fn new(gap: GapRole, subject: Option<Nominal>, vp: VerbPhrase) -> Self {
         Self {
-            gap: GapRole::Subject,
-            subject: None,
+            gap,
+            subject,
             vp,
             tense: TenseSpec::Present,
             polarity: Polarity::Affirmative,
             relativizer: Relativizer::Ktory,
         }
     }
+
+    pub fn subject_gap(vp: VerbPhrase) -> Self {
+        Self::new(GapRole::Subject, None, vp)
+    }
     pub fn object_gap(subject: impl Into<Nominal>, vp: VerbPhrase) -> Self {
-        Self {
-            gap: GapRole::Object,
-            subject: Some(subject.into()),
+        Self::new(GapRole::Object, Some(subject.into()), vp)
+    }
+    pub fn pp_gap(
+        preposition: &str,
+        case: Case,
+        subject: impl Into<Nominal>,
+        vp: VerbPhrase,
+    ) -> Self {
+        Self::new(
+            GapRole::PpObject {
+                preposition: preposition.trim().to_string(),
+                case,
+            },
+            Some(subject.into()),
             vp,
-            tense: TenseSpec::Present,
-            polarity: Polarity::Affirmative,
-            relativizer: Relativizer::Ktory,
-        }
+        )
     }
     pub fn tense(mut self, tense: TenseSpec) -> Self {
         self.tense = tense;
@@ -130,6 +162,13 @@ impl RelClause {
     }
     pub fn past(self) -> Self {
         self.tense(TenseSpec::Past)
+    }
+    pub fn polarity(mut self, polarity: Polarity) -> Self {
+        self.polarity = polarity;
+        self
+    }
+    pub fn negated(self) -> Self {
+        self.polarity(Polarity::Negative)
     }
     pub fn relativizer(mut self, relativizer: Relativizer) -> Self {
         self.relativizer = relativizer;
@@ -164,8 +203,8 @@ impl Conj {
 /// single item realizes as itself (no conjunction).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Coordination<T> {
-    pub conjunction: Conj,
-    pub items: Vec<T>,
+    pub(crate) conjunction: Conj,
+    pub(crate) items: Vec<T>,
 }
 
 impl<T> Coordination<T> {
@@ -174,6 +213,14 @@ impl<T> Coordination<T> {
             conjunction: Conj::I,
             items: vec![item],
         }
+    }
+
+    pub fn new(conjunction: Conj, items: Vec<T>) -> Self {
+        Self { conjunction, items }
+    }
+
+    pub fn items(&self) -> &[T] {
+        &self.items
     }
 }
 
@@ -201,6 +248,37 @@ pub enum Nominal {
     Coord(Coordination<Nominal>),
 }
 
+/// A nominal attached to a verb-complement edge. The optional requested
+/// case is distinct from dictionary/default government and is resolved
+/// exactly once during grammar resolution.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Complement {
+    pub(crate) nominal: Nominal,
+    pub(crate) requested_case: Option<Case>,
+}
+
+impl Complement {
+    pub fn new(nominal: impl Into<Nominal>) -> Self {
+        Self {
+            nominal: nominal.into(),
+            requested_case: None,
+        }
+    }
+
+    pub fn case(mut self, case: Case) -> Self {
+        self.requested_case = Some(case);
+        self
+    }
+
+    pub fn nominal(&self) -> &Nominal {
+        &self.nominal
+    }
+
+    pub fn requested_case(&self) -> Option<Case> {
+        self.requested_case
+    }
+}
+
 impl From<NounPhrase> for Nominal {
     fn from(np: NounPhrase) -> Self {
         Nominal::Np(np)
@@ -213,10 +291,10 @@ impl From<NounPhrase> for Nominal {
 /// defaulting to accusative), adverbs, and prepositional adjuncts.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerbPhrase {
-    pub verb: String,
-    pub object: Option<Nominal>,
-    pub adverbs: Vec<String>,
-    pub pps: Vec<PrepPhrase>,
+    pub(crate) verb: String,
+    pub(crate) object: Option<Complement>,
+    pub(crate) adverbs: Vec<String>,
+    pub(crate) pps: Vec<PrepPhrase>,
 }
 
 impl VerbPhrase {
@@ -229,7 +307,15 @@ impl VerbPhrase {
         }
     }
     pub fn object(mut self, object: impl Into<Nominal>) -> Self {
-        self.object = Some(object.into());
+        self.object = Some(Complement::new(object));
+        self
+    }
+    pub fn object_case(mut self, case: Case, object: impl Into<Nominal>) -> Self {
+        self.object = Some(Complement::new(object).case(case));
+        self
+    }
+    pub fn complement(mut self, complement: Complement) -> Self {
+        self.object = Some(complement);
         self
     }
     pub fn adv(mut self, adverb: &str) -> Self {
@@ -246,9 +332,9 @@ impl VerbPhrase {
 /// that govern a single case.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrepPhrase {
-    pub preposition: String,
-    pub case: Option<Case>,
-    pub object: Nominal,
+    pub(crate) preposition: String,
+    pub(crate) case: Option<Case>,
+    pub(crate) object: Nominal,
 }
 
 impl PrepPhrase {
@@ -360,22 +446,39 @@ pub enum SlotRef {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Clause {
-    pub subject: Nominal,
-    pub core: ClauseCore,
-    pub tense: TenseSpec,
-    pub polarity: Polarity,
-    pub force: Force,
-    pub mood: Mood,
-    pub voice: Voice,
+    pub(crate) subject: Nominal,
+    pub(crate) core: ClauseCore,
+    pub(crate) tense: TenseSpec,
+    pub(crate) polarity: Polarity,
+    pub(crate) force: Force,
+    pub(crate) mood: Mood,
+    pub(crate) voice: Voice,
     /// Pro-drop is OFF by default: steen (pronouns page) recommends
     /// keeping the subject pronoun ("ja čitaju" over "čitaju").
-    pub prodrop: bool,
+    pub(crate) prodrop: bool,
     /// Fronted constituent (theme). Unmarked clauses keep neutral SVO.
-    pub topic: Option<SlotRef>,
+    pub(crate) topic: Option<SlotRef>,
     /// Clause-final constituent (rheme); also the attachment point of
     /// `li` (steen: "right after the focus point of the question").
-    pub focus: Option<SlotRef>,
+    pub(crate) focus: Option<SlotRef>,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuildError {
+    VerbalCoreRequired(&'static str),
+}
+
+impl fmt::Display for BuildError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            BuildError::VerbalCoreRequired(operation) => {
+                write!(f, "`{operation}` requires a verbal clause core")
+            }
+        }
+    }
+}
+
+impl std::error::Error for BuildError {}
 
 impl Clause {
     pub fn new(subject: impl Into<Nominal>, vp: VerbPhrase) -> Self {
@@ -396,20 +499,19 @@ impl Clause {
         }
     }
     /// Add a coordinated verb phrase (default conjunction `i`).
-    pub fn and_vp(mut self, vp: VerbPhrase) -> Self {
+    pub fn and_vp(mut self, vp: VerbPhrase) -> Result<Self, BuildError> {
         match &mut self.core {
             ClauseCore::Verbal(coordination) => coordination.items.push(vp),
-            ClauseCore::Copular { .. } => {
-                panic!("and_vp on a copular clause; build a verbal clause instead")
-            }
+            ClauseCore::Copular { .. } => return Err(BuildError::VerbalCoreRequired("and_vp")),
         }
-        self
+        Ok(self)
     }
-    pub fn conj(mut self, conjunction: Conj) -> Self {
-        if let ClauseCore::Verbal(coordination) = &mut self.core {
-            coordination.conjunction = conjunction;
-        }
-        self
+    pub fn conj(mut self, conjunction: Conj) -> Result<Self, BuildError> {
+        let ClauseCore::Verbal(coordination) = &mut self.core else {
+            return Err(BuildError::VerbalCoreRequired("conj"));
+        };
+        coordination.conjunction = conjunction;
+        Ok(self)
     }
     pub fn tense(mut self, tense: TenseSpec) -> Self {
         self.tense = tense;
@@ -489,7 +591,7 @@ pub fn name(text: &str, gender: Gender) -> Nominal {
     }
 }
 pub fn coordinate(conjunction: Conj, items: Vec<Nominal>) -> Nominal {
-    Nominal::Coord(Coordination { conjunction, items })
+    Nominal::Coord(Coordination::new(conjunction, items))
 }
 pub fn clause(subject: impl Into<Nominal>, vp: VerbPhrase) -> Clause {
     Clause::new(subject, vp)

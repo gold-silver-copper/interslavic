@@ -34,6 +34,7 @@ fn coordinated_vp_clitics_attach_to_their_own_verb() {
             Number::Singular,
             Gender::Masculine,
         )))
+        .unwrap()
         .past();
     assert_eq!(s(&tree), "Krålj kupil knigų i viděl go.");
 
@@ -51,7 +52,8 @@ fn coordinated_vp_clitics_attach_to_their_own_verb() {
         Person::Third,
         Number::Singular,
         Gender::Masculine,
-    )));
+    )))
+    .unwrap();
     assert_eq!(s(&tree), "Ja viđų tę i slyšų go.");
 }
 
@@ -141,7 +143,8 @@ fn reflexive_coordination_is_rule_uniform() {
         pron(Person::First, Number::Singular, Gender::Masculine),
         vp("myti sę"),
     )
-    .and_vp(vp("myti sę"));
+    .and_vp(vp("myti sę"))
+    .unwrap();
     assert_eq!(s(&tree), "Ja myjų sę i myjų sę.");
     assert_eq!(
         realize(
@@ -168,14 +171,22 @@ fn incoherent_clauses_are_decided_not_silent() {
         .force(Force::Imperative(Addressee::You));
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::Unsupported(_))
+        Err(PhraseError::Validation(ValidationErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ValidationErrorKind::IncoherentClause("passive imperative is unsupported")
+            ))
     ));
     let tree = clause(np("otėc"), vp("kupiti").object(np("kniga")))
         .conditional()
         .force(Force::Imperative(Addressee::You));
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::IncoherentClause(_))
+        Err(PhraseError::Validation(ValidationErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ValidationErrorKind::IncoherentClause("conditional imperative")
+            ))
     ));
 }
 
@@ -188,7 +199,11 @@ fn relatives_share_the_vp_machinery() {
     );
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::ObjectOfIntransitive { .. })
+        Err(PhraseError::Resolution(ResolutionErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ResolutionErrorKind::ObjectOfIntransitive { .. }
+            ))
     ));
     // …and adverbs render (the old copy dropped them).
     let tree = copular(
@@ -217,7 +232,12 @@ fn order_markedness_is_derived_and_warnings_fire_once() {
     )
     .unwrap();
     assert_eq!(realized.text, "Nebo avto vidi.");
-    assert_eq!(realized.warnings, vec![PhraseWarning::AmbiguousOrder]);
+    assert_eq!(
+        realized.warnings,
+        vec![PhraseWarning::AmbiguousOrder {
+            path: "clause.order".into()
+        }]
+    );
 
     // Warnings from inside relatives are emitted once, not tripled by
     // syncretism probes (the probe is pure now).

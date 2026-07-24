@@ -16,22 +16,24 @@
 //!                :pred-case ins               (copular clauses)
 //! CORE   := VP+ | (pred NP | (adj L) | (part L))
 //! SUBJ   := NOMINAL
-//! NOMINAL:= NP | PRON | NAME | (coord CONJ NOMINAL NOMINAL+)
-//! NP     := (np [:case CASE] [:entity ID] [(det L)] [(num N)]
+//! NOMINAL:= NP | PRON | NAME | (coord CONJ NOMINAL+)
+//! NP     := (np [:entity ID] [:refer full|pron|clitic] [(det L)] [(num N)]
 //!               (adj L)* (n L) [REL])
 //! REL    := (rel :gap subj|obj|pp [(prep L)] [:case CASE]
 //!                [SUBJ-NOMINAL] (vp …) [:tense …] [:neg]
 //!                [:relativizer iže])
 //! PRON   := (pron :1|:2|:3 :sg|:pl :m|:f|:n [:clitic])
 //! NAME   := (name Word :m|:f|:n [:indecl])
-//! VP     := (vp (v L…) [(adv L)]* [OBJ: NOMINAL] PP*)   ; "v myti sę" = reflexive
+//! VP     := (vp (v L) [(adv L)]* [(object [:case CASE] NOMINAL)] PP*)
 //! PP     := (pp (prep L) [:case CASE] NOMINAL)
 //! CASE   := nom|acc|gen|loc|dat|ins
 //! CONJ   := i|ili|a|ale
 //! ```
 //!
 //! Leaves are flavored citation forms; integers are counts rendered as
-//! digits.
+//! digits. Unsafe atoms use quoted strings with `\"`, `\\`, `\n`,
+//! `\r`, and `\t` escapes. For every valid tree,
+//! `clause_from_str(print(tree)) == tree`.
 
 use crate::ast::*;
 use interslavic::{Case, Gender, Number, Person};
@@ -96,6 +98,38 @@ fn tokenize(input: &str) -> Result<Vec<Value>, SexprError> {
         } else if c == '(' || c == ')' {
             chars.next();
             out.push(Value::Sym(c.to_string(), at));
+        } else if c == '"' {
+            chars.next();
+            let mut atom = String::new();
+            let mut closed = false;
+            while let Some((escape_at, next)) = chars.next() {
+                match next {
+                    '"' => {
+                        closed = true;
+                        break;
+                    }
+                    '\\' => {
+                        let Some((_, escaped)) = chars.next() else {
+                            return err(escape_at, "unterminated escape in quoted atom");
+                        };
+                        atom.push(match escaped {
+                            '"' => '"',
+                            '\\' => '\\',
+                            'n' => '\n',
+                            'r' => '\r',
+                            't' => '\t',
+                            other => {
+                                return err(escape_at, format!("unsupported escape `\\{other}`"));
+                            }
+                        });
+                    }
+                    other => atom.push(other),
+                }
+            }
+            if !closed {
+                return err(at, "unterminated quoted atom");
+            }
+            out.push(Value::Sym(atom, at));
         } else {
             let mut atom = String::new();
             while let Some(&(_, c)) = chars.peek() {
@@ -369,9 +403,11 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
             if let Some(conjunction_at) = conjunction_at {
                 return err(conjunction_at, "`:conj` requires a verbal clause");
             }
-            // `:pred-case` is a nominal-predicate option. Reject it on
-            // adjectival or participial predicates instead of accepting
-            // and canonicalizing the option away.
+            // Presence of an explicit default `:pred-case nom` is not
+            // represented in the raw AST, so this surface-only
+            // applicability check must happen before that information is
+            // erased. Instrumental misuse is also caught by shared
+            // validation for typed raw trees.
             if let Some(pred_case_at) = pred_case_at
                 && !matches!(predicate, Predicate::Nominal(_))
             {
@@ -394,7 +430,7 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
         (Some(_), false) => return err(*at, "`clause` cannot have both vp and pred"),
         (None, true) => return err(*at, "`clause` needs a `(vp …)` or `(pred …)`"),
     };
-    Ok(Clause {
+    let clause = Clause {
         subject,
         core,
         tense,
@@ -405,7 +441,12 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
         prodrop,
         topic,
         focus,
-    })
+    };
+    crate::validate(&clause).map_err(|errors| SexprError {
+        at: *at,
+        msg: errors.to_string(),
+    })?;
+    Ok(clause)
 }
 
 fn tense_of(text: &str, at: usize) -> Result<TenseSpec, SexprError> {
@@ -456,20 +497,25 @@ fn compile_nominal(value: &Value) -> Result<Nominal, SexprError> {
 fn compile_np(items: &[Value], at: usize) -> Result<NounPhrase, SexprError> {
     let mut np = NounPhrase::new("");
     let mut head_seen = false;
-    let mut case_at = None;
     let mut entity_at = None;
+    let mut referential_at = None;
     let mut rest = items[1..].iter().peekable();
     while let Some(item) = rest.next() {
         match item {
-            Value::Key(key, key_at) if key == "case" => {
-                mark_once(&mut case_at, *key_at, "`:case`")?;
-                let (s, s_at) = key_sym(&mut rest, *key_at, ":case")?;
-                np.case_override = Some(case_of(s, s_at)?);
-            }
             Value::Key(key, key_at) if key == "entity" => {
                 mark_once(&mut entity_at, *key_at, "`:entity`")?;
                 let (s, _) = key_sym(&mut rest, *key_at, ":entity")?;
                 np.entity = Some(s.to_string());
+            }
+            Value::Key(key, key_at) if key == "refer" => {
+                mark_once(&mut referential_at, *key_at, "`:refer`")?;
+                let (s, s_at) = key_sym(&mut rest, *key_at, ":refer")?;
+                np.referential = match s {
+                    "full" => ReferentialForm::Full,
+                    "pron" => ReferentialForm::Pronoun,
+                    "clitic" => ReferentialForm::Clitic,
+                    other => return err(s_at, format!("unknown referential form `{other}`")),
+                };
             }
             Value::Key(key, key_at) => return err(*key_at, format!("unknown np key `:{key}`")),
             Value::List(child, child_at) => match head_of(child, *child_at)? {
@@ -631,18 +677,6 @@ fn compile_rel(items: &[Value], at: usize) -> Result<RelClause, SexprError> {
     let Some(vp) = vp else {
         return err(at, "`(rel …)` needs a `(vp …)`");
     };
-    if gap == GapRole::Subject && subject.is_some() {
-        return err(
-            at,
-            "a subject gap cannot also have an overt subject nominal",
-        );
-    }
-    if gap != GapRole::Subject && subject.is_none() {
-        return err(at, "a non-subject gap needs an overt subject nominal");
-    }
-    if gap == GapRole::Object && vp.object.is_some() {
-        return err(at, "an object gap cannot also have a VP object");
-    }
     Ok(RelClause {
         gap,
         subject,
@@ -767,9 +801,6 @@ fn compile_coord(items: &[Value], at: usize) -> Result<Nominal, SexprError> {
     for item in rest {
         coord_items.push(compile_nominal(item)?);
     }
-    if coord_items.len() < 2 {
-        return err(at, "`(coord …)` needs at least two nominals");
-    }
     Ok(Nominal::Coord(Coordination {
         conjunction,
         items: coord_items,
@@ -803,11 +834,19 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
                 verb = Some(words.join(" "));
             }
             ("adv", _) => adverbs.push(sym_arg(child, "adv", *child_at)?),
+            ("object", _) => {
+                if object.is_some() {
+                    return err(*child_at, "`(vp …)` takes at most one object");
+                }
+                object = Some(compile_complement(child, *child_at)?);
+            }
             ("np" | "pron" | "name" | "coord", _) => {
                 if object.is_some() {
                     return err(*child_at, "`(vp …)` takes at most one object");
                 }
-                object = Some(compile_nominal(item)?);
+                // Legacy 0.1/early-0.2 spelling. The canonical printer
+                // emits an explicit role edge `(object …)`.
+                object = Some(Complement::new(compile_nominal(item)?));
             }
             ("pp", _) => pps.push(compile_pp(child, *child_at)?),
             (other, other_at) => return err(other_at, format!("unknown vp child `{other}`")),
@@ -821,6 +860,39 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
         object,
         adverbs,
         pps,
+    })
+}
+
+fn compile_complement(items: &[Value], at: usize) -> Result<Complement, SexprError> {
+    let mut requested_case = None;
+    let mut case_at = None;
+    let mut nominal = None;
+    let mut rest = items[1..].iter().peekable();
+    while let Some(item) = rest.next() {
+        match item {
+            Value::Key(key, key_at) if key == "case" => {
+                mark_once(&mut case_at, *key_at, "`:case`")?;
+                let (case, case_at) = key_sym(&mut rest, *key_at, ":case")?;
+                requested_case = Some(case_of(case, case_at)?);
+            }
+            Value::Key(key, key_at) => {
+                return err(*key_at, format!("unknown object key `:{key}`"));
+            }
+            Value::List(_, _) => {
+                if nominal.is_some() {
+                    return err(item.at(), "`(object …)` takes exactly one nominal");
+                }
+                nominal = Some(compile_nominal(item)?);
+            }
+            other => return err(other.at(), "unexpected atom inside `(object …)`"),
+        }
+    }
+    let Some(nominal) = nominal else {
+        return err(at, "`(object …)` needs a nominal");
+    };
+    Ok(Complement {
+        nominal,
+        requested_case,
     })
 }
 
@@ -870,12 +942,35 @@ fn compile_pp(items: &[Value], at: usize) -> Result<PrepPhrase, SexprError> {
 // Canonical printer.
 // ---------------------------------------------------------------------------
 
-/// Print a clause in canonical form: children in fixed order, only
-/// non-default keys emitted, single-item coordinations normalized to
-/// their item. The round-trip contract: `compile_clause(parse(print(c)))`
-/// equals `c` for every CANONICAL tree, and `print` is idempotent under
-/// re-parsing (`print(parse(print(c))) == print(c)`) for every tree —
-/// printing canonicalizes.
+fn push_atom(out: &mut String, atom: &str) {
+    let safe = !atom.is_empty()
+        && !atom.starts_with(':')
+        && !atom.chars().all(|c| c.is_ascii_digit())
+        && atom
+            .chars()
+            .all(|c| !c.is_whitespace() && !matches!(c, '(' | ')' | '"' | '\\'));
+    if safe {
+        out.push_str(atom);
+        return;
+    }
+    out.push('"');
+    for ch in atom.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            other => out.push(other),
+        }
+    }
+    out.push('"');
+}
+
+/// Print a clause in canonical form: children in fixed order and only
+/// non-default keys emitted. For every valid tree,
+/// `compile_clause(parse(print(c))) == c`; generated tests cover every
+/// node kind and escaped-atom class.
 pub fn print(clause: &Clause) -> String {
     let mut out = String::from("(clause ");
     print_nominal(&clause.subject, &mut out);
@@ -897,8 +992,16 @@ pub fn print(clause: &Clause) -> String {
             out.push_str(" (pred ");
             match predicate {
                 Predicate::Nominal(np) => print_np(np, &mut out),
-                Predicate::Adjectival(adjective) => out.push_str(&format!("(adj {adjective})")),
-                Predicate::Participial(infinitive) => out.push_str(&format!("(part {infinitive})")),
+                Predicate::Adjectival(adjective) => {
+                    out.push_str("(adj ");
+                    push_atom(&mut out, adjective);
+                    out.push(')');
+                }
+                Predicate::Participial(infinitive) => {
+                    out.push_str("(part ");
+                    push_atom(&mut out, infinitive);
+                    out.push(')');
+                }
             }
             out.push(')');
             if *pred_case == PredCase::Instrumental {
@@ -995,21 +1098,15 @@ fn print_nominal(nominal: &Nominal, out: &mut String) {
                 Gender::Feminine => "f",
                 Gender::Neuter => "n",
             };
-            out.push_str(&format!("(name {text} :{g}"));
+            out.push_str("(name ");
+            push_atom(out, text);
+            out.push_str(&format!(" :{g}"));
             if *indeclinable {
                 out.push_str(" :indecl");
             }
             out.push(')');
         }
         Nominal::Coord(coordination) => {
-            // Canonicalization: a single-item coordination prints as its
-            // item — the reader requires >= 2 conjuncts, and the two
-            // trees are surface-indistinguishable anyway. See the
-            // round-trip contract on [`print`].
-            if let [only] = coordination.items.as_slice() {
-                print_nominal(only, out);
-                return;
-            }
             out.push_str(&format!("(coord {}", coordination.conjunction.word()));
             for item in &coordination.items {
                 out.push(' ');
@@ -1022,23 +1119,31 @@ fn print_nominal(nominal: &Nominal, out: &mut String) {
 
 fn print_np(np: &NounPhrase, out: &mut String) {
     out.push_str("(np");
-    if let Some(case) = np.case_override {
-        out.push_str(" :case ");
-        out.push_str(case_name(case));
-    }
     if let Some(entity) = &np.entity {
-        out.push_str(&format!(" :entity {entity}"));
+        out.push_str(" :entity ");
+        push_atom(out, entity);
+    }
+    match np.referential {
+        ReferentialForm::Full => {}
+        ReferentialForm::Pronoun => out.push_str(" :refer pron"),
+        ReferentialForm::Clitic => out.push_str(" :refer clitic"),
     }
     if let Some(det) = &np.determiner {
-        out.push_str(&format!(" (det {det})"));
+        out.push_str(" (det ");
+        push_atom(out, det);
+        out.push(')');
     }
     if let Some(n) = np.count {
         out.push_str(&format!(" (num {n})"));
     }
     for adjective in &np.adjectives {
-        out.push_str(&format!(" (adj {adjective})"));
+        out.push_str(" (adj ");
+        push_atom(out, adjective);
+        out.push(')');
     }
-    out.push_str(&format!(" (n {})", np.head));
+    out.push_str(" (n ");
+    push_atom(out, &np.head);
+    out.push(')');
     if let Some(rel) = &np.relative {
         out.push(' ');
         print_rel(rel, out);
@@ -1052,10 +1157,10 @@ fn print_rel(rel: &RelClause, out: &mut String) {
         GapRole::Subject => out.push_str("subj"),
         GapRole::Object => out.push_str("obj"),
         GapRole::PpObject { preposition, case } => {
-            out.push_str(&format!(
-                "pp (prep {preposition}) :case {}",
-                case_name(*case)
-            ));
+            out.push_str("pp (prep ");
+            push_atom(out, preposition);
+            out.push_str(") :case ");
+            out.push_str(case_name(*case));
         }
     }
     if let Some(subject) = &rel.subject {
@@ -1079,16 +1184,28 @@ fn print_rel(rel: &RelClause, out: &mut String) {
 }
 
 fn print_vp(vp: &VerbPhrase, out: &mut String) {
-    out.push_str(&format!("(vp (v {})", vp.verb));
+    out.push_str("(vp (v ");
+    push_atom(out, &vp.verb);
+    out.push(')');
     for adverb in &vp.adverbs {
-        out.push_str(&format!(" (adv {adverb})"));
+        out.push_str(" (adv ");
+        push_atom(out, adverb);
+        out.push(')');
     }
     if let Some(object) = &vp.object {
+        out.push_str(" (object");
+        if let Some(case) = object.requested_case {
+            out.push_str(" :case ");
+            out.push_str(case_name(case));
+        }
         out.push(' ');
-        print_nominal(object, out);
+        print_nominal(&object.nominal, out);
+        out.push(')');
     }
     for pp in &vp.pps {
-        out.push_str(&format!(" (pp (prep {})", pp.preposition));
+        out.push_str(" (pp (prep ");
+        push_atom(out, &pp.preposition);
+        out.push(')');
         if let Some(case) = pp.case {
             out.push_str(" :case ");
             out.push_str(case_name(case));

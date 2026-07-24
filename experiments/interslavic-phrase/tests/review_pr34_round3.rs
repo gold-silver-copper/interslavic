@@ -23,27 +23,32 @@ fn typed_relative_gaps_reject_duplicate_arguments() {
     );
     assert!(matches!(
         sentence(&object_gap_with_object),
-        Err(PhraseError::IncoherentClause(
-            "object-gap relative clause also supplies an object"
-        ))
+        Err(PhraseError::Validation(ValidationErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ValidationErrorKind::InvalidRelative(
+                    "an object gap cannot also carry an overt object"
+                )
+            ))
     ));
 
     let subject_gap_with_subject = clause(
-        np("mųž").relative(RelClause {
-            gap: GapRole::Subject,
-            subject: Some(np("žena").into()),
-            vp: vp("spati"),
-            tense: TenseSpec::Present,
-            polarity: Polarity::Affirmative,
-            relativizer: Relativizer::Ktory,
-        }),
+        np("mųž").relative(RelClause::new(
+            GapRole::Subject,
+            Some(np("žena").into()),
+            vp("spati"),
+        )),
         vp("spati"),
     );
     assert!(matches!(
         sentence(&subject_gap_with_subject),
-        Err(PhraseError::IncoherentClause(
-            "subject-gap relative clause also supplies a subject"
-        ))
+        Err(PhraseError::Validation(ValidationErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ValidationErrorKind::InvalidRelative(
+                    "a subject gap cannot also carry an overt subject"
+                )
+            ))
     ));
 }
 
@@ -290,9 +295,13 @@ fn imperative_and_conditional_reject_independent_past_or_future_tense() {
     for invalid in [imperative.clone().past(), imperative.future()] {
         assert!(matches!(
             sentence(&invalid),
-            Err(PhraseError::IncoherentClause(
-                "imperative with past or future tense"
-            ))
+            Err(PhraseError::Validation(ValidationErrors(errors)))
+                if errors.iter().any(|error| matches!(
+                    error.kind,
+                    ValidationErrorKind::IncoherentClause(
+                        "imperative cannot carry past/future tense"
+                    )
+                ))
         ));
     }
 
@@ -301,9 +310,13 @@ fn imperative_and_conditional_reject_independent_past_or_future_tense() {
     for invalid in [conditional.clone().past(), conditional.future()] {
         assert!(matches!(
             sentence(&invalid),
-            Err(PhraseError::IncoherentClause(
-                "conditional mood with an independently specified past or future tense"
-            ))
+            Err(PhraseError::Validation(ValidationErrors(errors)))
+                if errors.iter().any(|error| matches!(
+                    error.kind,
+                    ValidationErrorKind::IncoherentClause(
+                        "conditional cannot carry independent past/future tense"
+                    )
+                ))
         ));
     }
 
@@ -313,11 +326,7 @@ fn imperative_and_conditional_reject_independent_past_or_future_tense() {
         "(clause (np (n krålj)) (vp (v kupiti) (np (n kniga))) \
          :mood cond :tense past)",
     ] {
-        let tree = clause_from_str(invalid).unwrap();
-        assert!(matches!(
-            sentence(&tree),
-            Err(PhraseError::IncoherentClause(_))
-        ));
+        assert!(clause_from_str(invalid).is_err());
     }
 }
 

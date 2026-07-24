@@ -3,16 +3,12 @@
 //! Every inflected form comes from the `interslavic` facade — this module
 //! never post-processes forms. Exactly two string operations happen after
 //! forms leave the facade, both documented here: punctuation attachment
-//! (commas and terminal marks, handled as typed [`Token::Punct`] — never
-//! edits to word forms) and sentence-initial capitalization of the first
-//! character in sentence mode.
+//! and sentence-initial capitalization in sentence mode.
 //!
-//! Linearization is TYPED until the final join: the clause becomes a list
-//! of labeled [`Constituent`]s whose tokens distinguish words, clitics,
-//! and punctuation. Placement rules (information structure, `li`, clitic
-//! clusters) operate on that structure — nothing is ever re-discovered by
-//! searching strings, and a clitic is a token the join must render, so it
-//! cannot be silently dropped.
+//! Linearization remains hierarchical until the final join. A
+//! [`NominalPlan`] owns nested [`RelativePlan`] values, while each
+//! [`VerbDomainPlan`] owns only its direct clitic cluster. A parent can
+//! therefore never extract a clitic from a descendant relative clause.
 //!
 //! Linearization defaults are steen's (syntax page): S–V–O neutral;
 //! "modifiers usually precede the noun"; postverbal clitics (steen's own
@@ -23,11 +19,16 @@
 //! verb) is POLICY — the sources are silent.
 
 use crate::ast::*;
+use crate::plan::*;
+use crate::resolve::{
+    ResolutionErrors, ResolvedClause, ResolvedCore, ResolvedNominal, ResolvedNominalKind,
+    ResolvedPredicate, ResolvedPrep, ResolvedRelative, ResolvedVerbPhrase, resolve,
+};
+use crate::validate::{ValidationErrors, validate};
 use interslavic::{
-    Animacy, Aspect, Case, Gender, Number, Person, PronounStyle, Provenance, Tense, VerbInfo, adj,
-    cells, conditional_parts, noun_with, passive_participle, perfect_parts, personal_pronoun,
-    preposition_cases, preposition_senses, pronoun, quantified_parts_with_info, verb, verb_forms,
-    verb_info,
+    Animacy, Aspect, Case, Gender, Number, Person, PronounStyle, Provenance, Tense, adj, cells,
+    conditional_parts, noun_with, passive_participle, perfect_parts, personal_pronoun, pronoun,
+    quantified_parts_with_info, verb, verb_forms,
 };
 use std::fmt;
 
@@ -91,80 +92,23 @@ impl RealizeOpts {
 /// Diagnostics are values; realization of a well-formed tree is total.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PhraseError {
-    UnknownPreposition(String),
-    AmbiguousPreposition {
-        preposition: String,
-        senses: Vec<(Case, &'static str)>,
-    },
-    InvalidPrepositionCase {
-        preposition: String,
-        case: Case,
-        allowed: Vec<Case>,
-    },
-    ObjectOfIntransitive {
-        verb: String,
-    },
-    /// A passive clause whose verb phrase still carries an object — in
-    /// the passive the patient IS the subject.
-    ObjectInPassive {
-        verb: String,
-    },
-    GuessedHead {
-        lemma: String,
-    },
-    /// Coordination with no items, or another structurally empty node.
-    EmptyCoordination,
-    /// A Force/Mood/Voice combination this crate does not realize.
-    /// Decided, never silently dropped.
-    IncoherentClause(&'static str),
+    Validation(ValidationErrors),
+    Resolution(ResolutionErrors),
+    GuessedHead { lemma: String },
     Unsupported(&'static str),
 }
 
 impl fmt::Display for PhraseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            PhraseError::UnknownPreposition(p) => write!(f, "unknown preposition `{p}`"),
-            PhraseError::AmbiguousPreposition {
-                preposition,
-                senses,
-            } => {
-                write!(
-                    f,
-                    "preposition `{preposition}` governs several cases; pick one:"
-                )?;
-                for (case, gloss) in senses {
-                    write!(f, " {case:?} = \"{gloss}\";")?;
-                }
-                Ok(())
-            }
-            PhraseError::InvalidPrepositionCase {
-                preposition,
-                case,
-                allowed,
-            } => write!(
-                f,
-                "`{preposition}` does not govern {case:?} (allowed: {allowed:?})"
-            ),
-            PhraseError::ObjectOfIntransitive { verb } => {
-                write!(
-                    f,
-                    "`{verb}` is intransitive in the dictionary but has a direct object"
-                )
-            }
-            PhraseError::ObjectInPassive { verb } => {
-                write!(
-                    f,
-                    "passive clause of `{verb}` carries an object; the patient is the subject"
-                )
-            }
+            PhraseError::Validation(errors) => write!(f, "invalid phrase tree: {errors}"),
+            PhraseError::Resolution(errors) => write!(f, "cannot resolve phrase tree: {errors}"),
             PhraseError::GuessedHead { lemma } => {
                 write!(
                     f,
                     "`{lemma}` is not a dictionary noun (gender/animacy would be guessed)"
                 )
             }
-            PhraseError::EmptyCoordination => write!(f, "coordination with no items"),
-            PhraseError::IncoherentClause(what) => write!(f, "incoherent clause: {what}"),
             PhraseError::Unsupported(what) => write!(f, "unsupported: {what}"),
         }
     }
@@ -172,16 +116,29 @@ impl fmt::Display for PhraseError {
 
 impl std::error::Error for PhraseError {}
 
+impl From<ValidationErrors> for PhraseError {
+    fn from(value: ValidationErrors) -> Self {
+        Self::Validation(value)
+    }
+}
+
+impl From<ResolutionErrors> for PhraseError {
+    fn from(value: ResolutionErrors) -> Self {
+        Self::Resolution(value)
+    }
+}
+
 /// Warnings never change output; they surface steen's caveats and the
 /// dictionary's opinions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PhraseWarning {
     /// A perfective verb in the present tense reads as future/completed
     /// in Slavic — grammatical, but probably not "present".
-    PerfectivePresent { verb: String },
+    PerfectivePresent { path: String, verb: String },
     /// An explicit object case contradicts the dictionary's government
     /// annotation.
     GovernsConflict {
+        path: String,
         verb: String,
         dictionary: Case,
         used: Case,
@@ -189,7 +146,7 @@ pub enum PhraseWarning {
     /// The realized order inverts subject and object while neither
     /// distinguishes Nom from Acc on the surface — steen's own clarity
     /// caveat, detected on the ACTUAL final order.
-    AmbiguousOrder,
+    AmbiguousOrder { path: String },
 }
 
 /// The result of checked realization: the text plus any warnings.
@@ -197,43 +154,6 @@ pub enum PhraseWarning {
 pub struct Realized {
     pub text: String,
     pub warnings: Vec<PhraseWarning>,
-}
-
-// ---------------------------------------------------------------------------
-// The typed linearization representation.
-// ---------------------------------------------------------------------------
-
-/// One surface element. `Clitic` is a word the placement rules may move;
-/// the join renders it like any word, so a clitic that placement misses
-/// is still visible in the output — it can be misplaced, never dropped.
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum Token {
-    Word(String),
-    Clitic(String),
-    Punct(char),
-}
-
-/// Which movable slot a constituent fills. Information structure and the
-/// syncretism guard reason over these labels, never over strings.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum SlotKind {
-    Subject,
-    /// The n-th verb complex (0 = the one the clause fronts/focuses).
-    Verb(usize),
-    /// The n-th VP's object.
-    Object(usize),
-    /// Conjunctions, adjunct PPs, the fronted `či`, the `li` particle.
-    Fixed,
-}
-
-#[derive(Debug, Clone)]
-struct Constituent {
-    slot: SlotKind,
-    tokens: Vec<Token>,
-}
-
-fn word(text: impl Into<String>) -> Token {
-    Token::Word(text.into())
 }
 
 /// One clean surface form: byform cells resolve to the first variant and
@@ -252,15 +172,6 @@ struct Ctx<'o> {
 // Nominal rendering.
 // ---------------------------------------------------------------------------
 
-/// A rendered nominal plus the agreement features it projects.
-struct Rendered {
-    tokens: Vec<Token>,
-    person: Person,
-    number: Number,
-    gender: Gender,
-    animacy: Animacy,
-}
-
 /// May a pronoun in this position surface as a clitic? Clitics are
 /// "weaker and always unstressed" (steen, pronouns page), so any stressed
 /// or structurally isolating position forces the full form: after a
@@ -274,53 +185,21 @@ enum CliticContext {
 }
 
 fn render_nominal(
-    nominal: &Nominal,
-    slot_case: Case,
+    nominal: &ResolvedNominal,
     style: PronounStyle,
     clitics: CliticContext,
     ctx: &mut Ctx,
-) -> Result<Rendered, PhraseError> {
-    match nominal {
-        Nominal::Pron {
+) -> Result<NominalPlan, PhraseError> {
+    match &nominal.kind {
+        ResolvedNominalKind::Pron {
             person,
             number,
             gender,
             clitic,
-        } => {
-            let wants_clitic = *clitic
-                && clitics == CliticContext::Allowed
-                && style != PronounStyle::AfterPreposition;
-            let clitic_form = if wants_clitic {
-                personal_pronoun(*person, *number, *gender, slot_case, PronounStyle::Clitic)
-            } else {
-                None
-            };
-            let tokens = match clitic_form {
-                Some(form) => vec![Token::Clitic(form)],
-                None => {
-                    let full = personal_pronoun(*person, *number, *gender, slot_case, style)
-                        .or_else(|| {
-                            personal_pronoun(
-                                *person,
-                                *number,
-                                *gender,
-                                slot_case,
-                                PronounStyle::Full,
-                            )
-                        })
-                        .expect("full personal-pronoun cells are total");
-                    vec![word(full)]
-                }
-            };
-            Ok(Rendered {
-                tokens,
-                person: *person,
-                number: *number,
-                gender: *gender,
-                animacy: Animacy::Animate,
-            })
-        }
-        Nominal::Name {
+        } => Ok(render_pronoun_plan(
+            *person, *number, *gender, *clitic, nominal, style, clitics,
+        )),
+        ResolvedNominalKind::Name {
             text,
             gender,
             indeclinable,
@@ -330,96 +209,102 @@ fn render_nominal(
             } else {
                 surface(&noun_with(
                     text,
-                    slot_case,
+                    nominal.case,
                     Number::Singular,
                     *gender,
                     Animacy::Animate,
                 ))
             };
-            Ok(Rendered {
-                tokens: vec![word(form)],
-                person: Person::Third,
-                number: Number::Singular,
-                gender: *gender,
-                animacy: Animacy::Animate,
+            Ok(NominalPlan {
+                body: vec![word(form)],
+                direct_clitic: None,
+                profile: nominal.profile,
+                case: nominal.case,
+                case_source: nominal.case_source,
             })
         }
-        Nominal::Np(np) => render_np(np, slot_case, ctx),
-        Nominal::Coord(coordination) => {
-            if coordination.items.is_empty() {
-                return Err(PhraseError::EmptyCoordination);
+        ResolvedNominalKind::Np { source, relative } => {
+            if source.referential != ReferentialForm::Full {
+                return Ok(render_pronoun_plan(
+                    Person::Third,
+                    nominal.profile.referent_number,
+                    nominal.profile.gender,
+                    source.referential == ReferentialForm::Clitic,
+                    nominal,
+                    style,
+                    clitics,
+                ));
             }
+            render_np(source, relative.as_deref(), nominal, ctx)
+        }
+        ResolvedNominalKind::Coord { conjunction, items } => {
             let mut rendered = Vec::new();
-            for item in &coordination.items {
+            for item in items {
                 // Conjuncts force full pronoun forms (a clitic cannot
                 // carry the stress a conjunct bears).
-                rendered.push(render_nominal(
-                    item,
-                    slot_case,
-                    style,
-                    CliticContext::ForceFull,
-                    ctx,
-                )?);
+                rendered.push(render_nominal(item, style, CliticContext::ForceFull, ctx)?);
             }
-            let mut tokens: Vec<Token> = Vec::new();
+            let mut body = Vec::new();
             let last = rendered.len() - 1;
-            for (index, item) in rendered.iter().enumerate() {
+            for (index, item) in rendered.into_iter().enumerate() {
                 if index > 0 {
                     if index == last {
-                        tokens.push(word(coordination.conjunction.word()));
+                        body.push(word(conjunction.word()));
                     } else {
-                        // Serial style: comma between non-final items,
-                        // conjunction only before the last; no comma
-                        // before `i` (POLICY, Slavic convention).
-                        tokens.push(Token::Punct(','));
+                        body.push(SurfaceNode::Punct(','));
                     }
                 }
-                tokens.extend(item.tokens.iter().cloned());
+                body.extend(item.into_surface());
             }
-            // Coordinated-subject agreement (POLICY, pan-Slavic
-            // defaults): >1 conjunct → plural; mixed gender → masculine;
-            // person resolves 1st > 2nd > 3rd; any animate conjunct
-            // makes the group animate (the masculine-personal pattern),
-            // an all-inanimate group stays inanimate — copular
-            // adjectives and passive participles decline on this.
-            let number =
-                if rendered.len() > 1 || rendered.iter().any(|r| r.number == Number::Plural) {
-                    Number::Plural
-                } else {
-                    Number::Singular
-                };
-            let gender = if rendered.iter().all(|r| r.gender == rendered[0].gender) {
-                rendered[0].gender
-            } else {
-                Gender::Masculine
-            };
-            let person = rendered
-                .iter()
-                .map(|r| r.person)
-                .min_by_key(|p| match p {
-                    Person::First => 0,
-                    Person::Second => 1,
-                    Person::Third => 2,
-                })
-                .unwrap_or(Person::Third);
-            let animacy = if rendered.iter().any(|r| r.animacy == Animacy::Animate) {
-                Animacy::Animate
-            } else {
-                Animacy::Inanimate
-            };
-            Ok(Rendered {
-                tokens,
-                person,
-                number,
-                gender,
-                animacy,
+            Ok(NominalPlan {
+                body,
+                direct_clitic: None,
+                profile: nominal.profile,
+                case: nominal.case,
+                case_source: nominal.case_source,
             })
         }
     }
 }
 
-fn render_np(np: &NounPhrase, slot_case: Case, ctx: &mut Ctx) -> Result<Rendered, PhraseError> {
-    let slot_case = np.case_override.unwrap_or(slot_case);
+fn render_pronoun_plan(
+    person: Person,
+    number: Number,
+    gender: Gender,
+    wants_clitic: bool,
+    nominal: &ResolvedNominal,
+    style: PronounStyle,
+    clitics: CliticContext,
+) -> NominalPlan {
+    let direct_clitic = (wants_clitic
+        && clitics == CliticContext::Allowed
+        && style != PronounStyle::AfterPreposition)
+        .then(|| personal_pronoun(person, number, gender, nominal.case, PronounStyle::Clitic))
+        .flatten();
+    let body = if direct_clitic.is_some() {
+        Vec::new()
+    } else {
+        let full = personal_pronoun(person, number, gender, nominal.case, style)
+            .or_else(|| personal_pronoun(person, number, gender, nominal.case, PronounStyle::Full))
+            .expect("full personal-pronoun cells are total");
+        vec![word(full)]
+    };
+    NominalPlan {
+        body,
+        direct_clitic,
+        profile: nominal.profile,
+        case: nominal.case,
+        case_source: nominal.case_source,
+    }
+}
+
+fn render_np(
+    np: &NounPhrase,
+    relative: Option<&ResolvedRelative>,
+    resolved: &ResolvedNominal,
+    ctx: &mut Ctx,
+) -> Result<NominalPlan, PhraseError> {
+    let slot_case = resolved.case;
     let info = interslavic::noun_info(&np.head);
     if ctx.opts.strict_guessed && info.provenance == Provenance::Guessed {
         return Err(PhraseError::GuessedHead {
@@ -433,132 +318,73 @@ fn render_np(np: &NounPhrase, slot_case: Case, ctx: &mut Ctx) -> Result<Rendered
             .unwrap_or_else(|| adj(lemma, case, number, gender, animacy))
     };
 
-    let mut tokens = Vec::new();
-    let (number, agr_gender);
+    let mut body = Vec::new();
     if let Some(n) = np.count {
         let parts =
             quantified_parts_with_info(n, &np.head, slot_case, gender, animacy, info.plural_only);
         if let Some(det) = &np.determiner {
-            tokens.push(word(surface(&modifier(det, parts.case, parts.number))));
+            body.push(word(surface(&modifier(det, parts.case, parts.number))));
         }
-        tokens.push(word(n.to_string()));
+        body.push(word(n.to_string()));
         for adjective in &np.adjectives {
-            tokens.push(word(surface(&modifier(
+            body.push(word(surface(&modifier(
                 adjective,
                 parts.case,
                 parts.number,
             ))));
         }
-        tokens.push(word(surface(&parts.noun)));
-        // Verb agreement with a counted subject: steen states 3sg-neuter
-        // for collective subjects; extending it to all gen-pl quantified
-        // subjects is POLICY.
-        (number, agr_gender) = match n {
-            1 => (Number::Singular, gender),
-            2..=4 => (Number::Plural, gender),
-            _ => (Number::Singular, Gender::Neuter),
-        };
+        body.push(word(surface(&parts.noun)));
     } else {
-        let noun_number = if info.plural_only {
-            Number::Plural
-        } else {
-            Number::Singular
-        };
+        let noun_number = resolved.profile.inflection_number;
         if let Some(det) = &np.determiner {
-            tokens.push(word(surface(&modifier(det, slot_case, noun_number))));
+            body.push(word(surface(&modifier(det, slot_case, noun_number))));
         }
         for adjective in &np.adjectives {
-            tokens.push(word(surface(&modifier(adjective, slot_case, noun_number))));
+            body.push(word(surface(&modifier(adjective, slot_case, noun_number))));
         }
-        tokens.push(word(surface(&noun_with(
+        body.push(word(surface(&noun_with(
             &np.head,
             slot_case,
             noun_number,
             gender,
             animacy,
         ))));
-        (number, agr_gender) = (noun_number, gender);
     }
 
-    if let Some(rel) = &np.relative {
-        tokens.extend(render_relative(rel, number, agr_gender, animacy, ctx)?);
+    if let Some(relative) = relative {
+        body.push(SurfaceNode::Relative(Box::new(render_relative(
+            relative,
+            resolved.profile.inflection_number,
+            resolved.profile.gender,
+            animacy,
+            ctx,
+        )?)));
     }
 
-    Ok(Rendered {
-        tokens,
-        person: Person::Third,
-        number,
-        gender: agr_gender,
-        animacy,
+    Ok(NominalPlan {
+        body,
+        direct_clitic: None,
+        profile: resolved.profile,
+        case: resolved.case,
+        case_source: resolved.case_source,
     })
 }
 
-/// Resolve a preposition plus an optional explicit case against the
-/// curated table — the ONE government check for every PP the crate
-/// realizes, adjunct or relative gap alike.
-fn resolve_preposition_case(
-    preposition: &str,
-    explicit: Option<Case>,
-) -> Result<Case, PhraseError> {
-    let allowed = preposition_cases(preposition)
-        .ok_or_else(|| PhraseError::UnknownPreposition(preposition.to_string()))?;
-    match explicit {
-        Some(case) if allowed.contains(&case) => Ok(case),
-        Some(case) => Err(PhraseError::InvalidPrepositionCase {
-            preposition: preposition.to_string(),
-            case,
-            allowed: allowed.to_vec(),
-        }),
-        None if allowed.len() == 1 => Ok(allowed[0]),
-        None => Err(PhraseError::AmbiguousPreposition {
-            preposition: preposition.to_string(),
-            senses: preposition_senses(preposition)
-                .expect("senses table agrees with cases table")
-                .to_vec(),
-        }),
-    }
-}
-
-fn render_pp(pp: &PrepPhrase, ctx: &mut Ctx) -> Result<Vec<Token>, PhraseError> {
-    let case = resolve_preposition_case(&pp.preposition, pp.case)?;
+fn render_pp(pp: &ResolvedPrep, ctx: &mut Ctx) -> Result<Vec<SurfaceNode>, PhraseError> {
     let object = render_nominal(
         &pp.object,
-        case,
         PronounStyle::AfterPreposition,
         CliticContext::ForceFull,
         ctx,
     )?;
-    let mut tokens = vec![word(pp.preposition.clone())];
-    tokens.extend(object.tokens);
-    Ok(tokens)
+    let mut body = vec![word(pp.preposition.clone())];
+    body.extend(object.into_surface());
+    Ok(body)
 }
 
 // ---------------------------------------------------------------------------
 // The one verb-complex builder.
 // ---------------------------------------------------------------------------
-
-fn strip_reflexive(verb_lemma: &str) -> (&str, bool) {
-    match verb_lemma.strip_suffix(" sę") {
-        Some(bare) => (bare, true),
-        None => (verb_lemma, false),
-    }
-}
-
-/// Dictionary metadata for THIS VP's construction: a reflexive VP
-/// consults its own `X sę` row first (that row carries the reflexive
-/// construction's government — "ostrěgati sę (+2)"), falling back to the
-/// bare row; a plain VP reads the bare row only. Returns the bare lemma
-/// (what the conjugator inflects), whether the lemma marked reflexivity,
-/// and the selected metadata.
-fn vp_verb_info(verb_lemma: &str) -> (&str, bool, Option<VerbInfo>) {
-    let (bare, lemma_reflexive) = strip_reflexive(verb_lemma.trim());
-    let info = if lemma_reflexive {
-        verb_info(&format!("{bare} sę")).or_else(|| verb_info(bare))
-    } else {
-        verb_info(bare)
-    };
-    (bare, lemma_reflexive, info)
-}
 
 struct ClauseShape {
     force: Force,
@@ -570,45 +396,21 @@ struct ClauseShape {
 
 /// Build ONE finite verb complex — the single implementation for main
 /// clauses, coordinated conjuncts, copular clauses (lemma `byti`),
-/// relative clauses, imperatives, conditionals, and passives. Force,
-/// Mood, and Voice coherence is decided here, in one place: every
-/// combination either realizes or errors — none is silently ignored.
+/// relative clauses, imperatives, conditionals, and passives. The input
+/// shape has already passed the shared validation matrix.
 #[allow(clippy::too_many_arguments)]
 fn build_complex(
+    path: &str,
     lemma: &str,
-    info: Option<&VerbInfo>,
+    info: Option<&interslavic::VerbInfo>,
     shape: &ClauseShape,
     person: Person,
     number: Number,
     gender: Gender,
     subject_animacy: Animacy,
     warnings: &mut Vec<PhraseWarning>,
-) -> Result<Vec<Token>, PhraseError> {
+) -> Result<Vec<SurfaceNode>, PhraseError> {
     let imperative = matches!(shape.force, Force::Imperative(_));
-
-    // Coherence decisions (documented, not silent):
-    if imperative && shape.mood == Mood::Conditional {
-        return Err(PhraseError::IncoherentClause(
-            "conditional imperative (no such construction)",
-        ));
-    }
-    if imperative && shape.voice == Voice::Passive {
-        // "Bųdi kupjen…" exists in Slavic but is unimplemented here —
-        // declared, not silently active.
-        return Err(PhraseError::Unsupported(
-            "passive imperative (not yet implemented)",
-        ));
-    }
-    if imperative && shape.tense != TenseSpec::Present {
-        return Err(PhraseError::IncoherentClause(
-            "imperative with past or future tense",
-        ));
-    }
-    if shape.mood == Mood::Conditional && shape.tense != TenseSpec::Present {
-        return Err(PhraseError::IncoherentClause(
-            "conditional mood with an independently specified past or future tense",
-        ));
-    }
 
     let mut tokens = Vec::new();
     if shape.polarity == Polarity::Negative {
@@ -636,6 +438,7 @@ fn build_complex(
             ..*shape
         };
         let mut copula = build_complex(
+            path,
             "byti",
             None,
             &copula_shape,
@@ -664,6 +467,7 @@ fn build_complex(
             TenseSpec::Present => {
                 if info.and_then(|entry| entry.aspect) == Some(Aspect::Pf) {
                     warnings.push(PhraseWarning::PerfectivePresent {
+                        path: path.to_string(),
                         verb: lemma.to_string(),
                     });
                 }
@@ -695,27 +499,14 @@ fn build_complex(
 // VP rendering — shared by main clauses and relative clauses.
 // ---------------------------------------------------------------------------
 
-/// A rendered verb phrase: the complex, its clitic cluster (in the cited
-/// order dat > acc > sę; `li` is placed by the force rules and always
-/// precedes the cluster), its object, and its adjuncts.
-struct VpRender {
-    complex: Vec<Token>,
-    cluster: Vec<Token>,
-    object: Option<Vec<Token>>,
-    /// The case the object was ACTUALLY rendered in (override or
-    /// dictionary government or the accusative default) — the
-    /// syncretism guard reasons over this, never over an assumption.
-    object_case: Option<Case>,
-    adjuncts: Vec<Vec<Token>>,
-}
-
 /// Render one verb phrase with all checks — valence, government,
 /// aspect — applied identically wherever a VP appears (main clause,
-/// conjunct, relative clause). `gap` omits the gapped argument.
+/// conjunct, relative clause). The resolved VP already owns its one
+/// authoritative object case.
 #[allow(clippy::too_many_arguments)]
 fn render_vp(
-    verb_phrase: &VerbPhrase,
-    gap: Option<&GapRole>,
+    verb_phrase: &ResolvedVerbPhrase,
+    path: &str,
     shape: &ClauseShape,
     person: Person,
     number: Number,
@@ -723,40 +514,15 @@ fn render_vp(
     subject_animacy: Animacy,
     object_clitics: CliticContext,
     ctx: &mut Ctx,
-) -> Result<VpRender, PhraseError> {
-    let (bare, lemma_reflexive, info) = vp_verb_info(&verb_phrase.verb);
-    let reflexive = lemma_reflexive || info.as_ref().is_some_and(|entry| entry.reflexive);
-
-    if gap == Some(&GapRole::Object) && verb_phrase.object.is_some() {
-        return Err(PhraseError::IncoherentClause(
-            "object-gap relative clause also supplies an object",
-        ));
-    }
-    let object_present = verb_phrase.object.is_some();
-    if object_present || gap == Some(&GapRole::Object) {
-        if shape.voice == Voice::Passive {
-            return Err(PhraseError::ObjectInPassive {
-                verb: bare.to_string(),
-            });
-        }
-        // "Intransitive" in the dictionary means no ACCUSATIVE object; a
-        // (+N) government annotation licenses an oblique object.
-        if info.as_ref().and_then(|entry| entry.transitive) == Some(false)
-            && info.as_ref().and_then(|entry| entry.governs).is_none()
-        {
-            return Err(PhraseError::ObjectOfIntransitive {
-                verb: bare.to_string(),
-            });
-        }
-    }
-
+) -> Result<VerbDomainPlan, PhraseError> {
     // Adverbs precede the verb complex (POLICY; the sources are silent
     // on neutral adverb position). They are part of the complex
     // constituent so placement can never split them from their verb.
-    let mut complex: Vec<Token> = verb_phrase.adverbs.iter().map(word).collect();
+    let mut complex: Vec<SurfaceNode> = verb_phrase.adverbs.iter().map(word).collect();
     complex.extend(build_complex(
-        bare,
-        info.as_ref(),
+        path,
+        &verb_phrase.bare_verb,
+        verb_phrase.info.as_ref(),
         shape,
         person,
         number,
@@ -765,57 +531,27 @@ fn render_vp(
         &mut ctx.warnings,
     )?);
 
-    let mut cluster: Vec<Token> = Vec::new();
+    let mut cluster: Vec<String> = Vec::new();
     let mut object = None;
-    let mut resolved_object_case = None;
-    if object_present {
-        let object_nominal = verb_phrase.object.as_ref().expect("checked");
-        let dictionary = info.as_ref().and_then(|entry| entry.governs);
-        let explicit = match object_nominal {
-            Nominal::Np(np) => np.case_override,
-            _ => None,
-        };
-        let object_case = match (explicit, dictionary) {
-            (Some(used), Some(marked)) if used != marked => {
-                ctx.warnings.push(PhraseWarning::GovernsConflict {
-                    verb: bare.to_string(),
-                    dictionary: marked,
-                    used,
-                });
-                used
+    if let Some(object_nominal) = &verb_phrase.object {
+        let mut rendered = render_nominal(object_nominal, PronounStyle::Full, object_clitics, ctx)?;
+        // Only the object nominal itself can contribute a clitic. Its
+        // descendants are opaque inside `body`, so relative-clause
+        // clitics cannot migrate into this domain.
+        if let Some(clitic) = rendered.direct_clitic.take() {
+            if object_nominal.case == Case::Dat {
+                let mut reordered = vec![clitic];
+                reordered.append(&mut cluster);
+                cluster = reordered;
+            } else {
+                cluster.push(clitic);
             }
-            (Some(used), _) => used,
-            (None, Some(marked)) => marked,
-            (None, None) => Case::Acc,
-        };
-        resolved_object_case = Some(object_case);
-        let rendered = render_nominal(
-            object_nominal,
-            object_case,
-            PronounStyle::Full,
-            object_clitics,
-            ctx,
-        )?;
-        // A clitic-form object joins the cluster (dative before
-        // accusative — the cited order); other tokens fill the object
-        // slot.
-        let (clitic_tokens, word_tokens): (Vec<_>, Vec<_>) = rendered
-            .tokens
-            .into_iter()
-            .partition(|token| matches!(token, Token::Clitic(_)));
-        if object_case == Case::Dat {
-            let mut reordered = clitic_tokens;
-            reordered.append(&mut cluster);
-            cluster = reordered;
         } else {
-            cluster.extend(clitic_tokens);
-        }
-        if !word_tokens.is_empty() {
-            object = Some(word_tokens);
+            object = Some(rendered);
         }
     }
-    if reflexive {
-        cluster.push(Token::Clitic("sę".to_string()));
+    if verb_phrase.reflexive {
+        cluster.push("sę".to_string());
     }
 
     let mut adjuncts = Vec::new();
@@ -823,11 +559,11 @@ fn render_vp(
         adjuncts.push(render_pp(adjunct, ctx)?);
     }
 
-    Ok(VpRender {
+    Ok(VerbDomainPlan {
         complex,
         cluster,
         object,
-        object_case: resolved_object_case,
+        object_case: verb_phrase.object_case,
         adjuncts,
     })
 }
@@ -845,69 +581,49 @@ fn render_vp(
 /// relative is a fresh clitic domain: its cluster attaches postverbally
 /// inside it (POLICY).
 fn render_relative(
-    rel: &RelClause,
+    rel: &ResolvedRelative,
     head_number: Number,
     head_gender: Gender,
     head_animacy: Animacy,
     ctx: &mut Ctx,
-) -> Result<Vec<Token>, PhraseError> {
+) -> Result<RelativePlan, PhraseError> {
     if rel.relativizer == Relativizer::Iže {
         return Err(PhraseError::Unsupported(
             "the iže relativizer (no facade paradigm)",
         ));
     }
-    if rel.gap == GapRole::Subject && rel.subject.is_some() {
-        return Err(PhraseError::IncoherentClause(
-            "subject-gap relative clause also supplies a subject",
-        ));
-    }
-    let rel_case = match &rel.gap {
-        GapRole::Subject => Case::Nom,
-        GapRole::Object => vp_verb_info(&rel.vp.verb)
-            .2
-            .and_then(|info| info.governs)
-            .unwrap_or(Case::Acc),
-        // The gap's preposition passes the SAME government check as an
-        // ordinary PP — a relative clause is no escape hatch.
-        GapRole::PpObject { preposition, case } => {
-            resolve_preposition_case(preposition, Some(*case))?
-        }
-    };
-    let relativizer = pronoun("ktory", rel_case, head_number, head_gender, head_animacy)
-        .expect("ktory declines for every cell");
+    let relativizer = pronoun(
+        "ktory",
+        rel.gap_case,
+        head_number,
+        head_gender,
+        head_animacy,
+    )
+    .expect("ktory declines for every cell");
 
-    let mut tokens = vec![Token::Punct(',')];
+    let mut body = vec![SurfaceNode::Punct(',')];
     if let GapRole::PpObject { preposition, .. } = &rel.gap {
-        tokens.push(word(preposition.clone()));
+        body.push(word(preposition.clone()));
     }
-    tokens.push(word(surface(&relativizer)));
+    body.push(word(surface(&relativizer)));
 
     // Agreement inside the relative: a subject gap agrees with the head
     // (3rd person); otherwise with the overt subject.
-    let (person, number, gender, subject_tokens) = match (&rel.gap, &rel.subject) {
+    let (person, number, gender, subject_nodes) = match (&rel.gap, &rel.subject) {
         (GapRole::Subject, _) => (Person::Third, head_number, head_gender, Vec::new()),
         (_, Some(subject)) => {
-            let rendered = render_nominal(
-                subject,
-                Case::Nom,
-                PronounStyle::Full,
-                CliticContext::ForceFull,
-                ctx,
-            )?;
+            let rendered =
+                render_nominal(subject, PronounStyle::Full, CliticContext::ForceFull, ctx)?;
             (
-                rendered.person,
-                rendered.number,
-                rendered.gender,
-                rendered.tokens,
+                rendered.profile.person,
+                rendered.profile.agreement_number,
+                rendered.profile.agreement_gender,
+                rendered.into_surface(),
             )
         }
-        (_, None) => {
-            return Err(PhraseError::Unsupported(
-                "a non-subject gap needs an overt subject",
-            ));
-        }
+        (_, None) => unreachable!("relative subject requirements were validated"),
     };
-    tokens.extend(subject_tokens);
+    body.extend(subject_nodes);
 
     let shape = ClauseShape {
         force: Force::Declarative,
@@ -918,7 +634,7 @@ fn render_relative(
     };
     let vp = render_vp(
         &rel.vp,
-        Some(&rel.gap),
+        &format!("{}.vp", rel.path),
         &shape,
         person,
         number,
@@ -927,16 +643,16 @@ fn render_relative(
         CliticContext::Allowed,
         ctx,
     )?;
-    tokens.extend(vp.complex);
-    tokens.extend(vp.cluster); // postverbal within the relative domain
+    body.extend(vp.complex);
+    body.extend(vp.cluster.into_iter().map(word));
     if let Some(object) = vp.object {
-        tokens.extend(object);
+        body.extend(object.into_surface());
     }
     for adjunct in vp.adjuncts {
-        tokens.extend(adjunct);
+        body.extend(adjunct);
     }
-    tokens.push(Token::Punct(','));
-    Ok(tokens)
+    body.push(SurfaceNode::Punct(','));
+    Ok(RelativePlan { body })
 }
 
 // ---------------------------------------------------------------------------
@@ -946,48 +662,87 @@ fn render_relative(
 /// Is this nominal's rendered core (head + agreeing modifiers, relatives
 /// excluded — their words are case-invariant) identical between Nom and
 /// Acc? PURE: no context, no warnings, no relative rendering.
-fn nom_acc_syncretic(nominal: &Nominal) -> bool {
-    fn np_core(np: &NounPhrase, case: Case) -> Vec<String> {
+fn nom_acc_syncretic(nominal: &ResolvedNominal) -> bool {
+    fn np_core(
+        np: &NounPhrase,
+        profile: crate::profile::NominalProfile,
+        case: Case,
+    ) -> Vec<String> {
         let info = interslavic::noun_info(&np.head);
         let (gender, animacy) = (info.gender, info.animacy);
-        let number = if info.plural_only {
-            Number::Plural
-        } else {
-            Number::Singular
-        };
-        let modifier = |lemma: &str| -> String {
-            pronoun(lemma, case, number, gender, animacy)
-                .unwrap_or_else(|| adj(lemma, case, number, gender, animacy))
+        let number = profile.inflection_number;
+        let modifier = |lemma: &str, modifier_case: Case, modifier_number: Number| -> String {
+            pronoun(lemma, modifier_case, modifier_number, gender, animacy)
+                .unwrap_or_else(|| adj(lemma, modifier_case, modifier_number, gender, animacy))
         };
         let mut out = Vec::new();
         if let Some(n) = np.count {
             let parts =
                 quantified_parts_with_info(n, &np.head, case, gender, animacy, info.plural_only);
-            out.push(parts.noun);
-        } else {
             if let Some(det) = &np.determiner {
-                out.push(modifier(det));
+                out.push(surface(&modifier(det, parts.case, parts.number)));
             }
             for adjective in &np.adjectives {
-                out.push(modifier(adjective));
+                out.push(surface(&modifier(adjective, parts.case, parts.number)));
             }
-            out.push(noun_with(&np.head, case, number, gender, animacy));
+            out.push(surface(&parts.noun));
+        } else {
+            if let Some(det) = &np.determiner {
+                out.push(surface(&modifier(det, case, number)));
+            }
+            for adjective in &np.adjectives {
+                out.push(surface(&modifier(adjective, case, number)));
+            }
+            out.push(surface(&noun_with(&np.head, case, number, gender, animacy)));
         }
         out
     }
-    match nominal {
-        Nominal::Pron { .. } => false,
-        Nominal::Name {
+    let pronoun_is_syncretic = |person, number, gender| {
+        let form = |case| {
+            personal_pronoun(person, number, gender, case, PronounStyle::Full)
+                .expect("full personal-pronoun cells are total")
+        };
+        form(Case::Nom) == form(Case::Acc)
+    };
+    match &nominal.kind {
+        ResolvedNominalKind::Pron {
+            person,
+            number,
+            gender,
+            ..
+        } => pronoun_is_syncretic(*person, *number, *gender),
+        ResolvedNominalKind::Name {
             text,
             gender,
             indeclinable,
         } => {
             *indeclinable
-                || noun_with(text, Case::Nom, Number::Singular, *gender, Animacy::Animate)
-                    == noun_with(text, Case::Acc, Number::Singular, *gender, Animacy::Animate)
+                || surface(&noun_with(
+                    text,
+                    Case::Nom,
+                    Number::Singular,
+                    *gender,
+                    Animacy::Animate,
+                )) == surface(&noun_with(
+                    text,
+                    Case::Acc,
+                    Number::Singular,
+                    *gender,
+                    Animacy::Animate,
+                ))
         }
-        Nominal::Np(np) => np_core(np, Case::Nom) == np_core(np, Case::Acc),
-        Nominal::Coord(coordination) => coordination.items.iter().all(nom_acc_syncretic),
+        ResolvedNominalKind::Np { source, .. } if source.referential != ReferentialForm::Full => {
+            pronoun_is_syncretic(
+                Person::Third,
+                nominal.profile.referent_number,
+                nominal.profile.gender,
+            )
+        }
+        ResolvedNominalKind::Np { source, .. } => {
+            np_core(source, nominal.profile, Case::Nom)
+                == np_core(source, nominal.profile, Case::Acc)
+        }
+        ResolvedNominalKind::Coord { items, .. } => items.iter().all(nom_acc_syncretic),
     }
 }
 
@@ -1005,10 +760,40 @@ pub fn realize_with_lead_in(
     lead_in: Option<&str>,
     opts: RealizeOpts,
 ) -> Result<Realized, PhraseError> {
+    let validated = validate(clause)?;
+    realize_validated_with_lead_in(&validated, lead_in, opts)
+}
+
+/// Realize an already validated clause. This makes the
+/// validation→resolution→planning boundary available to callers that
+/// retain validated trees.
+pub fn realize_validated_checked(
+    clause: &crate::validate::ValidatedClause,
+    opts: RealizeOpts,
+) -> Result<Realized, PhraseError> {
+    realize_validated_with_lead_in(clause, None, opts)
+}
+
+pub(crate) fn realize_validated_with_lead_in(
+    validated: &crate::validate::ValidatedClause,
+    lead_in: Option<&str>,
+    opts: RealizeOpts,
+) -> Result<Realized, PhraseError> {
+    let resolution = resolve(validated)?;
     let mut ctx = Ctx {
         opts: &opts,
-        warnings: Vec::new(),
+        warnings: resolution
+            .conflicts
+            .iter()
+            .map(|conflict| PhraseWarning::GovernsConflict {
+                path: conflict.path.clone(),
+                verb: conflict.verb.clone(),
+                dictionary: conflict.dictionary,
+                used: conflict.used,
+            })
+            .collect(),
     };
+    let clause = &resolution.clause;
 
     let shape = ClauseShape {
         force: clause.force,
@@ -1021,7 +806,6 @@ pub fn realize_with_lead_in(
 
     let subject = render_nominal(
         &clause.subject,
-        Case::Nom,
         PronounStyle::Full,
         CliticContext::ForceFull,
         &mut ctx,
@@ -1033,7 +817,11 @@ pub fn realize_with_lead_in(
             Addressee::YouAll => (Person::Second, Number::Plural, Gender::Masculine),
         }
     } else {
-        (subject.person, subject.number, subject.gender)
+        (
+            subject.profile.person,
+            subject.profile.agreement_number,
+            subject.profile.agreement_gender,
+        )
     };
 
     // Information-structure marking = stress: a marked object renders
@@ -1051,105 +839,87 @@ pub fn realize_with_lead_in(
     if !imperative && !clause.prodrop {
         constituents.push(Constituent {
             slot: SlotKind::Subject,
-            tokens: subject.tokens.clone(),
+            nodes: subject.clone().into_surface(),
         });
     }
 
     // Per-VP clusters, held aside for placement after ordering.
-    let mut clusters: Vec<(usize, Vec<Token>)> = Vec::new();
+    let mut clusters: Vec<(usize, Vec<String>)> = Vec::new();
     // The case VP 0's object was actually rendered in — the syncretism
     // guard fires only for a genuinely accusative object.
     let mut first_object_case: Option<Case> = None;
 
     match &clause.core {
-        ClauseCore::Copular {
-            predicate,
-            pred_case,
-        } => {
+        ResolvedCore::Copular(predicate) => {
             let complex = build_complex(
+                "clause.core.copula",
                 "byti",
                 None,
                 &shape,
                 person,
                 number,
                 gender,
-                subject.animacy,
+                subject.profile.animacy,
                 &mut ctx.warnings,
             )?;
             constituents.push(Constituent {
                 slot: SlotKind::Verb(0),
-                tokens: complex,
+                nodes: complex,
             });
-            // `PredCase` is a NOMINAL-predicate option; adjectival and
-            // participial predicates agree in the nominative. An
-            // instrumental request on those variants is incoherent —
-            // reported, never silently applied or dropped.
-            let tokens = match predicate {
-                Predicate::Nominal(np) => {
-                    let case = match pred_case {
-                        PredCase::Nominative => Case::Nom,
-                        PredCase::Instrumental => Case::Ins,
-                    };
-                    render_np(np, case, &mut ctx)?.tokens
-                }
-                Predicate::Adjectival(adjective) => {
-                    if *pred_case == PredCase::Instrumental {
-                        return Err(PhraseError::IncoherentClause(
-                            "instrumental predicate case on an adjectival predicate \
-                             (a nominal-only option)",
-                        ));
-                    }
-                    vec![word(surface(&adj(
-                        adjective,
+            let nodes = match predicate {
+                ResolvedPredicate::Nominal(nominal) => render_nominal(
+                    nominal,
+                    PronounStyle::Full,
+                    CliticContext::ForceFull,
+                    &mut ctx,
+                )?
+                .into_surface(),
+                ResolvedPredicate::Adjectival(adjective) => vec![word(surface(&adj(
+                    adjective,
+                    Case::Nom,
+                    number,
+                    gender,
+                    subject.profile.animacy,
+                )))],
+                ResolvedPredicate::Participial(infinitive) => {
+                    let participle = passive_participle(
+                        infinitive,
                         Case::Nom,
                         number,
                         gender,
-                        subject.animacy,
-                    )))]
-                }
-                Predicate::Participial(infinitive) => {
-                    if *pred_case == PredCase::Instrumental {
-                        return Err(PhraseError::IncoherentClause(
-                            "instrumental predicate case on a participial predicate \
-                             (a nominal-only option)",
-                        ));
-                    }
-                    let participle =
-                        passive_participle(infinitive, Case::Nom, number, gender, subject.animacy)
-                            .ok_or(PhraseError::Unsupported(
-                                "no passive participle (intransitive verb?)",
-                            ))?;
+                        subject.profile.animacy,
+                    )
+                    .ok_or(PhraseError::Unsupported(
+                        "no passive participle (intransitive verb?)",
+                    ))?;
                     vec![word(surface(&participle))]
                 }
             };
             constituents.push(Constituent {
                 slot: SlotKind::Object(0),
-                tokens,
+                nodes,
             });
         }
-        ClauseCore::Verbal(coordination) => {
-            if coordination.items.is_empty() {
-                return Err(PhraseError::EmptyCoordination);
-            }
-            for (index, verb_phrase) in coordination.items.iter().enumerate() {
+        ResolvedCore::Verbal { conjunction, vps } => {
+            for (index, verb_phrase) in vps.iter().enumerate() {
                 if index > 0 {
                     constituents.push(Constituent {
                         slot: SlotKind::Fixed,
-                        tokens: vec![if index == coordination.items.len() - 1 {
-                            word(coordination.conjunction.word())
+                        nodes: vec![if index == vps.len() - 1 {
+                            word(conjunction.word())
                         } else {
-                            Token::Punct(',')
+                            SurfaceNode::Punct(',')
                         }],
                     });
                 }
                 let vp = render_vp(
                     verb_phrase,
-                    None,
+                    &format!("clause.core.vp[{index}]"),
                     &shape,
                     person,
                     number,
                     gender,
-                    subject.animacy,
+                    subject.profile.animacy,
                     if index == 0 {
                         object_clitics
                     } else {
@@ -1159,7 +929,7 @@ pub fn realize_with_lead_in(
                 )?;
                 constituents.push(Constituent {
                     slot: SlotKind::Verb(index),
-                    tokens: vp.complex,
+                    nodes: vp.complex,
                 });
                 if index == 0 {
                     first_object_case = vp.object_case;
@@ -1170,40 +940,16 @@ pub fn realize_with_lead_in(
                 if let Some(object) = vp.object {
                     constituents.push(Constituent {
                         slot: SlotKind::Object(index),
-                        tokens: object,
+                        nodes: object.into_surface(),
                     });
                 }
                 for adjunct in vp.adjuncts {
                     constituents.push(Constituent {
                         slot: SlotKind::Fixed,
-                        tokens: adjunct,
+                        nodes: adjunct,
                     });
                 }
             }
-        }
-    }
-
-    // Information-structure references must denote constituents that
-    // exist: a topicalized/focused slot that was never built (no object;
-    // a dropped or imperative subject) is an incoherent tree — reported,
-    // never a silently ignored instruction. Checked before ordering so
-    // every force, `li` included, passes through it.
-    let have =
-        |constituents: &[Constituent], slot: SlotKind| constituents.iter().any(|c| c.slot == slot);
-    for reference in [clause.topic, clause.focus].into_iter().flatten() {
-        let (slot, missing) = match reference {
-            SlotRef::Subject => (
-                SlotKind::Subject,
-                "topic/focus on a subject the clause does not surface \
-                 (prodrop or imperative)",
-            ),
-            SlotRef::Object => (
-                SlotKind::Object(0),
-                "topic/focus on an object the clause does not have",
-            ),
-        };
-        if !have(&constituents, slot) {
-            return Err(PhraseError::IncoherentClause(missing));
         }
     }
 
@@ -1222,9 +968,11 @@ pub fn realize_with_lead_in(
         if object_at < subject_at
             && first_object_case == Some(Case::Acc)
             && nom_acc_syncretic(&clause.subject)
-            && clause_first_object(clause).is_some_and(nom_acc_syncretic)
+            && resolved_first_object(clause).is_some_and(nom_acc_syncretic)
         {
-            ctx.warnings.push(PhraseWarning::AmbiguousOrder);
+            ctx.warnings.push(PhraseWarning::AmbiguousOrder {
+                path: "clause.order".to_string(),
+            });
         }
     }
 
@@ -1243,7 +991,7 @@ pub fn realize_with_lead_in(
             index + 1,
             Constituent {
                 slot: SlotKind::Fixed,
-                tokens: vec![word("li")],
+                nodes: vec![word("li")],
             },
         );
     }
@@ -1256,7 +1004,7 @@ pub fn realize_with_lead_in(
             0,
             Constituent {
                 slot: SlotKind::Fixed,
-                tokens: vec![word("či")],
+                nodes: vec![word("či")],
             },
         );
     }
@@ -1264,15 +1012,14 @@ pub fn realize_with_lead_in(
         place_cluster(&mut constituents, vp_index, cluster, opts.clitic_style);
     }
 
-    // --- The single stringification ------------------------------------
-    let mut tokens: Vec<Token> = Vec::new();
-    if let Some(lead) = lead_in {
-        tokens.push(word(lead));
+    // --- The single recursive flatten + stringification ----------------
+    let text = ClausePlan {
+        lead_in: lead_in.map(str::to_string),
+        constituents,
+        force: clause.force,
+        sentence: opts.sentence,
     }
-    for constituent in constituents {
-        tokens.extend(constituent.tokens);
-    }
-    let text = join(&tokens, clause.force, opts.sentence);
+    .stringify();
     Ok(Realized {
         text,
         warnings: ctx.warnings,
@@ -1299,18 +1046,16 @@ pub fn realize_with_lead_in(
 ///
 /// let tree = clause(np("kot"), vp("spati").pp(pp("pod", np("stol"))));
 /// let err = realize(&tree, RealizeOpts::sentence()).unwrap_err();
-/// assert!(matches!(err, PhraseError::AmbiguousPreposition { .. }));
+/// assert!(matches!(err, PhraseError::Validation(_)));
 /// ```
 pub fn realize(clause: &Clause, opts: RealizeOpts) -> Result<String, PhraseError> {
     realize_checked(clause, opts).map(|realized| realized.text)
 }
 
-fn clause_first_object(clause: &Clause) -> Option<&Nominal> {
+fn resolved_first_object(clause: &ResolvedClause) -> Option<&ResolvedNominal> {
     match &clause.core {
-        ClauseCore::Verbal(coordination) => {
-            coordination.items.first().and_then(|vp| vp.object.as_ref())
-        }
-        ClauseCore::Copular { .. } => None,
+        ResolvedCore::Verbal { vps, .. } => vps.first().and_then(|vp| vp.object.as_ref()),
+        ResolvedCore::Copular(_) => None,
     }
 }
 
@@ -1319,7 +1064,7 @@ fn clause_first_object(clause: &Clause) -> Option<&Nominal> {
 /// rheme-last — functional sentence perspective). LiQuestions front an
 /// explicit topic, then the focused slot (default: the verb), and follow
 /// with verb–subject–object (steen's own example order).
-fn order_constituents(constituents: &mut Vec<Constituent>, clause: &Clause) {
+fn order_constituents(constituents: &mut Vec<Constituent>, clause: &ResolvedClause) {
     let take = |constituents: &mut Vec<Constituent>, slot: SlotKind| -> Option<Constituent> {
         constituents
             .iter()
@@ -1371,11 +1116,11 @@ fn order_constituents(constituents: &mut Vec<Constituent>, clause: &Clause) {
 fn place_cluster(
     constituents: &mut Vec<Constituent>,
     vp_index: usize,
-    cluster: Vec<Token>,
+    cluster: Vec<String>,
     style: CliticStyle,
 ) {
     let is_li_particle = |constituent: &Constituent| {
-        constituent.slot == SlotKind::Fixed && constituent.tokens == vec![word("li")]
+        constituent.slot == SlotKind::Fixed && constituent.nodes == vec![word("li")]
     };
     let after_li = |constituents: &[Constituent], mut index: usize| -> usize {
         if constituents.get(index).is_some_and(is_li_particle) {
@@ -1404,50 +1149,7 @@ fn place_cluster(
         insert_at,
         Constituent {
             slot: SlotKind::Fixed,
-            tokens: cluster,
+            nodes: cluster.into_iter().map(word).collect(),
         },
     );
-}
-
-/// The single stringification: words spaced, punctuation attached to the
-/// preceding word, terminal mark appended — a comma trailing directly
-/// before the terminal mark is dropped (the ONLY comma the join ever
-/// removes; no global string replacement).
-fn join(tokens: &[Token], force: Force, sentence: bool) -> String {
-    let mut out = String::new();
-    let mut trailing_comma = false;
-    for token in tokens {
-        match token {
-            Token::Punct(mark) => {
-                out.push(*mark);
-                trailing_comma = *mark == ',';
-            }
-            Token::Word(text) | Token::Clitic(text) => {
-                if !out.is_empty() {
-                    out.push(' ');
-                }
-                out.push_str(text);
-                trailing_comma = false;
-            }
-        }
-    }
-    if sentence {
-        if trailing_comma {
-            out.pop();
-        }
-        let mut chars = out.chars();
-        if let Some(first) = chars.next() {
-            out = first.to_uppercase().collect::<String>() + chars.as_str();
-        }
-        out.push(match force {
-            Force::Declarative => '.',
-            Force::Imperative(_) => '!',
-            _ => '?',
-        });
-    } else {
-        while out.ends_with([',', ' ']) {
-            out.pop();
-        }
-    }
-    out
 }

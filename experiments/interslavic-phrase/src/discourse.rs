@@ -21,8 +21,11 @@
 //!   `i` "and"), rendered sentence-initially.
 
 use crate::ast::*;
-use crate::realize::{PhraseError, RealizeOpts, realize_with_lead_in};
-use interslavic::{Gender, Number, Person, noun_info};
+use crate::profile::nominal_profile;
+use crate::realize::{PhraseError, PhraseWarning, RealizeOpts, realize_validated_with_lead_in};
+use crate::resolve::ResolutionErrors;
+use crate::validate::{AstPath, ValidationErrors, validate};
+use interslavic::{Gender, Number};
 use std::collections::HashMap;
 
 /// Sentence-initial discourse connectives — a closed table, each entry
@@ -116,23 +119,10 @@ impl Mentions {
 }
 
 fn np_features(np: &NounPhrase) -> EntityFeatures {
-    let info = noun_info(&np.head);
-    // Discourse number is the SEMANTIC number of the referent.
-    // Plural-only lexemes stay plural under every count; otherwise an
-    // explicit count of 1 is singular and every other count denotes a
-    // plurality (0 included — POLICY). Distinct from the 3sg-neuter
-    // finite-verb agreement policy for gen-pl quantified subjects.
-    let number = if info.plural_only {
-        Number::Plural
-    } else {
-        match np.count {
-            Some(1) | None => Number::Singular,
-            Some(_) => Number::Plural,
-        }
-    };
+    let profile = nominal_profile(&Nominal::Np(np.clone()));
     EntityFeatures {
-        gender: info.gender,
-        number,
+        gender: profile.gender,
+        number: profile.referent_number,
     }
 }
 
@@ -146,12 +136,10 @@ fn pronominalize_nominal(nominal: &mut Nominal, mentions: &mut Mentions) {
                 // replace a repeated NP when doing so cannot discard that
                 // content or its nested mentions.
                 if mentions.mention(&id, features) && np.relative.is_none() {
-                    *nominal = Nominal::Pron {
-                        person: Person::Third,
-                        number: features.number,
-                        gender: features.gender,
-                        clitic: false,
-                    };
+                    // Change only the requested referential form. The
+                    // lexical NP, entity identity, and the grammatical
+                    // role edge that owns case remain intact.
+                    np.referential = ReferentialForm::Pronoun;
                     return;
                 }
             }
@@ -175,7 +163,7 @@ fn pronominalize_relative(relative: &mut RelClause, mentions: &mut Mentions) {
         pronominalize_nominal(subject, mentions);
     }
     if let Some(object) = &mut relative.vp.object {
-        pronominalize_nominal(object, mentions);
+        pronominalize_nominal(&mut object.nominal, mentions);
     }
     for pp in &mut relative.vp.pps {
         pronominalize_nominal(&mut pp.object, mentions);
@@ -188,7 +176,7 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
         ClauseCore::Verbal(coordination) => {
             for verb_phrase in &mut coordination.items {
                 if let Some(object) = &mut verb_phrase.object {
-                    pronominalize_nominal(object, mentions);
+                    pronominalize_nominal(&mut object.nominal, mentions);
                 }
                 for pp in &mut verb_phrase.pps {
                     pronominalize_nominal(&mut pp.object, mentions);
@@ -197,14 +185,18 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
         }
         ClauseCore::Copular { predicate, .. } => {
             if let Predicate::Nominal(np) = predicate {
+                let requested = np.referential;
                 let mut wrapped = Nominal::Np(np.clone());
                 pronominalize_nominal(&mut wrapped, mentions);
-                if let Nominal::Np(new_np) = wrapped {
+                if let Nominal::Np(mut new_np) = wrapped {
+                    // A nominal predicate is not an argumental referring
+                    // expression: changing it to a pronoun produces
+                    // "on jest on"-shaped output. Track its mentions and
+                    // nested propositions, but preserve the caller's
+                    // original referential request.
+                    new_np.referential = requested;
                     *np = new_np;
                 }
-                // A pronominalized copular predicate stays a full NP:
-                // "on jest on" is not a sentence. Mention tracking still
-                // recorded it above.
             }
         }
     }
@@ -224,7 +216,6 @@ fn first_subject_covers_second(first: &Nominal, second: &Nominal) -> bool {
                 && a.entity == b.entity
                 && a.head == b.head
                 && a.count == b.count
-                && a.case_override == b.case_override
                 && b.determiner
                     .as_ref()
                     .is_none_or(|det| a.determiner.as_ref() == Some(det))
@@ -301,10 +292,24 @@ fn can_aggregate(first: &Clause, second: &DiscourseSentence) -> bool {
 ///     "Toj krålj kupil knigų. Potom on pročital jų."
 /// );
 /// ```
-pub fn narrate(
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Narrated {
+    pub text: String,
+    pub warnings: Vec<PhraseWarning>,
+}
+
+pub fn narrate_checked(
     sentences: Vec<DiscourseSentence>,
     opts: RealizeOpts,
-) -> Result<String, PhraseError> {
+) -> Result<Narrated, PhraseError> {
+    // The planner never receives unchecked authoring trees. It keeps
+    // owned raw clones so it can perform tree-to-tree transformations,
+    // then validates each transformed result again before resolution.
+    for (index, sentence) in sentences.iter().enumerate() {
+        validate(&sentence.clause)
+            .map_err(|errors| prefix_error(PhraseError::Validation(errors), index))?;
+    }
+
     // Aggregation pass (tree-to-tree).
     let mut aggregated: Vec<DiscourseSentence> = Vec::new();
     for sentence in sentences {
@@ -335,16 +340,91 @@ pub fn narrate(
     // Realization, one string per sentence, all through the single
     // pipeline with the caller's options intact.
     let mut out = String::new();
-    for sentence in &aggregated {
+    let mut warnings = Vec::new();
+    for (index, sentence) in aggregated.iter().enumerate() {
         if !out.is_empty() {
             out.push(' ');
         }
-        let realized = realize_with_lead_in(
-            &sentence.clause,
+        let validated = validate(&sentence.clause)
+            .map_err(|errors| prefix_error(PhraseError::Validation(errors), index))?;
+        let realized = realize_validated_with_lead_in(
+            &validated,
             sentence.connective.map(Connective::word),
             opts,
-        )?;
+        )
+        .map_err(|error| prefix_error(error, index))?;
         out.push_str(&realized.text);
+        warnings.extend(
+            realized
+                .warnings
+                .into_iter()
+                .map(|warning| prefix_warning(warning, index)),
+        );
     }
-    Ok(out)
+    Ok(Narrated {
+        text: out,
+        warnings,
+    })
+}
+
+fn prefix_error(error: PhraseError, sentence: usize) -> PhraseError {
+    let prefix = |path: String| format!("sentence[{sentence}].{path}");
+    match error {
+        PhraseError::Validation(ValidationErrors(errors)) => {
+            PhraseError::Validation(ValidationErrors(
+                errors
+                    .into_iter()
+                    .map(|mut error| {
+                        error.path = AstPath(prefix(error.path.0));
+                        error
+                    })
+                    .collect(),
+            ))
+        }
+        PhraseError::Resolution(ResolutionErrors(errors)) => {
+            PhraseError::Resolution(ResolutionErrors(
+                errors
+                    .into_iter()
+                    .map(|mut error| {
+                        error.path = prefix(error.path);
+                        error
+                    })
+                    .collect(),
+            ))
+        }
+        other => other,
+    }
+}
+
+/// Warning-discarding discourse convenience. Use [`narrate_checked`] when
+/// diagnostics must be retained.
+pub fn narrate(
+    sentences: Vec<DiscourseSentence>,
+    opts: RealizeOpts,
+) -> Result<String, PhraseError> {
+    narrate_checked(sentences, opts).map(|narrated| narrated.text)
+}
+
+fn prefix_warning(warning: PhraseWarning, sentence: usize) -> PhraseWarning {
+    let prefix = |path: String| format!("sentence[{sentence}].{path}");
+    match warning {
+        PhraseWarning::PerfectivePresent { path, verb } => PhraseWarning::PerfectivePresent {
+            path: prefix(path),
+            verb,
+        },
+        PhraseWarning::GovernsConflict {
+            path,
+            verb,
+            dictionary,
+            used,
+        } => PhraseWarning::GovernsConflict {
+            path: prefix(path),
+            verb,
+            dictionary,
+            used,
+        },
+        PhraseWarning::AmbiguousOrder { path } => {
+            PhraseWarning::AmbiguousOrder { path: prefix(path) }
+        }
+    }
 }

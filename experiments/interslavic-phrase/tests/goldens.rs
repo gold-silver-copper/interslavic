@@ -104,21 +104,34 @@ fn diagnostics_are_values() {
     // Ambiguous preposition without a case: the error lists the senses.
     let tree = clause(np("kot"), vp("spati").pp(pp("pod", np("stol"))));
     match realize(&tree, RealizeOpts::sentence()) {
-        Err(PhraseError::AmbiguousPreposition {
-            preposition,
-            senses,
-        }) => {
-            assert_eq!(preposition, "pod");
-            assert_eq!(senses.len(), 2);
+        Err(PhraseError::Validation(ValidationErrors(errors))) => {
+            assert!(matches!(
+                errors.as_slice(),
+                [ValidationError {
+                    path: AstPath(path),
+                    kind: ValidationErrorKind::AmbiguousPreposition {
+                        preposition,
+                        allowed,
+                    },
+                }] if path == "clause.core.vp[0].pp[0].case"
+                    && preposition == "pod"
+                    && allowed.len() == 2
+            ));
         }
-        other => panic!("expected AmbiguousPreposition, got {other:?}"),
+        other => {
+            panic!("expected structured ambiguous-preposition validation error, got {other:?}")
+        }
     }
 
     // Object under a dictionary-intransitive verb.
     let tree = clause(np("otėc"), vp("spati").object(np("kniga")));
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::ObjectOfIntransitive { .. })
+        Err(PhraseError::Resolution(ResolutionErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ResolutionErrorKind::ObjectOfIntransitive { .. }
+            ))
     ));
 
     // Strict mode rejects guessed heads; default mode trusts the guess.
@@ -190,7 +203,16 @@ fn passive_voice() {
         RealizeOpts::sentence(),
     )
     .unwrap_err();
-    assert!(matches!(err, PhraseError::ObjectInPassive { .. }));
+    assert!(matches!(
+        err,
+        PhraseError::Validation(ValidationErrors(errors))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ValidationErrorKind::IncoherentClause(
+                    "a passive clause promotes the patient; it cannot retain an object"
+                )
+            ))
+    ));
 }
 
 #[test]
@@ -238,7 +260,7 @@ fn verb_government_from_dictionary() {
     // Conflicting explicit case is honored but warned about.
     let tree = clause(
         np("krålj"),
-        vp("vladati").object(np("zemja").case(Case::Acc)),
+        vp("vladati").object_case(Case::Acc, np("zemja")),
     );
     let realized = realize_checked(&tree, RealizeOpts::sentence()).unwrap();
     assert_eq!(realized.text, "Krålj vladaje zemjų.");
@@ -325,6 +347,7 @@ fn coordination() {
     // VP coordination with per-VP objects.
     let tree = clause(np("krålj"), vp("kupiti"))
         .and_vp(vp("pročitati").object(np("kniga")))
+        .unwrap()
         .past();
     assert_eq!(sentence(&tree), "Krålj kupil i pročital knigų.");
 }
@@ -392,7 +415,12 @@ fn information_structure() {
     // so a marked order draws steen's clarity warning.
     let tree = clause(np("avto"), vp("viděti").object(np("nebo"))).topic(SlotRef::Object);
     let realized = realize_checked(&tree, RealizeOpts::sentence()).unwrap();
-    assert!(realized.warnings.contains(&PhraseWarning::AmbiguousOrder));
+    assert!(
+        realized
+            .warnings
+            .iter()
+            .any(|warning| matches!(warning, PhraseWarning::AmbiguousOrder { .. }))
+    );
 }
 
 #[test]

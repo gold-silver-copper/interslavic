@@ -50,7 +50,7 @@ fn government_conventions_hold_for_annotated_rows() {
     assert_eq!(s(&tree), "Krålj izbavil vodų.");
     let tree = clause(
         np("krålj"),
-        vp("izbaviti").object(np("voda").case(Case::Gen)),
+        vp("izbaviti").object_case(Case::Gen, np("voda")),
     )
     .past();
     assert_eq!(s(&tree), "Krålj izbavil vody.");
@@ -67,7 +67,9 @@ fn non_i_coordination_is_never_flattened() {
         DiscourseSentence::new(
             clause(np("krålj").entity("k"), vp("čitati"))
                 .and_vp(vp("pisati"))
-                .conj(Conj::Ili),
+                .unwrap()
+                .conj(Conj::Ili)
+                .unwrap(),
         ),
         DiscourseSentence::new(clause(np("krålj").entity("k"), vp("spati"))),
     ];
@@ -83,7 +85,11 @@ fn dormant_singleton_conjunction_canonicalizes_to_i() {
     // its conjunction field is meaningless; aggregation makes the merged
     // list explicitly `i` instead of letting a dormant `ili` surface.
     let story = vec![
-        DiscourseSentence::new(clause(np("krålj").entity("k"), vp("čitati")).conj(Conj::Ili)),
+        DiscourseSentence::new(
+            clause(np("krålj").entity("k"), vp("čitati"))
+                .conj(Conj::Ili)
+                .unwrap(),
+        ),
         DiscourseSentence::new(clause(np("krålj").entity("k"), vp("spati"))),
     ];
     assert_eq!(
@@ -96,7 +102,11 @@ fn dormant_singleton_conjunction_canonicalizes_to_i() {
 fn i_lists_still_aggregate_and_prodrop_must_match() {
     // Plain `i` semantics on both sides: the merge is safe and happens.
     let story = vec![
-        DiscourseSentence::new(clause(np("krålj").entity("k"), vp("čitati")).and_vp(vp("pisati"))),
+        DiscourseSentence::new(
+            clause(np("krålj").entity("k"), vp("čitati"))
+                .and_vp(vp("pisati"))
+                .unwrap(),
+        ),
         DiscourseSentence::new(clause(np("krålj").entity("k"), vp("spati"))),
     ];
     assert_eq!(
@@ -182,7 +192,7 @@ fn li_question_focus_must_reference_an_existing_slot() {
         .focus(SlotRef::Object);
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::IncoherentClause(_))
+        Err(PhraseError::Validation(ValidationErrors(_)))
     ));
     // A focused subject the clause drops.
     let tree = clause(
@@ -194,7 +204,7 @@ fn li_question_focus_must_reference_an_existing_slot() {
     .prodrop();
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::IncoherentClause(_))
+        Err(PhraseError::Validation(ValidationErrors(_)))
     ));
 }
 
@@ -203,7 +213,7 @@ fn declarative_topic_and_focus_are_validated_too() {
     let tree = clause(np("otėc"), vp("spati")).topic(SlotRef::Object);
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::IncoherentClause(_))
+        Err(PhraseError::Validation(ValidationErrors(_)))
     ));
     let tree = clause(
         pron(Person::First, Number::Singular, Gender::Masculine),
@@ -213,7 +223,7 @@ fn declarative_topic_and_focus_are_validated_too() {
     .prodrop();
     assert!(matches!(
         realize(&tree, RealizeOpts::sentence()),
-        Err(PhraseError::IncoherentClause(_))
+        Err(PhraseError::Validation(ValidationErrors(_)))
     ));
 }
 
@@ -290,7 +300,7 @@ fn instrumental_pred_case_is_nominal_only() {
         );
         assert!(matches!(
             realize(&tree, RealizeOpts::sentence()),
-            Err(PhraseError::IncoherentClause(_))
+            Err(PhraseError::Validation(ValidationErrors(_)))
         ));
     }
     // The S-expression reader rejects the same combination at parse
@@ -305,17 +315,7 @@ fn instrumental_pred_case_is_nominal_only() {
 fn pp_relative_gaps_validate_their_preposition() {
     let with_gap = |preposition: &str, case: Case| {
         clause(
-            np("stol").relative(RelClause {
-                gap: GapRole::PpObject {
-                    preposition: preposition.into(),
-                    case,
-                },
-                subject: Some(np("kot").into()),
-                vp: vp("spati"),
-                tense: TenseSpec::Present,
-                polarity: Polarity::Affirmative,
-                relativizer: Relativizer::Ktory,
-            }),
+            np("stol").relative(RelClause::pp_gap(preposition, case, np("kot"), vp("spati"))),
             vp("stojati"),
         )
     };
@@ -328,11 +328,19 @@ fn pp_relative_gaps_validate_their_preposition() {
     // preposition.
     assert!(matches!(
         realize(&with_gap("pod", Case::Dat), RealizeOpts::sentence()),
-        Err(PhraseError::InvalidPrepositionCase { .. })
+        Err(PhraseError::Validation(ValidationErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ValidationErrorKind::InvalidPrepositionCase { .. }
+            ))
     ));
     assert!(matches!(
         realize(&with_gap("blorp", Case::Dat), RealizeOpts::sentence()),
-        Err(PhraseError::UnknownPreposition(_))
+        Err(PhraseError::Validation(ValidationErrors(errors)))
+            if errors.iter().any(|error| matches!(
+                error.kind,
+                ValidationErrorKind::UnknownPreposition(_)
+            ))
     ));
 }
 
@@ -351,7 +359,7 @@ fn oblique_objects_do_not_trigger_ambiguous_order() {
 
     // An explicit oblique override disambiguates the same way.
     let realized = realize_checked(
-        &clause(np("avto"), vp("vladati").object(np("okno").case(Case::Ins)))
+        &clause(np("avto"), vp("vladati").object_case(Case::Ins, np("okno")))
             .topic(SlotRef::Object),
         RealizeOpts::sentence(),
     )
@@ -366,5 +374,10 @@ fn oblique_objects_do_not_trigger_ambiguous_order() {
     )
     .unwrap();
     assert_eq!(realized.text, "Nebo avto vidi.");
-    assert_eq!(realized.warnings, vec![PhraseWarning::AmbiguousOrder]);
+    assert_eq!(
+        realized.warnings,
+        vec![PhraseWarning::AmbiguousOrder {
+            path: "clause.order".into()
+        }]
+    );
 }
