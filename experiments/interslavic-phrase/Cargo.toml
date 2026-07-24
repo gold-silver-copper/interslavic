@@ -1,6 +1,6 @@
 [package]
 name = "interslavic-phrase"
-version = "0.1.0"
+version = "0.2.0"
 edition.workspace = true
 rust-version.workspace = true
 description = "Experiment: typed Interslavic syntax trees with an S-expression surface, realized through the interslavic inflection crate"
