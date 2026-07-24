@@ -109,7 +109,12 @@ What the inflection API consumes internally is also queryable:
 
 - `verb_info(infinitive)` → aspect (`Ipf`/`Pf`/`Biaspectual`),
   transitivity (`Some(true)`/`Some(false)`/`None` where the dictionary
-  row carries no marker), reflexivity. `None` = not a dictionary verb.
+  row carries no marker), reflexivity, and object government
+  (`governs: Option<Case>` from the dictionary's `(+N)` annotation).
+  Pure reflexive constructions are queried by their full lemma
+  (`verb_info("ostrěgati sę")`); preposition-bearing phrase rows are
+  deliberately excluded because one `Option<Case>` cannot represent
+  their richer structure. `None` = not an extracted dictionary verb.
 - `noun_info(lemma)` → gender, animacy, plural-/singular-only,
   indeclinability, with `Provenance::Dictionary` vs `Provenance::Guessed`
   — the guess is exactly what `noun()` inflects with, so you can decide
@@ -126,10 +131,13 @@ hand-curating suspicious pairs.
 ## The single source of truth — never post-process forms
 
 The paradigm/compound-tense path is the one implementation of stem
-derivation; `l_participle`, `perfect_parts`, and the participle decliners
-all derive from it and cannot disagree with `verb_forms`. The same
-contract applies to you: **the crate's output is final**. If a form looks
-wrong, the fix belongs here (with the steen grammar and the JS reference
+derivation; `l_participle`, `perfect_parts`, `conditional_parts`, and the
+participle decliners all derive from it and cannot disagree with
+`verb_forms`. `conditional_parts()` returns the person-marked auxiliary
+and gender-/number-resolved l-participle as data, so consumers never
+parse a formatted paradigm cell. The same contract applies to you:
+**the crate's output is final**. If a form looks wrong, the fix belongs
+here (with the steen grammar and the JS reference
 as arbiters) — never in a downstream string edit, which would silently
 drift from every other consumer.
 

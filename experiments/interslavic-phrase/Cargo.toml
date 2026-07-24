@@ -11,4 +11,4 @@ categories.workspace = true
 readme = "README.md"
 
 [dependencies]
-interslavic = { path = "../../crates/interslavic", version = "0.13.0" }
+interslavic = { path = "../../crates/interslavic", version = "0.14.0" }

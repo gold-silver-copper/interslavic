@@ -26,5 +26,5 @@ keywords = ["interslavic", "inflection", "morphology", "nlp"]
 categories = ["text-processing", "internationalization"]
 
 [workspace.dependencies]
-interslavic-core = { path = "crates/interslavic-core", version = "0.13.0" }
+interslavic-core = { path = "crates/interslavic-core", version = "0.14.0" }
 phf = { version = "0.12", default-features = false, features = ["macros"] }

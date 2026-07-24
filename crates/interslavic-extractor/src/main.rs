@@ -33,6 +33,7 @@ struct VerbEntry {
     perfective: bool,
     reflexive: bool,
     intransitive: bool,
+    governs: Option<u8>,
 }
 
 #[derive(Debug)]
@@ -167,7 +168,7 @@ fn generate(input: &Path) -> Result<GeneratedFiles, Box<dyn Error>> {
             for lemma in isv
                 .split(',')
                 .map(normalize_lemma)
-                .filter(|lemma| is_core_verb_lemma(lemma))
+                .filter(|lemma| is_core_verb_lemma(lemma) || is_reflexive_core_lemma(lemma))
             {
                 let entry = VerbEntry {
                     lemma: lemma.clone(),
@@ -177,6 +178,7 @@ fn generate(input: &Path) -> Result<GeneratedFiles, Box<dyn Error>> {
                     perfective: metadata.perfective,
                     reflexive: metadata.reflexive,
                     intransitive: metadata.intransitive,
+                    governs: parse_governs(&addition),
                 };
                 insert_verb_entry(&mut verb_map, lemma.clone(), entry.clone());
                 let lower = lemma.to_lowercase();
@@ -223,6 +225,7 @@ fn insert_verb_entry(map: &mut BTreeMap<String, Vec<VerbEntry>>, key: String, en
             && existing.perfective == entry.perfective
             && existing.reflexive == entry.reflexive
             && existing.intransitive == entry.intransitive
+            && existing.governs == entry.governs
     }) {
         entries.push(entry);
     }
@@ -243,7 +246,8 @@ fn write_verb_phf(map: &BTreeMap<String, Vec<VerbEntry>>) -> String {
             out.push_str(&format!("imperfective: {}, ", entry.imperfective));
             out.push_str(&format!("perfective: {}, ", entry.perfective));
             out.push_str(&format!("reflexive: {}, ", entry.reflexive));
-            out.push_str(&format!("intransitive: {} ", entry.intransitive));
+            out.push_str(&format!("intransitive: {}, ", entry.intransitive));
+            out.push_str(&format!("governs: {:?} ", entry.governs));
             out.push_str("},\n");
         }
         out.push_str("    ],\n");
@@ -257,12 +261,37 @@ fn write_verb_phf(map: &BTreeMap<String, Vec<VerbEntry>>) -> String {
     out
 }
 
+/// The dictionary's object-government annotation in the addition column:
+/// `(+N)` with the community dictionary's case numbering (2=Gen, 3=Dat,
+/// 4=Acc, 5=Ins, 6=Loc) — the same convention the preposition table was
+/// curated from. May coexist with a present-stem hint
+/// ("izběgti (izběži) (+2)"); the hint parser strips the marker on its
+/// side, so extracting it here clobbers nothing.
+fn parse_governs(addition: &str) -> Option<u8> {
+    let bytes = addition.as_bytes();
+    bytes
+        .windows(2)
+        .find(|pair| pair[0] == b'+' && pair[1].is_ascii_digit())
+        .map(|pair| pair[1] - b'0')
+}
+
 fn is_core_verb_lemma(lemma: &str) -> bool {
     !lemma.is_empty()
         && !lemma.chars().any(char::is_whitespace)
         && !lemma.contains('(')
         && !lemma.contains(')')
         && !lemma.contains('/')
+}
+
+/// A reflexive construction lemma — `X sę` with a core `X`. Kept under
+/// its FULL lemma as the key, so the reflexive row's metadata (its
+/// government above all: "ostrěgati sę (+2)") stays distinct from any
+/// bare `X` row and never disturbs the bare key's first-entry order.
+/// Phrasal lemmas with a named preposition ("bazovati na") remain
+/// excluded: their annotation belongs to the preposition, which
+/// `governs: Option<u8>` cannot represent.
+fn is_reflexive_core_lemma(lemma: &str) -> bool {
+    lemma.strip_suffix(" sę").is_some_and(is_core_verb_lemma)
 }
 
 fn write_noun_phf(map: &BTreeMap<String, Vec<NounEntry>>) -> String {
@@ -426,10 +455,29 @@ mod tests {
     }
 
     #[test]
+    fn government_markers_are_extracted_without_clobbering_hints() {
+        for number in [2, 3, 4, 5, 6] {
+            assert_eq!(parse_governs(&format!("(+{number})")), Some(number));
+        }
+        assert_eq!(parse_governs("(izběži) (+2)"), Some(2));
+        assert_eq!(parse_governs("(izběži)"), None);
+        assert_eq!(parse_governs(""), None);
+    }
+
+    #[test]
     fn core_verb_filter_rejects_phrases_and_alternatives() {
         assert!(is_core_verb_lemma("pisati"));
         assert!(!is_core_verb_lemma("bazovati na"));
         assert!(!is_core_verb_lemma("pisati/pisati"));
         assert!(!is_core_verb_lemma("(piše)"));
+    }
+
+    #[test]
+    fn reflexive_filter_accepts_only_full_core_plus_se() {
+        assert!(is_reflexive_core_lemma("ostrěgati sę"));
+        assert!(!is_reflexive_core_lemma("ostrěgati"));
+        assert!(!is_reflexive_core_lemma("brati sę za"));
+        assert!(!is_reflexive_core_lemma("myti/umyti sę"));
+        assert!(!is_reflexive_core_lemma(" sę"));
     }
 }

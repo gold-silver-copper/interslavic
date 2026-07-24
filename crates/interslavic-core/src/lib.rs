@@ -40,7 +40,7 @@ pub use paradigm::{AdjParadigm, CASE_ORDER, NounParadigm, VerbParadigm};
 pub use types::{
     Animacy, Case, ComplexNoun, Conjugation, Gender, Number, Person, PronounStyle, Tense,
 };
-pub use verb::PerfectParts;
+pub use verb::{ConditionalParts, PerfectParts};
 
 pub const VOWELS: &[char] = &[
     'a', 'e', 'i', 'í', 'ó', 'o', 'u', 'å', 'ą', 'ę', 'ė', 'é', 'ȯ', 'ų', 'ů', 'ú', 'ý', 'y', 'ě',

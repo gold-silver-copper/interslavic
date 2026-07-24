@@ -74,16 +74,29 @@ fn ovati_and_evati_verbs_use_uj_present_stem() {
 
 #[test]
 fn raw_phrase_strings_are_not_conjugated_as_core_lemmas() {
-    assert_eq!(
-        interslavic::verb(
-            "bazovati na",
-            Person::First,
-            Number::Singular,
-            Gender::Feminine,
-            Tense::Present,
-        ),
-        "bazovati na"
-    );
+    for phrase in ["bazovati na", "ostrěgati sę"] {
+        assert_eq!(
+            interslavic::verb(
+                phrase,
+                Person::First,
+                Number::Singular,
+                Gender::Feminine,
+                Tense::Present,
+            ),
+            phrase
+        );
+        assert_eq!(
+            interslavic::try_verb(
+                phrase,
+                Person::First,
+                Number::Singular,
+                Gender::Feminine,
+                Tense::Present,
+            ),
+            None
+        );
+        assert_eq!(interslavic::try_verb_forms(phrase), None);
+    }
 }
 
 #[test]
