@@ -75,9 +75,10 @@ Case is not legal inside `(np ...)`. Strings that are not safe bare
 atoms are quoted. The reader and printer escape `"`, `\`, newline,
 carriage return, and tab, and preserve spaces, leading colons,
 parentheses, arbitrary Unicode, multiword names, and entity IDs.
-For every valid serializable tree, `clause_from_str(print(tree)) ==
-tree`; bounded-generative tests exercise escaped leaves and malformed
-input.
+For every valid serializable tree, `clause_from_str(&print(tree)?) ==
+tree`; raw printing validates first, while `print_validated` is the
+infallible boundary for `ValidatedClause`. Bounded-generative tests
+exercise escaped leaves and malformed input.
 
 The early 0.1 spelling with a nominal directly inside `(vp ...)` is
 accepted for migration, but `print` always emits `(object ...)`.

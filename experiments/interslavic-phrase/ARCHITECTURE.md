@@ -189,8 +189,9 @@ All other Unicode is preserved. Validation imposes
 `MAX_STRUCTURE_DEPTH` before recursive consumers run, and the reader
 uses a larger derived list-depth bound. This applies equally to typed
 trees, parsed input, and callers that construct `Value` directly. For
-every valid serializable tree, `clause_from_str(print(tree)) == tree`.
-A deterministic bounded
+every valid serializable tree, `clause_from_str(&print(tree)?) == tree`.
+Raw printing validates first; only `print_validated(&ValidatedClause)`
+is infallible. A deterministic bounded
 generator covers hundreds of arbitrary combinations in noun,
 determiner, adjective, entity, name, verb, adverb, predicate, and
 relative fields. Another generator proves malformed inputs do not

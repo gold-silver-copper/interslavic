@@ -61,7 +61,9 @@ pub use realize::{
     realize_validated_checked, realize_with_lead_in,
 };
 pub use resolve::{ResolutionError, ResolutionErrorKind, ResolutionErrors};
-pub use sexpr::{SexprError, Value, clause_from_str, compile_clause, parse, print};
+pub use sexpr::{
+    SexprError, Value, clause_from_str, compile_clause, parse, print, print_validated,
+};
 pub use validate::{
     AstPath, MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationError, ValidationErrorKind,
     ValidationErrors, validate,

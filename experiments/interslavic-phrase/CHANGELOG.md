@@ -51,8 +51,10 @@ and S-expression canonical output changed.
 - Added quoted S-expression atoms with escaping. Canonical object output
   is now `(object [:case CASE] NOMINAL)`; `:case` is no longer accepted
   on an NP. Referential choice is serialized as `:refer pron|clitic`.
-  Valid trees now satisfy `clause_from_str(print(tree)) == tree`,
-  including single-item nominal coordination and quoted delimiter atoms.
+  Valid trees now satisfy `clause_from_str(&print(tree)?) == tree`;
+  raw printing validates first and `print_validated` accepts the sealed
+  validated type. This includes single-item nominal coordination and
+  quoted delimiter atoms.
 - Made generic object topic/focus target the first object that actually
   exists, kept later objects with their owning VP under default `li`
   order, and made discourse salience follow typed constituent order

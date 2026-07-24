@@ -172,7 +172,7 @@ fn trees() -> Vec<Clause> {
 #[test]
 fn print_parse_roundtrip_is_identity_on_canonical_trees() {
     for tree in trees() {
-        let printed = print(&tree);
+        let printed = print(&tree).unwrap();
         let reparsed = clause_from_str(&printed)
             .unwrap_or_else(|e| panic!("reparse of `{printed}` failed: {e}"));
         assert_eq!(
@@ -180,7 +180,7 @@ fn print_parse_roundtrip_is_identity_on_canonical_trees() {
             "round-trip changed the tree for `{printed}`"
         );
         assert_eq!(
-            print(&reparsed),
+            print(&reparsed).unwrap(),
             printed,
             "print not canonical for `{printed}`"
         );
@@ -193,11 +193,11 @@ fn single_item_coordination_roundtrips_without_losing_structure() {
         Nominal::Coord(Coordination::new(Conj::I, vec![np("otėc").into()])),
         vp("spati"),
     );
-    let printed = print(&tree);
+    let printed = print(&tree).unwrap();
     assert_eq!(printed, "(clause (coord i (np (n otėc))) (vp (v spati)))");
     let reparsed = clause_from_str(&printed).unwrap();
     assert_eq!(reparsed, tree);
-    assert_eq!(print(&reparsed), printed);
+    assert_eq!(print(&reparsed).unwrap(), printed);
 }
 
 #[test]

@@ -148,7 +148,7 @@ fn object_relative_gaps_share_explicit_case_resolution() {
         }] if path == "clause.subject.relative.gap"
     ));
 
-    let printed = print(&tree);
+    let printed = print(&tree).unwrap();
     assert!(printed.contains(":gap obj :case gen"));
     assert_eq!(clause_from_str(&printed).unwrap(), tree);
 }
@@ -563,7 +563,7 @@ fn generated_atoms() -> Vec<String> {
 
 fn assert_roundtrip(tree: Clause) {
     validate(&tree).unwrap();
-    let printed = print(&tree);
+    let printed = print(&tree).unwrap();
     let reparsed = clause_from_str(&printed).unwrap_or_else(|error| {
         panic!("failed to parse generated canonical tree `{printed}`: {error}")
     });
@@ -649,8 +649,22 @@ fn typed_and_serialized_depth_share_one_validation_limit() {
     for _ in 0..=MAX_STRUCTURE_DEPTH {
         nominal = coordinate(Conj::I, vec![nominal]);
     }
+    let tree = clause(nominal, vp("stojati"));
     assert!(matches!(
-        validate(&clause(nominal, vp("stojati"))),
+        validate(&tree),
+        Err(ValidationErrors(errors))
+            if matches!(
+                errors.as_slice(),
+                [ValidationError {
+                    kind: ValidationErrorKind::MaximumDepth {
+                        limit: MAX_STRUCTURE_DEPTH
+                    },
+                    ..
+                }]
+            )
+    ));
+    assert!(matches!(
+        print(&tree),
         Err(ValidationErrors(errors))
             if matches!(
                 errors.as_slice(),

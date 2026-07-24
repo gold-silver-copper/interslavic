@@ -33,10 +33,10 @@
 //! Leaves are flavored citation forms; integers are counts rendered as
 //! digits. Unsafe atoms use quoted strings with `\"`, `\\`, `\n`,
 //! `\r`, and `\t` escapes. For every valid tree,
-//! `clause_from_str(print(tree)) == tree`.
+//! `clause_from_str(&print(tree)?) == tree`.
 
 use crate::ast::*;
-use crate::validate::MAX_STRUCTURE_DEPTH;
+use crate::validate::{MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationErrors, validate};
 use interslavic::{Case, Gender, Number, Person};
 use std::fmt;
 
@@ -1142,11 +1142,19 @@ fn push_atom(out: &mut String, atom: &str) {
     out.push('"');
 }
 
-/// Print a clause in canonical form: children in fixed order and only
-/// non-default keys emitted. For every valid tree,
-/// `compile_clause(parse(print(c))) == c`; generated tests cover every
-/// node kind and escaped-atom class.
-pub fn print(clause: &Clause) -> String {
+/// Validate and print a raw clause in canonical form. Raw trees cannot
+/// bypass the shared depth/invariant preflight.
+pub fn print(clause: &Clause) -> Result<String, ValidationErrors> {
+    let validated = validate(clause)?;
+    Ok(print_validated(&validated))
+}
+
+/// Print an already validated clause in canonical form: children are in
+/// fixed order and only non-default keys are emitted. For every valid
+/// tree, `clause_from_str(&print(c)?) == c`; generated tests cover
+/// every node kind and escaped-atom class.
+pub fn print_validated(validated: &ValidatedClause) -> String {
+    let clause = validated.as_raw();
     let mut out = String::from("(clause ");
     print_nominal(&clause.subject, &mut out);
     match &clause.core {
