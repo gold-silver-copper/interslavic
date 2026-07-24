@@ -7,8 +7,9 @@ in the release notes (fenced by `tests/variant_order.rs`).
 
 ## 0.14.0 — 2026-07-24
 
-Additive release exposing dictionary government and conditional
-construction parts to higher-level syntax consumers.
+Facade release exposing dictionary government and conditional
+construction parts to higher-level syntax consumers, while tightening
+the checked verb APIs' handling of raw phrase strings.
 
 ### Added
 
@@ -24,15 +25,22 @@ construction parts to higher-level syntax consumers.
   ("bazovati na (+6)") are NOT extracted — their annotation belongs to
   the preposition, which `Option<Case>` cannot represent. A marker
   coexisting with a present-stem hint survives on both sides
-  (`izběgti (izběži) (+2)`). Conjugation inputs untouched: paradigm
-  fingerprint and parity scopes byte-stable. Multi-entry lemmas follow
-  the first-entry convention (`izbaviti`'s plain row precedes its
-  `(+2)` row → `None`; documented and pinned).
+  (`izběgti (izběži) (+2)`). Single-word conjugation outputs are
+  untouched: the paradigm fingerprint and parity scopes are byte-stable.
+  Multi-entry lemmas follow the first-entry convention (`izbaviti`'s
+  plain row precedes its `(+2)` row → `None`; documented and pinned).
 - **`conditional_parts()`** — returns `ConditionalParts { auxiliary,
   participle }` without requiring consumers to generate and decode an
   entire paradigm. The accessor and paradigm generation share one
   conditional-auxiliary table, while the facade continues to resolve
   dictionary stem hints before delegating to the core implementation.
+
+### Changed
+
+- **Checked verb APIs reject raw phrases** — `try_verb()` and
+  `try_verb_forms()` now return `None` for whitespace-containing inputs,
+  including metadata-only reflexive constructions such as `ostrěgati sę`.
+  The total `verb()` API retains its existing best-effort echo behavior.
 
 ## 0.13.0 — 2026-07-22
 

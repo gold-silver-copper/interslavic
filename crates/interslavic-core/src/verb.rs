@@ -980,3 +980,43 @@ pub fn l_participle_with_hint(
     };
     postprocess_lpa_line(&form)
 }
+
+#[cfg(test)]
+mod conditional_parts_tests {
+    use super::*;
+
+    #[test]
+    fn every_person_number_slot_uses_the_shared_auxiliary_table() {
+        let cases = [
+            (Person::First, Number::Singular, "byh"),
+            (Person::Second, Number::Singular, "bys"),
+            (Person::Third, Number::Singular, "by"),
+            (Person::First, Number::Plural, "byhmo"),
+            (Person::Second, Number::Plural, "byste"),
+            (Person::Third, Number::Plural, "by"),
+        ];
+
+        for (person, number, expected) in cases {
+            let parts =
+                conditional_parts_with_hint("kupiti", "", person, number, Gender::Masculine);
+            assert_eq!(parts.auxiliary, expected);
+        }
+    }
+
+    #[test]
+    fn every_gender_number_slot_has_the_expected_participle() {
+        let cases = [
+            (Gender::Masculine, Number::Singular, "kupil"),
+            (Gender::Feminine, Number::Singular, "kupila"),
+            (Gender::Neuter, Number::Singular, "kupilo"),
+            (Gender::Masculine, Number::Plural, "kupili"),
+            (Gender::Feminine, Number::Plural, "kupili"),
+            (Gender::Neuter, Number::Plural, "kupili"),
+        ];
+
+        for (gender, number, expected) in cases {
+            let parts = conditional_parts_with_hint("kupiti", "", Person::Third, number, gender);
+            assert_eq!(parts.participle, expected);
+        }
+    }
+}
