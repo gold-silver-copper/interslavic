@@ -886,3 +886,91 @@ pub fn get_noun_stem(word: &str, number: Number) -> String {
 pub fn stem_of_noun_is_soft(word: &str) -> bool {
     utils::ends_with_soft_consonant(&get_noun_stem(word, Number::Singular))
 }
+
+/// The vocative, built from the nominative citation form.
+///
+/// This is deliberately NOT a [`Case`] variant. The source is explicit
+/// that the vocative "is not a real case, and it behaves significantly
+/// different from other cases: it does not have a plural, it never
+/// affects neuter nouns, adjectives or pronouns, and it has nothing to do
+/// with the syntactic structure of the sentence" (nouns page). Modelling
+/// it as a case would give every consumer six real cells plus one that
+/// silently means something else, and would force adjectives and pronouns
+/// to answer a question the language does not ask of them.
+///
+/// `None` is returned exactly where the source says the form is to be
+/// avoided — feminine consonant stems and neuters — because "the
+/// nominative can always be used instead of the vocative". `None`
+/// therefore means "address this with the nominative", not "unknown".
+///
+/// The recommended forms, all from the same page:
+///
+/// ```
+/// use interslavic_core::{Gender, noun::vocative};
+///
+/// // Hard masculine stems take -e, with k/g/h → č/ž/š before it.
+/// assert_eq!(vocative("Ivan", Gender::Masculine).as_deref(), Some("Ivane"));
+/// assert_eq!(vocative("doktor", Gender::Masculine).as_deref(), Some("doktore"));
+/// assert_eq!(vocative("člověk", Gender::Masculine).as_deref(), Some("člověče"));
+/// assert_eq!(vocative("Bog", Gender::Masculine).as_deref(), Some("Bože"));
+///
+/// // Soft masculine stems take -u; the soft sign unpacks before it.
+/// assert_eq!(vocative("muž", Gender::Masculine).as_deref(), Some("mužu"));
+/// assert_eq!(vocative("prijateľ", Gender::Masculine).as_deref(), Some("prijatelju"));
+/// assert_eq!(vocative("koń", Gender::Masculine).as_deref(), Some("konju"));
+///
+/// // Masculine words on -ec take -če, not the expected -cu.
+/// assert_eq!(vocative("hlåpec", Gender::Masculine).as_deref(), Some("hlåpče"));
+/// assert_eq!(vocative("otec", Gender::Masculine).as_deref(), Some("otče"));
+///
+/// // Masculine and feminine words on -a change the ending to -o.
+/// assert_eq!(vocative("sluga", Gender::Masculine).as_deref(), Some("slugo"));
+/// assert_eq!(vocative("žena", Gender::Feminine).as_deref(), Some("ženo"));
+/// assert_eq!(vocative("zemja", Gender::Feminine).as_deref(), Some("zemjo"));
+///
+/// // Elsewhere the source says to avoid the vocative.
+/// assert_eq!(vocative("noč", Gender::Feminine), None);
+/// assert_eq!(vocative("slovo", Gender::Neuter), None);
+/// ```
+pub fn vocative(word: &str, gender: Gender) -> Option<String> {
+    let word = word.trim();
+    if word.is_empty() {
+        return None;
+    }
+
+    // "masculine and feminine words on -a change their ending to -o".
+    // This is tested before gender, because it covers both.
+    if let Some(stem) = word.strip_suffix('a') {
+        return Some(format!("{stem}o"));
+    }
+
+    match gender {
+        // "it never affects neuter nouns"; "feminine nouns on a
+        // consonant ... the vocative is to be avoided".
+        Gender::Neuter | Gender::Feminine => None,
+        Gender::Masculine => Some(masculine_vocative(word)),
+    }
+}
+
+fn masculine_vocative(word: &str) -> String {
+    // "Words on -ec have the vocative ending -če instead of the expected
+    // -cu": the -e- is the fleeting vowel, so the stem loses it.
+    if let Some(stem) = word.strip_suffix("ec") {
+        return format!("{stem}če");
+    }
+    // "soft masculine stems take -u". The soft sign unpacks to its
+    // digraph before a vowel, the same convention the declension uses
+    // (`mark_final_soft_noun_consonants`): prijateľ → prijatelju.
+    if utils::ends_with_soft_consonant(word) {
+        let mut stem = word.to_string();
+        for (from, to) in [("ń", "nj"), ("ň", "nj"), ("ľ", "lj"), ("ĺ", "lj")] {
+            if stem.ends_with(from) {
+                stem = utils::replace_last_occurence(&stem, from, to);
+            }
+        }
+        return format!("{stem}u");
+    }
+    // "hard masculine stems take -e", and "in the vocative, k, g and h
+    // become č, ž and š before e".
+    format!("{}e", crate::phono::palatalize_final(word))
+}
