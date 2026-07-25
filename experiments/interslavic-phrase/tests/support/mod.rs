@@ -19,6 +19,11 @@ pub struct Row {
     pub index: usize,
     pub source_text: String,
     pub flavored_text: String,
+    /// The sentence carries a quotative frame of its own — words outside
+    /// the quotation, as in `«Ne», odgovoril pės.`
+    pub framed: bool,
+    /// The sentence sits inside direct speech.
+    pub quoted: bool,
     pub disposition: String,
 }
 
@@ -56,25 +61,32 @@ pub fn rows() -> Vec<Row> {
         .filter(|line| !line.starts_with('#') && !line.trim().is_empty());
     let header = lines.next().expect("inventory has a header row");
     assert_eq!(
-        header, "id\tpage\tindex\tsource_text\tflavored_text\tdisposition",
+        header, "id\tpage\tindex\tsource_text\tflavored_text\tframed\tquoted\tdisposition",
         "inventory header changed; update tests/support/mod.rs"
     );
     for (line_number, line) in lines.enumerate() {
         let fields: Vec<&str> = line.split('\t').collect();
         assert_eq!(
             fields.len(),
-            6,
-            "inventory line {} has {} fields, expected 6",
+            8,
+            "inventory line {} has {} fields, expected 8",
             line_number + 2,
             fields.len()
         );
+        let flag = |value: &str| match value {
+            "yes" => true,
+            "no" => false,
+            other => panic!("expected yes/no, found `{other}`"),
+        };
         out.push(Row {
             id: fields[0].to_string(),
             page: fields[1].to_string(),
             index: fields[2].parse().expect("index is a number"),
             source_text: fields[3].to_string(),
             flavored_text: fields[4].to_string(),
-            disposition: fields[5].to_string(),
+            framed: flag(fields[5]),
+            quoted: flag(fields[6]),
+            disposition: fields[7].to_string(),
         });
     }
     out

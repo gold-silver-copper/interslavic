@@ -70,11 +70,11 @@ const CASES: &[SteenCase] = &[
     SteenCase {
         id: "wren-015",
         source: WREN,
-        source_text: "Ja go shvaču.»",
+        source_text: "Ja go shvaču.",
         flavored_published: true,
-        normalization: "`shvaču`→`shvaćų`; the closing guillemet of the \
-                        surrounding direct speech is dropped, since the \
-                        quotative frame is not modelled.",
+        normalization: "`shvaču`→`shvaćų`. The sentence sits inside direct \
+                        speech; the surrounding quotation's delimiters \
+                        belong to that span, not to this sentence.",
         lead_in: None,
         // Steen puts the accusative clitic before the verb here, which is
         // the crate's documented second-position style rather than its
@@ -139,10 +139,10 @@ const CASES: &[SteenCase] = &[
     SteenCase {
         id: "volk_i_pes-005",
         source: VOLK,
-        source_text: "Kde ješ?»",
+        source_text: "Kde ješ?",
         flavored_published: true,
-        normalization: "The closing guillemet of the surrounding direct \
-                        speech is dropped.",
+        normalization: "None; the two published versions are identical here. \
+                        The sentence sits inside direct speech.",
         lead_in: None,
         clitics: CliticStyle::Postverbal,
         sexpr: "(clause (pron :2 :sg :m) (vp (v jesti)) :force wh :wh-adv kde :prodrop)",
@@ -163,10 +163,10 @@ const CASES: &[SteenCase] = &[
     SteenCase {
         id: "volk_i_pes-017",
         source: VOLK,
-        source_text: "Imajut li vsi psi šije bez vlasov?»",
+        source_text: "Imajut li vsi psi šije bez vlasov?",
         flavored_published: true,
-        normalization: "`Imajut`→`Imajųt`; `vlasov`→`vlåsov`; the closing \
-                        guillemet of the surrounding direct speech is dropped.",
+        normalization: "`Imajut`→`Imajųt`; `vlasov`→`vlåsov`. The sentence \
+                        sits inside direct speech.",
         lead_in: None,
         clitics: CliticStyle::Postverbal,
         sexpr: "(clause (np :pl (det vsi) (n pės)) \
@@ -177,7 +177,7 @@ const CASES: &[SteenCase] = &[
     },
     // -- Naše selo (Our village) ---------------------------------------
     SteenCase {
-        id: "selo-004",
+        id: "selo-006",
         source: SELO,
         source_text: "Put ne bude dolgy.",
         flavored_published: true,

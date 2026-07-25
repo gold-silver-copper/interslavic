@@ -65,6 +65,64 @@ fn skips_state_a_reason() {
     }
 }
 
+/// The defect this ledger was re-mined to fix.
+///
+/// The first mining pass split paragraphs at sentence punctuation without
+/// tracking quotation depth, so 42 rows carried stray `«`/`»` — a row
+/// that opened a quotation and never closed it, or closed one it never
+/// opened. Those row boundaries were not sentence boundaries, and a
+/// coverage claim over them meant nothing.
+///
+/// The invariant is NOT per-row balance. A quotation in these texts
+/// routinely spans several sentences, so a sentence that closes a
+/// quotation opened three sentences earlier is correct, not broken;
+/// demanding per-row balance would force quotations to be glued into
+/// paragraph-sized rows that no fixture could ever reproduce. The real
+/// property is that a sentence with no quotative frame of its own is
+/// clean: the surrounding quotation's delimiters belong to the span, not
+/// to the sentence.
+#[test]
+fn only_framed_rows_carry_quotation_marks() {
+    for row in rows() {
+        if !row.framed {
+            assert!(
+                !row.source_text.contains(['«', '»', '„', '”']),
+                "row `{}` is not framed but carries quotation marks, so it is a \
+                 fragment of a quotation rather than a sentence: {}",
+                row.id,
+                row.source_text
+            );
+        }
+    }
+}
+
+/// Direct speech has to be opened by something. A row marked as sitting
+/// inside a quotation must be preceded, on its own page, by a row
+/// carrying a quotative frame.
+///
+/// Counting `«` against `»` across a page would NOT be a valid check
+/// here, and its failure would be a false alarm: a quoted-interior row
+/// has its delimiters stripped by design, so the marks deliberately do
+/// not balance in the ledger even though they balance in the source.
+#[test]
+fn quoted_rows_follow_a_frame_that_opened_the_speech() {
+    let mut framed_seen: BTreeMap<String, bool> = BTreeMap::new();
+    for row in rows() {
+        let seen = framed_seen.entry(row.page.clone()).or_default();
+        if row.quoted {
+            assert!(
+                *seen,
+                "row `{}` is marked as inside direct speech, but nothing \
+                 earlier on `{}` opened any: {}",
+                row.id, row.page, row.source_text
+            );
+        }
+        if row.framed {
+            *seen = true;
+        }
+    }
+}
+
 /// No row may be left untriaged. A pending row is a sentence that was
 /// extracted and then silently dropped, which is exactly the failure this
 /// ledger exists to prevent: it would let a coverage claim rest on work
