@@ -304,6 +304,23 @@ fn fixture_source_text_matches_the_inventory_row() {
     }
 }
 
+/// The cited URL must be the page the fixture's inventory row came
+/// from. Fixtures are copied and edited, and a stale URL would attribute
+/// a sentence to a text it does not appear in.
+#[test]
+fn the_cited_source_url_matches_the_page_the_row_came_from() {
+    let rows = support::rows();
+    for case in CASES {
+        let row = rows.iter().find(|row| row.id == case.id).unwrap();
+        let expected_url = format!("https://steen.free.fr/interslavic/{}.html", row.page);
+        assert_eq!(
+            case.source, expected_url,
+            "{}: cites {} but the row comes from `{}`",
+            case.id, case.source, row.page
+        );
+    }
+}
+
 /// Where the page publishes its own etymological version, `expected`
 /// must be exactly that text — not something this pipeline decided. This
 /// is the property that makes the corpus falsifiable.

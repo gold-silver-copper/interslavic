@@ -136,16 +136,41 @@ sends the golden corpus through slovowiki's independent agreement
 checker; set `SLOVOWIKI_DIR` when it is not in the default sibling
 location.
 
-The two Steen source-conformance files contain 47 literal S-expressions
-totaling 172 whitespace-delimited generated sentence tokens. They are
-parsed, validated, realized byte-exactly, canonically printed, and
-reparsed. The [coverage matrix](STEEN_CONFORMANCE.md) preserves Steen's
-original text separately from documented orthographic normalization
-and records every skipped sentence.
+Source conformance comes from two corpora:
+
+- the **grammar pages**: 47 literal S-expressions in
+  `tests/steen_sexpr.rs` and `tests/steen_new_grammar.rs`;
+- the **sample texts**: 14 fixtures in `tests/steen_samples.rs`, drawn
+  from a ledger of all 220 candidate sentences in
+  `corpus/steen_samples.tsv`.
+
+Every fixture is parsed, validated, realized byte-exactly, canonically
+printed, and reparsed. The [coverage matrix](STEEN_CONFORMANCE.md)
+preserves Steen's original text separately from documented orthographic
+normalization and records every skipped sentence.
+
+The sample-text corpus is the stronger evidence. Nine of its ten pages
+publish each text three times — etymological Latin, standard Latin,
+Cyrillic — so for ten of the fourteen fixtures the expected output is
+*the source's own etymological text*, checked verbatim rather than
+invented here. Every candidate sentence carries a disposition
+(`fixture:` or `skip:<reason>`), and `tests/corpus_inventory.rs` fails
+if any row is left untriaged, so the coverage claim is a property of
+committed data rather than an assertion about work done.
+
+`cargo xtask phrase-check` sends the goldens plus thirteen of the
+fourteen sample fixtures through slovowiki's independent agreement
+checker: 175 tokens, 0 unknown, 0 agreement errors. The fourteenth is
+excluded for a stated reason recorded in `examples/goldens.rs`.
 
 ## Deliberately unsupported
 
 - genitive of negation (negated transitives retain their resolved case)
+- clitic climbing out of an infinitive complement (Steen shows both
+  `mogų slomiti ti hrėbet` and `načęl go napominati`; only the first,
+  which matches this crate's per-verb clitic domains, is modelled)
+- quotative frames for direct speech
+- clause coordination, ellipsis, and coordinated predicates
 - the `iže` relativizer, because the facade has no paradigm
 - passive imperatives
 - preposition-phrasal verb government such as `bazovati na`

@@ -133,6 +133,57 @@ Consequently:
 
 The relative `sę` and `go` are not visible to the parent VP.
 
+Subordinate clauses and infinitive complements extend the same rule
+rather than adding an exception to it.
+
+`plan_clause` is the single implementation for matrix and embedded
+clauses alike. Each call places its own clitic clusters into its own
+constituent vector and is then sealed into an opaque
+`SurfaceNode::Subordinate`. A matrix verb therefore cannot reach a
+clitic inside an embedded clause, for exactly the reason it cannot
+reach one inside a relative:
+
+```text
+Ja myjų sę, že ona myje sę.
+Ja viđų, že on myje sę.
+```
+
+An infinitive complement is likewise its own domain. Steen's `mogų
+slomiti ti hrėbet` puts the dative clitic with `slomiti`, not with the
+finite `mogų`, which is what the per-verb rule already predicts. The
+opposite pattern — clitic climbing, as in `načęl go napominati` — is
+not modelled; supporting both would make placement ambiguous everywhere
+on the strength of one sentence.
+
+## Punctuation and capitalization ownership
+
+Terminal punctuation and sentence-initial capitalization happen exactly
+once, in `ClausePlan::stringify`, at the top level only. Embedded
+clauses contribute `SurfaceNode`s and nothing else, so they cannot
+acquire a full stop or a mid-sentence capital, and matrix force
+survives a fronted subordinate:
+
+```text
+Kȯgda noč jest, či pes spi?
+```
+
+A subordinate clause's comma is structural too — a `SurfaceNode::Punct`
+on the inside edge, trailing for a fronted adverbial and leading
+otherwise. The single join pass handles spacing and collapses a
+boundary that coincides with another, so no stage concatenates strings.
+
+Complementizer choice is declared on the edge and resolved in
+resolution, never inferred from the embedded verb. `da by` is not a
+lexical unit: `da` is the complementizer and `by`/`byh`/`byhmo` comes
+from the embedded clause's own conditional mood, which is what
+person-marks it.
+
+Clause recursion is bounded by `MAX_CLAUSE_DEPTH`, checked iteratively
+in the S-expression preflight. The generic `MAX_STRUCTURE_DEPTH` counts
+list levels, and a clause is cheap in those but expensive in
+recursive-descent frames, so the generic bound alone admitted input
+that exhausted the stack before producing a diagnostic.
+
 ## Discourse planning
 
 `narrate_checked` validates every input before discourse planning.

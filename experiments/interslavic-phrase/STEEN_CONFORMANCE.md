@@ -132,6 +132,97 @@ The extended corpus adds these author-declared forms:
 These remain forward-generation instructions. No sentence-to-tree parser or
 heuristic recovery path is introduced.
 
+## The sample-text corpus
+
+The grammar pages are close to exhausted; what remains on them is
+paradigms and fragments. The second source vein is Steen's ten
+**sample-text** pages, mined in full into `corpus/steen_samples.tsv`.
+
+Nine of those pages publish each text three times in parallel —
+etymological (flavored) Latin, standard Latin, Cyrillic. That is exactly
+this corpus's fixture convention, so for those pages the expected output
+is **the source's own etymological text**, used verbatim and asserted by
+`published_flavored_text_is_used_verbatim_where_it_exists`. It is not
+this pipeline's opinion of what the sentence should look like.
+`maly_princ.html` is the exception: standard spelling plus an English
+gloss, no etymological column, so its expected output comes from the
+pipeline with the respelling recorded.
+
+### Attribution
+
+Republished on the maintained mirror with the permission of their
+original author, Jan van Steenbergen. The texts themselves are by, or
+translated from, other hands: Wilhelm Wisser (*Strižik*), Mary Russell
+Mitford (*Naše selo*), August Schleicher (*Ovca i konji*), Antoine de
+Saint-Exupéry (*Maly princ*), Aesop (*Sěverny Větr i Sȯlnce*), the
+Universal Declaration of Human Rights (*declaration*), and the biblical
+and liturgical texts behind *Věža Babelja* and *Otče naš*.
+
+### Coverage
+
+| Page | Candidates | Fixtures | Skipped |
+| --- | ---: | ---: | ---: |
+| `babel_text` | 12 | 0 | 12 |
+| `declaration` | 2 | 0 | 2 |
+| `jokes` | 24 | 0 | 24 |
+| `maly_princ` | 96 | 4 | 92 |
+| `northwind` | 6 | 0 | 6 |
+| `otcze_nasz` | 10 | 0 | 10 |
+| `schleicher` | 6 | 0 | 6 |
+| `selo` | 5 | 1 | 4 |
+| `volk_i_pes` | 31 | 5 | 26 |
+| `wren` | 28 | 4 | 24 |
+| **total** | **220** | **14** | **206** |
+
+Fourteen fixtures out of 220 candidates is a deliberately conservative
+count. A fixture must reproduce an entire inventory row, enforced by
+`fixture_source_text_matches_the_inventory_row`. Several sentences
+realize byte-exactly as *fragments* of longer periods — `Pŕvy tęgal
+tęžky voz` out of a three-clause sentence, `Ja nošų verigų` out of a
+`kȯgda` sentence, `Verigy sųt želězne` out of a coordinated pair — and
+counting those would have claimed rows the generator cannot produce.
+
+### Skip ledger
+
+| Reason | Rows | What it would take |
+| --- | ---: | --- |
+| `quotative-frame` | 96 | direct speech plus its `rěkl X` frame, including split frames. One uniform decision, not a mix |
+| `untriaged` | 40 | genuinely not yet analysed — recorded as unexamined rather than given a fabricated reason |
+| `spelled-out-numerals` | 12 | a documented non-goal |
+| `fronted-adjunct` | 10 | a clause-initial PP or adverbial ahead of the subject |
+| `adverb-position` | 9 | Steen places these adverbs after the verb; this generator places adverbs before it |
+| `degree` | 8 | comparatives, superlatives, and `neželi` standards wired into the phrase layer |
+| `postposed-possessive-and-address` | 7 | verse-order possessives after the noun; named imperative addressees |
+| `relative-clause-shape` | 6 | gap roles beyond subj/obj/pp |
+| `multiple-adjuncts` | 4 | faithful ordering of more adjuncts than the clause currently orders |
+| `vocative-edge` | 4 | the facade has the vocative; the phrase layer has no address slot yet |
+| `clause-coordination` | 3 | coordinating two finite clauses |
+| `facade-orthography` | 2 | see the findings below |
+| `past-adverbial-participle` | 2 | `Uslyšavši to, …`; only present active participles exist |
+| `negative-concord` | 1 | a negative pronoun alongside clausal `ne` |
+| `predicate-coordination` | 1 | `veliky i tȯlsty` |
+| `fragment` | 1 | an elliptical turn with no finite predicate |
+
+`untriaged` is a real category, not a euphemism. It means the sentence
+was extracted and not yet analysed, so it must not be read as evidence
+that the generator cannot produce it — some of those rows are probably
+reachable today. A bare `skip:` with no reason is rejected by
+`skips_state_a_reason`.
+
+### Findings
+
+Places where the generator and the source disagree, recorded rather than
+normalized away:
+
+| Finding | Detail |
+| --- | --- |
+| `vųglom` vs `vųglȯm` (`wren-017`) | otherwise byte-exact; the instrumental of `vųgȯl` loses the `ȯ` |
+| `hoće` vs `hȯće` (`jokes-010`) | otherwise byte-exact; the generator follows this repo's dictionary, whose present-stem hint for `hotěti` is `(hoće)`. The disagreement is between the dictionary and Steen's sample-text orthography |
+| `cells::variants` and `" / "` byforms | `noun_with("denj", Acc, …)` returns the string `den / denj`, which reaches output as one token. `variants` splits parenthesised byforms but not slash-separated ones |
+| `da byhmo ne …` | Steen puts the irrealis auxiliary before the negation; this generator emits `ne` clause-initially. One witness, so no rule was added |
+| `psi` unknown to slovowiki | the plural Steen writes and this dictionary produces from `pės`; the external checker's lexicon lacks it, so that one sentence is excluded from `phrase-check` with a stated reason |
+| clitic order is not uniform in Steen | `Ja myju se` (pronouns page) is postverbal, `Ja go shvaću` (wren) is second-position. Both are supported styles; each fixture records which it uses |
+
 ## Executed source cases
 
 `tests/steen_sexpr.rs` and `tests/steen_new_grammar.rs` contain 47 literal

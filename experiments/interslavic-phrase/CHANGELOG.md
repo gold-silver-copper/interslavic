@@ -26,8 +26,51 @@
   facade now exposes present-passive and active-adverbial participle
   helpers plus short adjective forms.
 
+- Added finite subordinate clauses: `(sub :comp že|da|kȯgda|ako|zato-že|
+  tomu-že [:pos initial|final] CLAUSE)`, as a verb's complement inside
+  `(vp …)` or a clause adverbial inside `(clause …)`. An embedded clause
+  is a full clause and recurses through the same validation, resolution,
+  and planning as a matrix clause. It owns its own clitic domain, and
+  terminal punctuation and capitalization remain with the matrix
+  sentence's single stringification pass. `da by` is not a unit: the
+  complementizer supplies `da` and the embedded clause's conditional
+  mood supplies the person-marked `by` / `byh` / `byhmo`.
+- Added `MAX_CLAUSE_DEPTH`, enforced in the S-expression preflight
+  before the recursive compiler runs. The generic `MAX_STRUCTURE_DEPTH`
+  counts list levels, which a clause is cheap in, so it permitted
+  nesting that exhausted the stack instead of producing a diagnostic.
+- Added bare infinitive complements, `(inf …)`, taking exactly the
+  children of `(vp …)`. The infinitive owns its object, valence check,
+  government, and clitic domain — Steen's `mogų slomiti ti hrėbet`.
+  Clitic climbing (`načęl go napominati`) is deliberately not modelled.
+- Added unquantified plural noun phrases, `(np :pl …)`. Bare plurals
+  (`vsi psi`, `moje děti`, `vlåsy`) previously required attaching a
+  numeral the phrase does not have. A numeral still determines number;
+  combining the two is rejected rather than silently resolved.
+- Fixed the `kȯgda` complementizer, which had been hardcoded in
+  standard spelling in a crate whose every leaf is a flavored citation
+  form. The other hardcoded function words were audited against the
+  dictionary and are correct.
+
+### Facade
+
+- Added `vocative()` and `vocative_with()`. Deliberately not a seventh
+  `Case`: the source states the vocative "is not a real case", has no
+  plural, and never affects neuter nouns, adjectives, or pronouns.
+  `None` encodes the source's own advice to use the nominative instead.
+
 ### Conformance
 
+- Added the Steen sample-text corpus: a committed ledger of all 220
+  candidate sentences (`corpus/steen_samples.tsv`) and 14 fixtures.
+  Every row carries a `fixture:` or `skip:<reason>` disposition and
+  `tests/corpus_inventory.rs` fails on any untriaged row, so coverage
+  is a property of committed data. Ten of the fourteen check their
+  expected output against the page's own published etymological text.
+  A fixture must reproduce a whole inventory row, so sentences that
+  realize exactly only as fragments are skips, not fixtures.
+- `cargo xtask phrase-check` now also covers the sample fixtures: 175
+  tokens, 0 unknown, 0 agreement errors.
 - Added 47 literal Steen S-expression fixtures (172 sentence tokens).
   Every fixture records its source text and normalization, realizes
   byte-exactly, then survives canonical print/reparse/rerealization.
