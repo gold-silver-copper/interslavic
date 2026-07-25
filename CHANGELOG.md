@@ -5,6 +5,26 @@ strings and consumers bless first-variant outputs into their expectations:
 reordering variants is a breaking change and must be called out explicitly
 in the release notes (fenced by `tests/variant_order.rs`).
 
+## 0.14.1 — 2026-07-24
+
+Patch release separating authoritative noun citations from generated-form
+morphophonology.
+
+### Fixed
+
+- Nominative singular now realizes ordinary nouns from their sanitized
+  dictionary citation, while obliques and other synthesized cells retain the
+  generated-form spelling rules. Nominative-syncretic accusatives reuse that
+  realized nominative without reapplying generated-form transformations.
+- The whole-dictionary output delta is exactly four cells:
+  - `pancyŕ` Nom singular: `panciŕ` → `pancyŕ`
+  - `pancyŕ` Acc singular: `panciŕ` → `pancyŕ`
+  - `pancyrovoz` Nom singular: `pancirovoz` → `pancyrovoz`
+  - `pancyrovoz` Acc singular: `pancirovoz` → `pancyrovoz`
+
+Generated obliques such as `panciŕa` and `pancirovoza`, multi-variant
+nominatives, and indeclinable nouns such as `Jangcy` are unchanged.
+
 ## 0.14.0 — 2026-07-24
 
 Facade release exposing dictionary government and conditional

@@ -15,11 +15,10 @@ const NUMBERS = ['sg', 'pl'];
 const PERSONS = [['1', 'sg'], ['2', 'sg'], ['3', 'sg'], ['1', 'pl'], ['2', 'pl'], ['3', 'pl']];
 const MIN_COMPATIBLE_RATES = {
   total: 0.99,
-  // 2026-07: the live dictionary sheet edited a handful of rows (adadžo-type
-  // soft-o loans, substantivized adjectives) that the Rust noun engine does
-  // not yet special-case, moving nouns from 8 to 17 mismatches out of 99,060
-  // forms — identical on main and on feature branches, i.e. upstream data
-  // drift, not a regression. Threshold relaxed one notch to match.
+  // 2026-07: the live dictionary sheet differs from the reference engine on a
+  // handful of soft-o loans and substantivized adjectives. Authoritative
+  // citation echoes are accepted separately below; this threshold still
+  // fences the remaining generated-form parity.
   noun: 0.9998,
   adjective: 0.999,
   verb: 0.95,
@@ -542,6 +541,17 @@ function alternatives(expected) {
   return [...set];
 }
 
+function preservesAuthoritativeNounCitation(ref, key, got) {
+  // The dictionary citation outranks Sonic's generated spelling in Nom sg.
+  // Extend that compatibility only to accusatives Sonic itself marks as
+  // nominative-syncretic, never to independently generated accusatives.
+  if (ref.kind !== 'noun' || got !== ref.word) return false;
+  if (key === 'nom_sg') return true;
+  return key === 'acc_sg'
+    && !ref.meta.animate
+    && ref.forms.acc_sg === ref.forms.nom_sg;
+}
+
 function compare(refs, actual) {
   const summary = { referenceParadigms: refs.length, comparedForms: 0, exactMatches: 0, compatibleMatches: 0, mismatches: 0, byKind: {} };
   const mismatches = [];
@@ -553,7 +563,9 @@ function compare(refs, actual) {
       if (!expected) continue;
       const got = gotForms[key] ?? null;
       const exact = got === expected;
-      const compatible = exact || alternatives(expected).includes(got);
+      const compatible = exact
+        || alternatives(expected).includes(got)
+        || preservesAuthoritativeNounCitation(ref, key, got);
       summary.comparedForms++;
       summary.byKind[ref.kind].comparedForms++;
       if (exact) { summary.exactMatches++; summary.byKind[ref.kind].exactMatches++; }

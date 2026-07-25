@@ -7,7 +7,18 @@ const NUMBERS: [Number; 2] = [Number::Singular, Number::Plural];
 fn noun_forms_cells_equal_single_form_calls() {
     // The acceptance criterion: the struct's cells are exactly the per-cell
     // interslavic::noun results, for a spread of declension classes.
-    for lemma in ["žena", "grad", "kosť", "oko", "mųž", "selo", "dělo"] {
+    for lemma in [
+        "žena",
+        "grad",
+        "kosť",
+        "oko",
+        "mųž",
+        "selo",
+        "dělo",
+        "pancyŕ",
+        "pancyrovoz",
+        "Jangcy",
+    ] {
         let p = interslavic::noun_forms(lemma);
         for number in NUMBERS {
             for case in CASES {

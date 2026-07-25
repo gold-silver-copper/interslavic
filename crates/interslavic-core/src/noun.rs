@@ -69,23 +69,24 @@ fn decline_noun_steen(
     case: Case,
     number: Number,
 ) -> String {
-    let noun = remove_bracketed_text(word.trim(), '[', ']');
+    let citation = remove_bracketed_text(word.trim(), '[', ']');
     if indeclinable {
-        return noun;
+        return citation;
     }
     if plural_only {
-        return decline_plural_only_noun(&noun, add, origin_gender, case, number).unwrap_or(noun);
+        return decline_plural_only_noun(&citation, add, origin_gender, case, number)
+            .unwrap_or(citation);
     }
     if singular_only && number == Number::Plural {
-        return noun;
+        return citation;
     }
     if let Some(form) =
-        decline_substantivized_adjective(&noun, add, origin_gender, animate, case, number)
+        decline_substantivized_adjective(&citation, add, origin_gender, animate, case, number)
     {
         return form;
     }
 
-    let noun = mark_or_infer_fluent_vowel(&noun, add);
+    let noun = mark_or_infer_fluent_vowel(&citation, add);
     let marked_noun =
         mark_final_soft_noun_consonants(&noun.replace("(e)", "ė").replace("(o)", "ȯ"));
     let noun_without_fluent =
@@ -98,9 +99,9 @@ fn decline_noun_steen(
 
     match number {
         Number::Singular => match case {
-            Case::Nom => noun_nominative_sg(&marked_noun, &root, &gender),
+            Case::Nom => noun_nominative_sg(&citation, &root, &gender),
             Case::Acc => {
-                let nominative_sg = noun_nominative_sg(&marked_noun, &root, &gender);
+                let nominative_sg = noun_nominative_sg(&citation, &root, &gender);
                 noun_accusative_sg(&nominative_sg, &root, &gender)
             }
             Case::Gen => noun_genitive_sg(&root, &gender),
@@ -280,14 +281,20 @@ fn decline_plural_only_noun(
         Gender::Feminine if word.ends_with(['y', 'e']) => Some(match case {
             Case::Nom | Case::Acc => word.to_string(),
             Case::Gen if word.ends_with("je") => word_without_last.clone(),
-            Case::Gen => noun_rules(&plural_gen_ending(&(word_without_last.clone() + "%"), true)),
+            Case::Gen => finalize_generated_noun_form(&plural_gen_ending(
+                &(word_without_last.clone() + "%"),
+                true,
+            )),
             Case::Loc => format!("{}ah", word_without_last),
             Case::Dat => format!("{}am", word_without_last),
             Case::Ins => format!("{}ami", word_without_last),
         }),
         Gender::Neuter if word.ends_with('a') => Some(match case {
             Case::Nom | Case::Acc => word.to_string(),
-            Case::Gen => noun_rules(&plural_gen_ending(&(word_without_last.clone() + "%"), true)),
+            Case::Gen => finalize_generated_noun_form(&plural_gen_ending(
+                &(word_without_last.clone() + "%"),
+                true,
+            )),
             Case::Loc => format!("{}ah", word_without_last),
             Case::Dat => format!("{}am", word_without_last),
             Case::Ins => format!("{}ami", word_without_last),
@@ -538,32 +545,24 @@ fn establish_plural_noun_gender(
     gender.into()
 }
 
-fn noun_nominative_sg(noun: &str, root: &str, gender: &str) -> String {
-    let result = if gender == "f2" && (noun.contains('ȯ') || noun.contains('ė')) {
-        noun.into()
-    } else if gender == "f2" {
-        root.into()
-    } else if gender == "f3" {
-        noun.into()
-    } else if gender == "m3" && root == "dn" {
+fn noun_nominative_sg(citation: &str, root: &str, gender: &str) -> String {
+    if gender == "m3" && root == "dn" {
         "den / denj".into()
     } else if gender == "m3" {
-        format!("{} / {}j", root, root)
+        finalize_generated_noun_form(&format!("{} / {}j", root, root))
     } else {
-        noun.into()
-    };
-    noun_rules(&result)
+        finalize_noun_citation(citation)
+    }
 }
 
-fn noun_accusative_sg(noun: &str, root: &str, gender: &str) -> String {
-    let result = if gender == "m1" {
-        format!("{}a", root)
+fn noun_accusative_sg(nominative: &str, root: &str, gender: &str) -> String {
+    if gender == "m1" {
+        finalize_generated_noun_form(&format!("{}a", root))
     } else if gender == "f1" {
-        format!("{}ų", root)
+        finalize_generated_noun_form(&format!("{}ų", root))
     } else {
-        noun.into()
-    };
-    noun_rules(&result)
+        nominative.into()
+    }
 }
 
 fn noun_genitive_sg(root: &str, gender: &str) -> String {
@@ -577,7 +576,7 @@ fn noun_genitive_sg(root: &str, gender: &str) -> String {
         "n3" => format!("{}a / {}ese", root, palatalization_ending(root)),
         _ => root.into(),
     };
-    noun_rules(&result)
+    finalize_generated_noun_form(&result)
 }
 
 fn noun_dative_sg(root: &str, gender: &str) -> String {
@@ -590,7 +589,7 @@ fn noun_dative_sg(root: &str, gender: &str) -> String {
         "n3" => format!("{}u / {}esi", root, palatalization_ending(root)),
         _ => root.into(),
     };
-    noun_rules(&result)
+    finalize_generated_noun_form(&result)
 }
 
 fn noun_locative_sg(root: &str, gender: &str) -> String {
@@ -610,7 +609,7 @@ fn noun_instrumental_sg(root: &str, gender: &str) -> String {
         "n3" => format!("{}om / {}esem", root, palatalization_ending(root)),
         _ => root.into(),
     };
-    noun_rules(&result)
+    finalize_generated_noun_form(&result)
 }
 
 fn is_feminine_v_stem_with_restored_o(root: &str) -> bool {
@@ -642,7 +641,7 @@ fn noun_nominative_pl(root: &str, gender: &str) -> String {
     } else {
         format!("{}i", root)
     };
-    noun_rules(&result)
+    finalize_generated_noun_form(&result)
 }
 
 fn noun_genitive_pl(root: &str, gender: &str) -> String {
@@ -665,7 +664,7 @@ fn noun_genitive_pl(root: &str, gender: &str) -> String {
     } else {
         (format!("{}ij", root), true)
     };
-    noun_rules(&plural_gen_ending(&result, use_ej_for_j_percent))
+    finalize_generated_noun_form(&plural_gen_ending(&result, use_ej_for_j_percent))
 }
 
 fn noun_dative_pl(root: &str, gender: &str) -> String {
@@ -676,7 +675,7 @@ fn noun_dative_pl(root: &str, gender: &str) -> String {
     } else {
         format!("{}am", root)
     };
-    noun_rules(&result)
+    finalize_generated_noun_form(&result)
 }
 
 fn noun_instrumental_pl(root: &str, gender: &str) -> String {
@@ -687,7 +686,7 @@ fn noun_instrumental_pl(root: &str, gender: &str) -> String {
     } else {
         format!("{}ami", root)
     };
-    noun_rules(&result)
+    finalize_generated_noun_form(&result)
 }
 
 fn noun_locative_pl(root: &str, gender: &str) -> String {
@@ -698,10 +697,24 @@ fn noun_locative_pl(root: &str, gender: &str) -> String {
     } else {
         format!("{}ah", root)
     };
-    noun_rules(&result)
+    finalize_generated_noun_form(&result)
 }
 
-fn noun_rules(word: &str) -> String {
+/// Removes dictionary notation and internal stem markers without applying
+/// morphophonology intended for generated inflected forms.
+fn finalize_noun_citation(word: &str) -> String {
+    word.replace("(e)", "ė")
+        .replace("(o)", "ȯ")
+        .replace('#', "")
+        .replace("tь", "ť")
+        .replace("dь", "ď")
+        .replace("sь", "ś")
+        .replace("zь", "ź")
+        .replace('ь', "")
+}
+
+/// Applies spelling and morphophonology to forms synthesized from noun stems.
+fn finalize_generated_noun_form(word: &str) -> String {
     word.replace("ьo", "ьe")
         .replace("ьy", "ьe")
         .replace("ьě", "i")

@@ -211,7 +211,7 @@ mod tests {
     /// changelog, and only then update this constant — in that commit,
     /// deliberately. Byform order and cell content are compatibility
     /// contracts (see CHANGELOG.md policy).
-    const EXPECTED_FINGERPRINT: u64 = 0x74d7_1029_49ca_5082; // 533,286 cells, 0.12.0
+    const EXPECTED_FINGERPRINT: u64 = 0xed64_3269_cca3_fb22; // 533,286 cells, 0.14.1
 
     #[test]
     fn whole_dictionary_paradigm_fingerprint_is_stable() {
