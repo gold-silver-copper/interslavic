@@ -51,11 +51,11 @@ mod sexpr;
 mod validate;
 
 pub use ast::{
-    Addressee, BuildError, Clause, ClauseCore, Complement, Conj, Coordination, Force, GapRole,
-    Mood, Nominal, NounPhrase, Oblique, ParticipialAdjunct, Polarity, PredCase, Predicate,
-    PrepPhrase, Recipient, ReferentialForm, RelClause, Relativizer, SlotRef, TenseSpec, VerbPhrase,
-    Voice, WhFront, clause, coordinate, copular, name, np, participial_adjunct, pp, pron,
-    pron_clitic, vp,
+    Addressee, AdjunctPosition, BuildError, Clause, ClauseCore, Complement, Complementizer, Conj,
+    Coordination, Force, GapRole, Mood, Nominal, NounPhrase, Oblique, ParticipialAdjunct, Polarity,
+    PredCase, Predicate, PrepPhrase, Recipient, ReferentialForm, RelClause, Relativizer, SlotRef,
+    SubClause, TenseSpec, VerbPhrase, Voice, WhFront, clause, coordinate, copular, name, np,
+    participial_adjunct, pp, pron, pron_clitic, sub, vp,
 };
 /// The unvalidated authoring tree produced by builders and the
 /// S-expression compiler.
@@ -69,6 +69,6 @@ pub use sexpr::{
     SexprError, Value, clause_from_str, compile_clause, parse, print, print_validated,
 };
 pub use validate::{
-    AstPath, MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationError, ValidationErrorKind,
-    ValidationErrors, validate,
+    AstPath, MAX_CLAUSE_DEPTH, MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationError,
+    ValidationErrorKind, ValidationErrors, validate,
 };

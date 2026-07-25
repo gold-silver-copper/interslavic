@@ -19,7 +19,9 @@
 //!                :conj i|ili|a|ale            (verbal coordination)
 //!                :topic subj|recipient|obj    :focus subj|recipient|obj
 //!                :pred-case ins               (copular clauses)
-//!           CHILD: (initial-participle (v L) PP*)
+//!           CHILD: (initial-participle (v L) PP*) | SUB
+//! SUB    := (sub :comp že|da|kogda|ako|zato-že|tomu-že
+//!                [:pos initial|final] CLAUSE)
 //! CORE   := VP+ | (pred NP | (adj L) | (short-adj L) | (part L))
 //! SUBJ   := NOMINAL
 //! NOMINAL:= NP | PRON | NAME | (coord CONJ NOMINAL+)
@@ -32,7 +34,7 @@
 //! NAME   := (name Word :m|:f|:n [:indecl])
 //! VP     := (vp (v L) [(adv L)]* [(recipient NOMINAL)]
 //!              [(object [:case CASE] NOMINAL)] PP*
-//!              (oblique :case CASE NOMINAL)*)
+//!              (oblique :case CASE NOMINAL)* [SUB])
 //! PP     := (pp (prep L) [:case CASE] NOMINAL)
 //! CASE   := nom|acc|gen|loc|dat|ins
 //! CONJ   := i|ili|a|ale
@@ -44,7 +46,9 @@
 //! `clause_from_str(&print(tree)?) == tree`.
 
 use crate::ast::*;
-use crate::validate::{MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationErrors, validate};
+use crate::validate::{
+    MAX_CLAUSE_DEPTH, MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationErrors, validate,
+};
 use interslavic::{Case, Gender, Number, Person};
 use std::fmt;
 
@@ -301,6 +305,23 @@ fn mark_once(seen_at: &mut Option<usize>, at: usize, what: &str) -> Result<(), S
 
 pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
     ensure_value_depth(value)?;
+    let clause = compile_clause_raw(value)?;
+    // Validation runs ONCE, on the whole tree. Embedded clauses are
+    // compiled by `compile_clause_raw` precisely so a subordinate is not
+    // validated standalone — it would be judged without the matrix
+    // context that makes its force and mood constraints meaningful.
+    crate::validate(&clause).map_err(|errors| SexprError {
+        at: errors
+            .0
+            .first()
+            .and_then(|error| source_at_for_path(value, &error.path.0))
+            .unwrap_or_else(|| value.at()),
+        msg: errors.to_string(),
+    })?;
+    Ok(clause)
+}
+
+fn compile_clause_raw(value: &Value) -> Result<Clause, SexprError> {
     let Value::List(items, at) = value else {
         return err(value.at(), "expected `(clause …)`");
     };
@@ -337,6 +358,7 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
     let mut wh = None;
     let mut wh_at = None;
     let mut initial_participles = Vec::new();
+    let mut adverbial_clauses = Vec::new();
 
     let mut rest = items[1..].iter().peekable();
     while let Some(item) = rest.next() {
@@ -443,6 +465,7 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
                 ("initial-participle", _) => {
                     initial_participles.push(compile_initial_participle(child, *child_at)?);
                 }
+                ("sub", _) => adverbial_clauses.push(compile_sub(child, *child_at)?),
                 ("np" | "pron" | "name" | "coord", _) => {
                     if subject.is_some() {
                         return err(*child_at, "clause already has a subject");
@@ -513,15 +536,8 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
         focus,
         wh,
         initial_participles,
+        adverbial_clauses,
     };
-    crate::validate(&clause).map_err(|errors| SexprError {
-        at: errors
-            .0
-            .first()
-            .and_then(|error| source_at_for_path(value, &error.path.0))
-            .unwrap_or(*at),
-        msg: errors.to_string(),
-    })?;
     Ok(clause)
 }
 
@@ -655,16 +671,29 @@ fn source_at_for_path(value: &Value, path: &str) -> Option<usize> {
 /// supply a hand-built `Value`. Preflight it iteratively before the
 /// recursive form compiler sees it.
 fn ensure_value_depth(value: &Value) -> Result<(), SexprError> {
-    let mut stack = vec![(value, 0_usize)];
-    while let Some((value, depth)) = stack.pop() {
+    let mut stack = vec![(value, 0_usize, 0_usize)];
+    while let Some((value, depth, clauses)) = stack.pop() {
         if depth >= MAX_NESTING_DEPTH {
             return err(
                 value.at(),
                 format!("maximum nesting depth of {MAX_NESTING_DEPTH} exceeded"),
             );
         }
+        // Clause embedding is bounded separately and much lower. The
+        // generic list-depth bound is a poor proxy for it: a clause costs
+        // only three list levels but a large recursive-descent frame, so
+        // input that satisfies MAX_NESTING_DEPTH can still exhaust the
+        // stack inside the compiler. Counting clause forms here, in the
+        // iterative preflight, keeps that a diagnostic.
+        if clauses > MAX_CLAUSE_DEPTH {
+            return err(
+                value.at(),
+                format!("maximum clause embedding depth of {MAX_CLAUSE_DEPTH} exceeded"),
+            );
+        }
         if let Value::List(items, _) = value {
-            stack.extend(items.iter().map(|item| (item, depth + 1)));
+            let nested = clauses + usize::from(form_head(value) == Some("clause"));
+            stack.extend(items.iter().map(|item| (item, depth + 1, nested)));
         }
     }
     Ok(())
@@ -916,6 +945,93 @@ fn compile_rel(items: &[Value], at: usize) -> Result<RelClause, SexprError> {
     })
 }
 
+fn complementizer_of(text: &str, at: usize) -> Result<Complementizer, SexprError> {
+    Ok(match text {
+        "že" => Complementizer::Že,
+        "da" => Complementizer::Da,
+        "kogda" => Complementizer::Kogda,
+        "ako" => Complementizer::Ako,
+        "zato-že" => Complementizer::ZatoŽe,
+        "tomu-že" => Complementizer::TomuŽe,
+        _ => {
+            return err(
+                at,
+                format!("unknown complementizer `{text}` (že|da|kogda|ako|zato-že|tomu-že)"),
+            );
+        }
+    })
+}
+
+fn complementizer_name(complementizer: Complementizer) -> &'static str {
+    match complementizer {
+        Complementizer::Že => "že",
+        Complementizer::Da => "da",
+        Complementizer::Kogda => "kogda",
+        Complementizer::Ako => "ako",
+        Complementizer::ZatoŽe => "zato-že",
+        Complementizer::TomuŽe => "tomu-že",
+    }
+}
+
+/// `(sub :comp C [:pos initial|final] (clause …))`
+///
+/// One form serves both attachments: inside `(vp …)` it is the verb's
+/// finite complement clause, inside `(clause …)` it is a clause-level
+/// adverbial. `:pos` is meaningful only for the latter — validation
+/// rejects a fronted verb complement rather than silently reordering it.
+fn compile_sub(items: &[Value], at: usize) -> Result<SubClause, SexprError> {
+    let mut complementizer = None;
+    let mut complementizer_at = None;
+    let mut position = AdjunctPosition::default();
+    let mut position_at = None;
+    let mut clause = None;
+
+    let mut rest = items[1..].iter().peekable();
+    while let Some(item) = rest.next() {
+        match item {
+            Value::Key(key, key_at) if key == "comp" => {
+                mark_once(&mut complementizer_at, *key_at, "`:comp`")?;
+                let (s, s_at) = key_sym(&mut rest, *key_at, ":comp")?;
+                complementizer = Some(complementizer_of(s, s_at)?);
+            }
+            Value::Key(key, key_at) if key == "pos" => {
+                mark_once(&mut position_at, *key_at, "`:pos`")?;
+                let (s, s_at) = key_sym(&mut rest, *key_at, ":pos")?;
+                position = match s {
+                    "initial" => AdjunctPosition::Initial,
+                    "final" => AdjunctPosition::Final,
+                    other => {
+                        return err(s_at, format!("unknown position `{other}` (initial|final)"));
+                    }
+                };
+            }
+            Value::Key(key, key_at) => return err(*key_at, format!("unknown sub key `:{key}`")),
+            Value::List(child, child_at) => match head_of(child, *child_at)? {
+                ("clause", _) => {
+                    if clause.is_some() {
+                        return err(*child_at, "`(sub …)` takes exactly one `(clause …)`");
+                    }
+                    clause = Some(compile_clause_raw(item)?);
+                }
+                (other, other_at) => return err(other_at, format!("unknown sub child `{other}`")),
+            },
+            other => return err(other.at(), "unexpected atom inside `(sub …)`"),
+        }
+    }
+
+    let Some(complementizer) = complementizer else {
+        return err(at, "`(sub …)` needs `:comp`");
+    };
+    let Some(clause) = clause else {
+        return err(at, "`(sub …)` needs a `(clause …)`");
+    };
+    Ok(SubClause {
+        complementizer,
+        position,
+        clause: Box::new(clause),
+    })
+}
+
 fn compile_pron(items: &[Value], at: usize) -> Result<Nominal, SexprError> {
     let (mut person, mut number, mut gender, mut clitic) = (None, None, None, false);
     for item in &items[1..] {
@@ -1043,6 +1159,7 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
     let mut adverbs = Vec::new();
     let mut pps = Vec::new();
     let mut obliques = Vec::new();
+    let mut complement_clause = None;
     for item in &items[1..] {
         let Value::List(child, child_at) = item else {
             return err(item.at(), "unexpected atom inside `(vp …)`");
@@ -1087,6 +1204,12 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
             }
             ("pp", _) => pps.push(compile_pp(child, *child_at)?),
             ("oblique", _) => obliques.push(compile_oblique(child, *child_at)?),
+            ("sub", _) => {
+                if complement_clause.is_some() {
+                    return err(*child_at, "`(vp …)` takes at most one complement clause");
+                }
+                complement_clause = Some(Box::new(compile_sub(child, *child_at)?));
+            }
             (other, other_at) => return err(other_at, format!("unknown vp child `{other}`")),
         }
     }
@@ -1100,6 +1223,7 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
         adverbs,
         pps,
         obliques,
+        complement_clause,
     })
 }
 
@@ -1307,14 +1431,31 @@ pub fn print(clause: &Clause) -> Result<String, ValidationErrors> {
 /// tree, `clause_from_str(&print(c)?) == c`; generated tests cover
 /// every node kind and escaped-atom class.
 pub fn print_validated(validated: &ValidatedClause) -> String {
-    let clause = validated.as_raw();
-    let mut out = String::from("(clause ");
-    print_nominal(&clause.subject, &mut out);
+    let mut out = String::new();
+    print_clause_body(validated.as_raw(), &mut out);
+    out
+}
+
+fn print_sub(sub: &SubClause, out: &mut String) {
+    out.push_str("(sub :comp ");
+    out.push_str(complementizer_name(sub.complementizer));
+    if sub.position == AdjunctPosition::Initial {
+        out.push_str(" :pos initial");
+    }
+    out.push(' ');
+    print_clause_body(&sub.clause, out);
+    out.push(')');
+}
+
+fn print_clause_body(clause: &Clause, out: &mut String) {
+    out.push_str("(clause ");
+    print_nominal(&clause.subject, out);
+    let out = &mut *out;
     match &clause.core {
         ClauseCore::Verbal(coordination) => {
             for vp in &coordination.items {
                 out.push(' ');
-                print_vp(vp, &mut out);
+                print_vp(vp, out);
             }
             if coordination.conjunction != Conj::I {
                 out.push_str(" :conj ");
@@ -1327,20 +1468,20 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
         } => {
             out.push_str(" (pred ");
             match predicate {
-                Predicate::Nominal(np) => print_np(np, &mut out),
+                Predicate::Nominal(np) => print_np(np, out),
                 Predicate::Adjectival(adjective) => {
                     out.push_str("(adj ");
-                    push_atom(&mut out, adjective);
+                    push_atom(out, adjective);
                     out.push(')');
                 }
                 Predicate::ShortAdjectival(adjective) => {
                     out.push_str("(short-adj ");
-                    push_atom(&mut out, adjective);
+                    push_atom(out, adjective);
                     out.push(')');
                 }
                 Predicate::Participial(infinitive) => {
                     out.push_str("(part ");
-                    push_atom(&mut out, infinitive);
+                    push_atom(out, infinitive);
                     out.push(')');
                 }
             }
@@ -1350,12 +1491,16 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
             }
         }
     }
+    for adjunct in &clause.adverbial_clauses {
+        out.push(' ');
+        print_sub(adjunct, out);
+    }
     for adjunct in &clause.initial_participles {
         out.push_str(" (initial-participle (v ");
-        push_atom(&mut out, &adjunct.verb);
+        push_atom(out, &adjunct.verb);
         out.push(')');
         for pp in &adjunct.pps {
-            print_pp(pp, &mut out);
+            print_pp(pp, out);
         }
         out.push(')');
     }
@@ -1411,7 +1556,7 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
         }
         Some(WhFront::Adverb(adverb)) => {
             out.push_str(" :wh-adv ");
-            push_atom(&mut out, adverb);
+            push_atom(out, adverb);
         }
         None => {}
     }
@@ -1419,7 +1564,6 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
         out.push_str(" :prodrop");
     }
     out.push(')');
-    out
 }
 
 fn slot_name(slot: SlotRef) -> &'static str {
@@ -1596,6 +1740,10 @@ fn print_vp(vp: &VerbPhrase, out: &mut String) {
         out.push(' ');
         print_nominal(&oblique.nominal, out);
         out.push(')');
+    }
+    if let Some(sub) = &vp.complement_clause {
+        out.push(' ');
+        print_sub(sub, out);
     }
     out.push(')');
 }

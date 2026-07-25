@@ -18,6 +18,22 @@ use std::fmt;
 /// AST nodes.
 pub const MAX_STRUCTURE_DEPTH: usize = 128;
 
+/// Maximum depth of *clause* embedding specifically.
+///
+/// Clause recursion is bounded far below [`MAX_STRUCTURE_DEPTH`] because
+/// each embedded clause costs a recursive-descent frame in the
+/// S-expression compiler and another in clause planning, and those frames
+/// are large — a clause carries a subject, a core, and a dozen feature
+/// fields. The generic structure bound was set when nothing recursed this
+/// expensively; at 128 it permits nesting deep enough to exhaust a test
+/// thread's stack before any diagnostic is produced.
+///
+/// 32 is far above anything attested: the deepest sentence in the Steen
+/// sample corpus embeds three clauses. This bound is checked iteratively,
+/// before the recursive compiler runs, so exceeding it is a spanned
+/// diagnostic rather than a crash.
+pub const MAX_CLAUSE_DEPTH: usize = 32;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AstPath(pub String);
 
@@ -49,6 +65,7 @@ pub enum ValidationErrorKind {
     MissingInformationSlot(SlotRef),
     DuplicateInformationSlot(SlotRef),
     InvalidReferentialForm(&'static str),
+    InvalidSubordinate(&'static str),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -130,6 +147,13 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
         let next = depth + 1;
         match node {
             StructureNode::Clause(clause) => {
+                for (index, adjunct) in clause.adverbial_clauses.iter().enumerate() {
+                    stack.push((
+                        StructureNode::Clause(&adjunct.clause),
+                        next,
+                        format!("{path}.adverbial_clause[{index}]"),
+                    ));
+                }
                 for (index, adjunct) in clause.initial_participles.iter().enumerate() {
                     stack.push((
                         StructureNode::Participial(adjunct),
@@ -198,6 +222,13 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
                 stack.push((StructureNode::Vp(&relative.vp), next, format!("{path}.vp")));
             }
             StructureNode::Vp(vp) => {
+                if let Some(sub) = &vp.complement_clause {
+                    stack.push((
+                        StructureNode::Clause(&sub.clause),
+                        next,
+                        format!("{path}.complement_clause"),
+                    ));
+                }
                 if let Some(object) = &vp.object {
                     stack.push((
                         StructureNode::Nominal(&object.nominal),
@@ -247,8 +278,51 @@ fn push(errors: &mut Vec<ValidationError>, path: impl Into<String>, kind: Valida
     });
 }
 
+/// A subordinate clause is a full clause, so it goes through the same
+/// validator. What it may NOT do is carry independent sentence force: an
+/// embedded clause is not asserted, questioned, or commanded on its own,
+/// and the terminal punctuation and capitalization belong to the matrix
+/// sentence. Information structure is likewise a matrix-level decision.
+fn validate_subordinate(sub: &SubClause, path: &str, errors: &mut Vec<ValidationError>) {
+    if sub.clause.force != Force::Declarative {
+        push(
+            errors,
+            format!("{path}.force"),
+            ValidationErrorKind::InvalidSubordinate(
+                "a subordinate clause cannot carry independent sentence force",
+            ),
+        );
+    }
+    // Every `da` in the sources is a purpose clause with the irrealis
+    // auxiliary (`da by uviděl`, `da byhmo ne råzprostrånili sę`). The
+    // complementizer does not supply `by`; the embedded clause's own
+    // conditional mood does, which is what person-marks it.
+    if sub.complementizer == Complementizer::Da
+        && !matches!(
+            sub.clause.mood,
+            Mood::Conditional | Mood::ConditionalPerfect
+        )
+    {
+        push(
+            errors,
+            format!("{path}.mood"),
+            ValidationErrorKind::InvalidSubordinate(
+                "`da` introduces a purpose clause and needs conditional mood for its `by`",
+            ),
+        );
+    }
+    validate_clause(&sub.clause, path, errors);
+}
+
 fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError>) {
     validate_nominal(&clause.subject, &format!("{path}.subject"), errors);
+    for (index, adjunct) in clause.adverbial_clauses.iter().enumerate() {
+        validate_subordinate(
+            adjunct,
+            &format!("{path}.adverbial_clause[{index}]"),
+            errors,
+        );
+    }
     for (index, adjunct) in clause.initial_participles.iter().enumerate() {
         let adjunct_path = format!("{path}.initial_participle[{index}]");
         validate_leaf(
@@ -481,6 +555,18 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
 
 fn validate_vp(vp: &VerbPhrase, path: &str, voice: Voice, errors: &mut Vec<ValidationError>) {
     validate_leaf(&vp.verb, "verb", &format!("{path}.verb"), errors);
+    if let Some(sub) = &vp.complement_clause {
+        if sub.position != AdjunctPosition::Final {
+            push(
+                errors,
+                format!("{path}.complement_clause.position"),
+                ValidationErrorKind::InvalidSubordinate(
+                    "a verb's complement clause follows it; only clause adverbials front",
+                ),
+            );
+        }
+        validate_subordinate(sub, &format!("{path}.complement_clause"), errors);
+    }
     if voice != Voice::Active && vp.object.is_some() {
         push(
             errors,

@@ -22,7 +22,8 @@ use crate::ast::*;
 use crate::plan::*;
 use crate::resolve::{
     ResolutionErrors, ResolvedClause, ResolvedCore, ResolvedNominal, ResolvedNominalKind,
-    ResolvedPredicate, ResolvedPrep, ResolvedRelative, ResolvedVerbPhrase, resolve,
+    ResolvedPredicate, ResolvedPrep, ResolvedRelative, ResolvedSubClause, ResolvedVerbPhrase,
+    resolve,
 };
 use crate::validate::{ValidationErrors, validate};
 use interslavic::{
@@ -643,6 +644,17 @@ fn render_vp(
         );
     }
 
+    // The complement clause is planned as a whole clause and sealed, so
+    // its clitics are already placed inside it and cannot join this
+    // domain's cluster.
+    let opts = ctx.opts;
+    let complement_clause = match &verb_phrase.complement_clause {
+        Some(sub) => Some(vec![SurfaceNode::Subordinate(Box::new(
+            render_subordinate(sub, &format!("{path}.complement_clause"), opts, ctx)?,
+        ))]),
+        None => None,
+    };
+
     Ok(VerbDomainPlan {
         complex,
         cluster,
@@ -650,6 +662,7 @@ fn render_vp(
         object,
         object_case: verb_phrase.object_case,
         adjuncts,
+        complement_clause,
     })
 }
 
@@ -740,6 +753,9 @@ fn render_relative(
     }
     for adjunct in vp.adjuncts {
         body.extend(adjunct);
+    }
+    if let Some(nodes) = vp.complement_clause {
+        body.extend(nodes);
     }
     body.push(SurfaceNode::Punct(','));
     Ok(RelativePlan { body })
@@ -884,7 +900,43 @@ pub(crate) fn realize_validated_with_lead_in(
             .collect(),
     };
     let clause = &resolution.clause;
+    let constituents = plan_clause(clause, "clause", &opts, &mut ctx)?;
 
+    // --- The single recursive flatten + stringification ----------------
+    let text = ClausePlan {
+        lead_in: lead_in.map(str::to_string),
+        constituents,
+        force: clause.force,
+        sentence: opts.sentence,
+    }
+    .stringify();
+    Ok(Realized {
+        text,
+        warnings: ctx.warnings,
+    })
+}
+
+/// Plan ONE clause into labeled constituents — the single implementation
+/// for matrix clauses and every embedded clause.
+///
+/// Subordinate clauses recurse through here, so an embedded clause gets
+/// the same agreement, ordering, information structure, and clitic
+/// placement as a matrix clause. Crucially, each call places its OWN
+/// clitic clusters into its OWN constituent vector before returning; the
+/// result is then sealed into an opaque `SurfaceNode::Subordinate`. A
+/// matrix verb therefore cannot extract a clitic from inside an embedded
+/// clause, exactly as it cannot from a relative.
+///
+/// Terminal punctuation and sentence-initial capitalization are NOT done
+/// here: they belong to `ClausePlan::stringify`, which runs once, at the
+/// top level only. That is what keeps an embedded clause from acquiring a
+/// sentence's full stop or a capital letter mid-sentence.
+fn plan_clause(
+    clause: &ResolvedClause,
+    path: &str,
+    opts: &RealizeOpts,
+    ctx: &mut Ctx,
+) -> Result<Vec<Constituent>, PhraseError> {
     let shape = ClauseShape {
         force: clause.force,
         mood: clause.mood,
@@ -898,7 +950,7 @@ pub(crate) fn realize_validated_with_lead_in(
         &clause.subject,
         PronounStyle::Full,
         CliticContext::ForceFull,
-        &mut ctx,
+        ctx,
     )?;
     let (person, number, gender) = if let Force::Imperative(addressee) = clause.force {
         match addressee {
@@ -944,7 +996,7 @@ pub(crate) fn realize_validated_with_lead_in(
             })?;
         let mut nodes = vec![word(surface(&participle))];
         for pp in &adjunct.pps {
-            nodes.extend(render_pp(pp, &mut ctx)?);
+            nodes.extend(render_pp(pp, ctx)?);
         }
         nodes.push(SurfaceNode::Punct(','));
         constituents.push(Constituent {
@@ -983,13 +1035,10 @@ pub(crate) fn realize_validated_with_lead_in(
                 nodes: complex,
             });
             let nodes = match predicate {
-                ResolvedPredicate::Nominal(nominal) => render_nominal(
-                    nominal,
-                    PronounStyle::Full,
-                    CliticContext::ForceFull,
-                    &mut ctx,
-                )?
-                .into_surface(),
+                ResolvedPredicate::Nominal(nominal) => {
+                    render_nominal(nominal, PronounStyle::Full, CliticContext::ForceFull, ctx)?
+                        .into_surface()
+                }
                 ResolvedPredicate::Adjectival(adjective) => vec![word(surface(&adj(
                     adjective,
                     Case::Nom,
@@ -1054,7 +1103,7 @@ pub(crate) fn realize_validated_with_lead_in(
                     } else {
                         CliticContext::Allowed
                     },
-                    &mut ctx,
+                    ctx,
                 )?;
                 constituents.push(Constituent {
                     slot: SlotKind::Verb(index),
@@ -1082,6 +1131,12 @@ pub(crate) fn realize_validated_with_lead_in(
                     constituents.push(Constituent {
                         slot: SlotKind::Fixed,
                         nodes: adjunct,
+                    });
+                }
+                if let Some(nodes) = vp.complement_clause {
+                    constituents.push(Constituent {
+                        slot: SlotKind::Fixed,
+                        nodes,
                     });
                 }
             }
@@ -1189,18 +1244,80 @@ pub(crate) fn realize_validated_with_lead_in(
         place_cluster(&mut constituents, vp_index, cluster, opts.clitic_style);
     }
 
-    // --- The single recursive flatten + stringification ----------------
-    let text = ClausePlan {
-        lead_in: lead_in.map(str::to_string),
-        constituents,
-        force: clause.force,
-        sentence: opts.sentence,
+    // Clause-level adverbial subordinates. Each is planned as a complete
+    // clause and sealed, so its clitics are already placed inside it.
+    for (index, adjunct) in clause.adverbial_clauses.iter().enumerate() {
+        let plan = render_subordinate(
+            adjunct,
+            &format!("{path}.adverbial_clause[{index}]"),
+            opts,
+            ctx,
+        )?;
+        let nodes = vec![SurfaceNode::Subordinate(Box::new(plan))];
+        match adjunct.position {
+            AdjunctPosition::Initial => {
+                let at = leading_adjunct_count(&constituents);
+                constituents.insert(
+                    at,
+                    Constituent {
+                        slot: SlotKind::InitialAdjunct(usize::MAX - index),
+                        nodes,
+                    },
+                );
+            }
+            AdjunctPosition::Final => constituents.push(Constituent {
+                slot: SlotKind::Fixed,
+                nodes,
+            }),
+        }
     }
-    .stringify();
-    Ok(Realized {
-        text,
-        warnings: ctx.warnings,
-    })
+
+    Ok(constituents)
+}
+
+/// How many constituents at the front are clause-initial adjuncts. The
+/// fronted particles (`či`, `nehaj`, a wh-adverb) and a second-position
+/// clitic cluster all attach after them.
+fn leading_adjunct_count(constituents: &[Constituent]) -> usize {
+    constituents
+        .iter()
+        .take_while(|item| matches!(item.slot, SlotKind::InitialAdjunct(_)))
+        .count()
+}
+
+/// Render a subordinate clause: the comma on the inside edge, the
+/// complementizer, and the embedded clause planned by the same
+/// `plan_clause` used for matrix clauses.
+///
+/// Comma placement is structural, not textual: a fronted adverbial takes
+/// its comma at the end (`Ale kȯgda ljudi prěměstili sę …, oni našli …`),
+/// everything else takes it at the front (`uviděl, že ide ljėv`). Because
+/// the comma is a `SurfaceNode::Punct`, the single `join_flat` pass
+/// handles spacing and collapses a boundary that coincides with another.
+fn render_subordinate(
+    sub: &ResolvedSubClause,
+    path: &str,
+    opts: &RealizeOpts,
+    ctx: &mut Ctx,
+) -> Result<SubordinatePlan, PhraseError> {
+    let inner = plan_clause(&sub.clause, path, opts, ctx)?;
+    let mut body = Vec::new();
+    if sub.position == AdjunctPosition::Final {
+        body.push(SurfaceNode::Punct(','));
+    }
+    body.extend(
+        sub.complementizer
+            .words()
+            .iter()
+            .map(|word_text| word(*word_text)),
+    );
+    for constituent in inner {
+        body.extend(constituent.nodes);
+    }
+    if sub.position == AdjunctPosition::Initial {
+        body.push(SurfaceNode::Punct(','));
+    }
+    Ok(SubordinatePlan { body })
 }
 
 /// Realize a clause — the warnings-discarding convenience.

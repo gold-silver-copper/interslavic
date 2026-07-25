@@ -71,6 +71,14 @@ pub(crate) struct ResolvedVerbPhrase {
     pub adverbs: Vec<String>,
     pub pps: Vec<ResolvedPrep>,
     pub obliques: Vec<ResolvedNominal>,
+    pub complement_clause: Option<Box<ResolvedSubClause>>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct ResolvedSubClause {
+    pub complementizer: Complementizer,
+    pub position: AdjunctPosition,
+    pub clause: Box<ResolvedClause>,
 }
 
 #[derive(Debug, Clone)]
@@ -122,6 +130,7 @@ pub(crate) struct ResolvedClause {
     pub focus: Option<SlotRef>,
     pub wh: Option<WhFront>,
     pub initial_participles: Vec<ResolvedParticipialAdjunct>,
+    pub adverbial_clauses: Vec<ResolvedSubClause>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -167,16 +176,34 @@ impl fmt::Display for ResolutionErrors {
 impl std::error::Error for ResolutionErrors {}
 
 pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, ResolutionErrors> {
-    let clause = &validated.clause;
     let mut conflicts = Vec::new();
     let mut errors = Vec::new();
+    let clause = resolve_clause(&validated.clause, "clause", &mut conflicts, &mut errors);
+    let resolution = Resolution { clause, conflicts };
+    if errors.is_empty() {
+        Ok(resolution)
+    } else {
+        Err(ResolutionErrors(errors))
+    }
+}
+
+/// Resolve one clause. Subordinate clauses recurse through here, so an
+/// embedded clause gets exactly the same case assignment, government
+/// checks, and nominal profiling as a matrix clause — there is no reduced
+/// second code path that could drift.
+fn resolve_clause(
+    clause: &Clause,
+    path: &str,
+    conflicts: &mut Vec<GovernmentConflict>,
+    errors: &mut Vec<ResolutionError>,
+) -> ResolvedClause {
     let subject = resolve_nominal(
         &clause.subject,
         Case::Nom,
         CaseSource::Subject,
-        "clause.subject",
-        &mut conflicts,
-        &mut errors,
+        &format!("{path}.subject"),
+        conflicts,
+        errors,
     );
     let core = match &clause.core {
         ClauseCore::Verbal(coordination) => ResolvedCore::Verbal {
@@ -189,9 +216,9 @@ pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, Resolut
                     resolve_vp(
                         vp,
                         None,
-                        &format!("clause.core.vp[{index}]"),
-                        &mut conflicts,
-                        &mut errors,
+                        &format!("{path}.core.vp[{index}]"),
+                        conflicts,
+                        errors,
                     )
                 })
                 .collect(),
@@ -210,9 +237,9 @@ pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, Resolut
                         &Nominal::Np(np.clone()),
                         case,
                         CaseSource::Predicate,
-                        "clause.core.predicate",
-                        &mut conflicts,
-                        &mut errors,
+                        &format!("{path}.core.predicate"),
+                        conflicts,
+                        errors,
                     ))
                 }
                 Predicate::Adjectival(adjective) => {
@@ -239,35 +266,54 @@ pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, Resolut
                 .map(|(pp_index, pp)| {
                     resolve_pp(
                         pp,
-                        &format!("clause.initial_participle[{index}].pp[{pp_index}]"),
-                        &mut conflicts,
-                        &mut errors,
+                        &format!("{path}.initial_participle[{index}].pp[{pp_index}]"),
+                        conflicts,
+                        errors,
                     )
                 })
                 .collect(),
         })
         .collect();
-    let resolution = Resolution {
-        clause: ResolvedClause {
-            subject,
-            core,
-            tense: clause.tense,
-            polarity: clause.polarity,
-            force: clause.force,
-            mood: clause.mood,
-            voice: clause.voice,
-            prodrop: clause.prodrop,
-            topic: clause.topic,
-            focus: clause.focus,
-            wh: clause.wh.clone(),
-            initial_participles,
-        },
-        conflicts,
-    };
-    if errors.is_empty() {
-        Ok(resolution)
-    } else {
-        Err(ResolutionErrors(errors))
+    let adverbial_clauses = clause
+        .adverbial_clauses
+        .iter()
+        .enumerate()
+        .map(|(index, adjunct)| {
+            resolve_subordinate(
+                adjunct,
+                &format!("{path}.adverbial_clause[{index}]"),
+                conflicts,
+                errors,
+            )
+        })
+        .collect();
+    ResolvedClause {
+        subject,
+        core,
+        tense: clause.tense,
+        polarity: clause.polarity,
+        force: clause.force,
+        mood: clause.mood,
+        voice: clause.voice,
+        prodrop: clause.prodrop,
+        topic: clause.topic,
+        focus: clause.focus,
+        wh: clause.wh.clone(),
+        initial_participles,
+        adverbial_clauses,
+    }
+}
+
+fn resolve_subordinate(
+    sub: &SubClause,
+    path: &str,
+    conflicts: &mut Vec<GovernmentConflict>,
+    errors: &mut Vec<ResolutionError>,
+) -> ResolvedSubClause {
+    ResolvedSubClause {
+        complementizer: sub.complementizer,
+        position: sub.position,
+        clause: Box::new(resolve_clause(&sub.clause, path, conflicts, errors)),
     }
 }
 
@@ -421,6 +467,14 @@ fn resolve_vp(
             )
         })
         .collect();
+    let complement_clause = vp.complement_clause.as_ref().map(|sub| {
+        Box::new(resolve_subordinate(
+            sub,
+            &format!("{path}.complement_clause"),
+            conflicts,
+            errors,
+        ))
+    });
     ResolvedVerbPhrase {
         bare_verb,
         reflexive,
@@ -431,6 +485,7 @@ fn resolve_vp(
         adverbs: vp.adverbs.clone(),
         pps,
         obliques,
+        complement_clause,
     }
 }
 

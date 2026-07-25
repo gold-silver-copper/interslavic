@@ -361,6 +361,11 @@ pub struct VerbPhrase {
     pub(crate) adverbs: Vec<String>,
     pub(crate) pps: Vec<PrepPhrase>,
     pub(crate) obliques: Vec<Oblique>,
+    /// A finite complement clause governed by this verb — the `že`/`da`
+    /// argument of `uviděl, že ide ljėv`. It is an argument of the verb,
+    /// so it lives on the VP; clause-level adverbials live on
+    /// [`Clause::adverbial_clauses`] instead.
+    pub(crate) complement_clause: Option<Box<SubClause>>,
 }
 
 impl VerbPhrase {
@@ -372,7 +377,13 @@ impl VerbPhrase {
             adverbs: Vec::new(),
             pps: Vec::new(),
             obliques: Vec::new(),
+            complement_clause: None,
         }
+    }
+    /// Govern a finite complement clause (`že …`, `da by …`).
+    pub fn complement_clause(mut self, complementizer: Complementizer, clause: Clause) -> Self {
+        self.complement_clause = Some(Box::new(SubClause::new(complementizer, clause)));
+        self
     }
     pub fn recipient(mut self, recipient: impl Into<Nominal>) -> Self {
         self.recipient = Some(Recipient::new(recipient));
@@ -401,6 +412,97 @@ impl VerbPhrase {
     pub fn oblique(mut self, case: Case, nominal: impl Into<Nominal>) -> Self {
         self.obliques.push(Oblique::new(case, nominal));
         self
+    }
+}
+
+/// The complementizer introducing a subordinate clause.
+///
+/// The irrealis `by` of purpose clauses is NOT part of the
+/// complementizer: `da by uviděl`, `da byhmo ne råzprostrånili sę`, and
+/// `že byh te odomašnil` are the complementizer plus the embedded
+/// clause's own conditional mood, whose auxiliary is person-marked by the
+/// facade's conditional paradigm. Folding `by` into the complementizer
+/// would duplicate that paradigm and lose the person agreement.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Complementizer {
+    /// `že` — declarative complement (`uviděl, že ide ljėv`) and, with
+    /// conditional mood, purpose (`že byh te odomašnil`).
+    Že,
+    /// `da` — purpose, always with conditional mood in the sources
+    /// (`da by uviděl gråd`).
+    Da,
+    /// `kogda` — temporal (`kȯgda viđų, kako člověk vladaje konjami`).
+    Kogda,
+    /// `ako` — hypothetical (`ako ty tam ješče raz prijdeš`).
+    Ako,
+    /// `zato že` — causal (`zato že onde Bog råzměšal język`).
+    ZatoŽe,
+    /// `tomu že` — causal (`Tomu že ja ju podlival jesm`).
+    TomuŽe,
+}
+
+impl Complementizer {
+    /// The surface words, in order. Two-word complementizers are one
+    /// lexical choice, not a coordination.
+    pub fn words(self) -> &'static [&'static str] {
+        match self {
+            Complementizer::Že => &["že"],
+            Complementizer::Da => &["da"],
+            Complementizer::Kogda => &["kogda"],
+            Complementizer::Ako => &["ako"],
+            Complementizer::ZatoŽe => &["zato", "že"],
+            Complementizer::TomuŽe => &["tomu", "že"],
+        }
+    }
+}
+
+/// Where a clause-level adverbial subordinate clause sits relative to the
+/// matrix clause. Both orders are attested and the comma goes on the
+/// inside edge either way: `Ale kȯgda ljudi prěměstili sę …, oni našli …`
+/// against `Boli mně sŕdce, kȯgda viđų …`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AdjunctPosition {
+    Initial,
+    #[default]
+    Final,
+}
+
+/// A subordinate clause: a complementizer plus a full clause.
+///
+/// The embedded clause is a [`Clause`], not a reduced structure, so it
+/// owns its own subject agreement, tense, polarity, mood, information
+/// structure, and — critically — its own clitic domain. A matrix verb can
+/// never extract a clitic from inside one, for the same structural reason
+/// it cannot reach into a relative clause.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SubClause {
+    pub(crate) complementizer: Complementizer,
+    pub(crate) position: AdjunctPosition,
+    pub(crate) clause: Box<Clause>,
+}
+
+impl SubClause {
+    pub fn new(complementizer: Complementizer, clause: Clause) -> Self {
+        Self {
+            complementizer,
+            position: AdjunctPosition::default(),
+            clause: Box::new(clause),
+        }
+    }
+
+    /// Place a clause-level adverbial before the matrix clause. Ignored
+    /// for verb-complement clauses, which always follow their verb.
+    pub fn position(mut self, position: AdjunctPosition) -> Self {
+        self.position = position;
+        self
+    }
+
+    pub fn complementizer(&self) -> Complementizer {
+        self.complementizer
+    }
+
+    pub fn clause(&self) -> &Clause {
+        &self.clause
     }
 }
 
@@ -617,6 +719,10 @@ pub struct Clause {
     pub(crate) focus: Option<SlotRef>,
     pub(crate) wh: Option<WhFront>,
     pub(crate) initial_participles: Vec<ParticipialAdjunct>,
+    /// Clause-level adverbial subordinate clauses (`kogda …`, `ako …`,
+    /// `zato že …`). Each carries its own position; verb-argument
+    /// complement clauses live on [`VerbPhrase::complement_clause`].
+    pub(crate) adverbial_clauses: Vec<SubClause>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -654,6 +760,7 @@ impl Clause {
             focus: None,
             wh: None,
             initial_participles: Vec::new(),
+            adverbial_clauses: Vec::new(),
         }
     }
     /// Add a coordinated verb phrase (default conjunction `i`).
@@ -731,6 +838,11 @@ impl Clause {
         self.initial_participles.push(adjunct);
         self
     }
+    /// Attach a clause-level adverbial subordinate clause.
+    pub fn adverbial_clause(mut self, adjunct: SubClause) -> Self {
+        self.adverbial_clauses.push(adjunct);
+        self
+    }
 }
 
 /// Builder shorthands mirroring `english-phrase`'s lowercase entry points.
@@ -749,6 +861,9 @@ pub fn pp(preposition: &str, object: impl Into<Nominal>) -> PrepPhrase {
 }
 pub fn participial_adjunct(verb: &str) -> ParticipialAdjunct {
     ParticipialAdjunct::new(verb)
+}
+pub fn sub(complementizer: Complementizer, clause: Clause) -> SubClause {
+    SubClause::new(complementizer, clause)
 }
 pub fn pron(person: Person, number: Number, gender: Gender) -> Nominal {
     Nominal::Pron {
