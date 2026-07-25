@@ -19,7 +19,8 @@
 //!                :conj i|ili|a|ale            (verbal coordination)
 //!                :topic subj|recipient|obj    :focus subj|recipient|obj
 //!                :pred-case ins               (copular clauses)
-//!           CHILD: (initial-participle (v L) PP*) | SUB
+//!           CHILD: (initial-participle (v L) PP*) | SUB | AND-CLAUSE
+//! AND-CLAUSE := (and-clause [:conj CONJ] CLAUSE)
 //! SUB    := (sub :comp že|da|kogda|ako|zato-že|tomu-že
 //!                [:pos initial|final] CLAUSE)
 //! CORE   := VP+ | (pred PREDICATE+ [:conj CONJ])
@@ -363,6 +364,7 @@ fn compile_clause_raw(value: &Value) -> Result<Clause, SexprError> {
     let mut wh_at = None;
     let mut initial_participles = Vec::new();
     let mut adverbial_clauses = Vec::new();
+    let mut coordinate_clauses = Vec::new();
 
     let mut rest = items[1..].iter().peekable();
     while let Some(item) = rest.next() {
@@ -470,6 +472,9 @@ fn compile_clause_raw(value: &Value) -> Result<Clause, SexprError> {
                     initial_participles.push(compile_initial_participle(child, *child_at)?);
                 }
                 ("sub", _) => adverbial_clauses.push(compile_sub(child, *child_at)?),
+                ("and-clause", _) => {
+                    coordinate_clauses.push(compile_coord_clause(child, *child_at)?)
+                }
                 ("np" | "pron" | "name" | "coord", _) => {
                     if subject.is_some() {
                         return err(*child_at, "clause already has a subject");
@@ -544,6 +549,7 @@ fn compile_clause_raw(value: &Value) -> Result<Clause, SexprError> {
         wh,
         initial_participles,
         adverbial_clauses,
+        coordinate_clauses,
     };
     Ok(clause)
 }
@@ -1084,6 +1090,49 @@ fn compile_sub(items: &[Value], at: usize) -> Result<SubClause, SexprError> {
     })
 }
 
+/// `(and-clause [:conj i|ili|a|ale] (clause …))`
+///
+/// Coordination of full clauses, each with its own subject. Verb-phrase
+/// coordination — one subject, several verb phrases — is a different
+/// thing and stays `(clause SUBJ (vp …) (vp …) :conj …)`.
+fn compile_coord_clause(items: &[Value], at: usize) -> Result<CoordClause, SexprError> {
+    let mut conjunction = Conj::I;
+    let mut conjunction_at = None;
+    let mut clause = None;
+    let mut rest = items[1..].iter().peekable();
+    while let Some(item) = rest.next() {
+        match item {
+            Value::Key(key, key_at) if key == "conj" => {
+                mark_once(&mut conjunction_at, *key_at, "`:conj`")?;
+                let (value, value_at) = key_sym(&mut rest, *key_at, ":conj")?;
+                conjunction = conj_of(value, value_at)?;
+            }
+            Value::Key(key, key_at) => {
+                return err(*key_at, format!("unknown and-clause key `:{key}`"));
+            }
+            Value::List(child, child_at) => match head_of(child, *child_at)? {
+                ("clause", _) => {
+                    if clause.is_some() {
+                        return err(*child_at, "`(and-clause …)` takes exactly one `(clause …)`");
+                    }
+                    clause = Some(compile_clause_raw(item)?);
+                }
+                (other, other_at) => {
+                    return err(other_at, format!("unknown and-clause child `{other}`"));
+                }
+            },
+            other => return err(other.at(), "unexpected atom inside `(and-clause …)`"),
+        }
+    }
+    let Some(clause) = clause else {
+        return err(at, "`(and-clause …)` needs a `(clause …)`");
+    };
+    Ok(CoordClause {
+        conjunction,
+        clause: Box::new(clause),
+    })
+}
+
 fn compile_pron(items: &[Value], at: usize) -> Result<Nominal, SexprError> {
     let (mut person, mut number, mut gender, mut clitic) = (None, None, None, false);
     for item in &items[1..] {
@@ -1578,6 +1627,16 @@ fn print_clause_body(clause: &Clause, out: &mut String) {
     for adjunct in &clause.adverbial_clauses {
         out.push(' ');
         print_sub(adjunct, out);
+    }
+    for coordinate in &clause.coordinate_clauses {
+        out.push_str(" (and-clause");
+        if coordinate.conjunction != Conj::I {
+            out.push_str(" :conj ");
+            out.push_str(coordinate.conjunction.word());
+        }
+        out.push(' ');
+        print_clause_body(&coordinate.clause, out);
+        out.push(')');
     }
     for adjunct in &clause.initial_participles {
         out.push_str(" (initial-participle (v ");

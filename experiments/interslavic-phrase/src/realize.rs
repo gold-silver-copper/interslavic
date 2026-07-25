@@ -1381,6 +1381,26 @@ fn plan_clause(
         }
     }
 
+    // Coordinated clauses. Each is planned as a complete clause and
+    // sealed, so it keeps its own subject agreement and its own clitics;
+    // only the conjunction and its comma are added here.
+    for (index, (conjunction, coordinate)) in clause.coordinate_clauses.iter().enumerate() {
+        let inner = plan_clause(
+            coordinate,
+            &format!("{path}.coordinate_clause[{index}]"),
+            opts,
+            ctx,
+        )?;
+        let mut body = vec![SurfaceNode::Punct(','), word(conjunction.word())];
+        for constituent in inner {
+            body.extend(constituent.nodes);
+        }
+        constituents.push(Constituent {
+            slot: SlotKind::Fixed,
+            nodes: vec![SurfaceNode::Subordinate(Box::new(SubordinatePlan { body }))],
+        });
+    }
+
     Ok(constituents)
 }
 

@@ -137,6 +137,7 @@ pub(crate) struct ResolvedClause {
     pub wh: Option<WhFront>,
     pub initial_participles: Vec<ResolvedParticipialAdjunct>,
     pub adverbial_clauses: Vec<ResolvedSubClause>,
+    pub coordinate_clauses: Vec<(Conj, Box<ResolvedClause>)>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -313,6 +314,22 @@ fn resolve_clause(
             )
         })
         .collect();
+    let coordinate_clauses = clause
+        .coordinate_clauses
+        .iter()
+        .enumerate()
+        .map(|(index, coordinate)| {
+            (
+                coordinate.conjunction,
+                Box::new(resolve_clause(
+                    &coordinate.clause,
+                    &format!("{path}.coordinate_clause[{index}]"),
+                    conflicts,
+                    errors,
+                )),
+            )
+        })
+        .collect();
     ResolvedClause {
         subject,
         core,
@@ -327,6 +344,7 @@ fn resolve_clause(
         wh: clause.wh.clone(),
         initial_participles,
         adverbial_clauses,
+        coordinate_clauses,
     }
 }
 

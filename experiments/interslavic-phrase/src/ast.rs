@@ -539,6 +539,28 @@ impl SubClause {
     }
 }
 
+/// A clause coordinated with the matrix clause: `Verigy sųt želězne, a
+/// želězo jest tvŕdo.`
+///
+/// This is NOT verb-phrase coordination, which shares one subject and
+/// already exists as `Coordination<VerbPhrase>`. Each coordinate clause
+/// has its own subject, tense, polarity, and — as every clause here does
+/// — its own clitic domain.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CoordClause {
+    pub(crate) conjunction: Conj,
+    pub(crate) clause: Box<Clause>,
+}
+
+impl CoordClause {
+    pub fn new(conjunction: Conj, clause: Clause) -> Self {
+        Self {
+            conjunction,
+            clause: Box::new(clause),
+        }
+    }
+}
+
 /// A prepositional phrase. `case` may be omitted only for prepositions
 /// that govern a single case.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -780,6 +802,8 @@ pub struct Clause {
     /// `zato že …`). Each carries its own position; verb-argument
     /// complement clauses live on [`VerbPhrase::complement_clause`].
     pub(crate) adverbial_clauses: Vec<SubClause>,
+    /// Clauses coordinated with this one, each with its own subject.
+    pub(crate) coordinate_clauses: Vec<CoordClause>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -818,6 +842,7 @@ impl Clause {
             wh: None,
             initial_participles: Vec::new(),
             adverbial_clauses: Vec::new(),
+            coordinate_clauses: Vec::new(),
         }
     }
     /// Add a coordinated verb phrase (default conjunction `i`).
@@ -898,6 +923,12 @@ impl Clause {
     /// Attach a clause-level adverbial subordinate clause.
     pub fn adverbial_clause(mut self, adjunct: SubClause) -> Self {
         self.adverbial_clauses.push(adjunct);
+        self
+    }
+    /// Coordinate another full clause with this one.
+    pub fn coordinate_clause(mut self, conjunction: Conj, clause: Clause) -> Self {
+        self.coordinate_clauses
+            .push(CoordClause::new(conjunction, clause));
         self
     }
 }

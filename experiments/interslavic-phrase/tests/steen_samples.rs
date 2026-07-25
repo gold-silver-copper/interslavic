@@ -128,6 +128,22 @@ const CASES: &[SteenCase] = &[
         expected: "Ale ty jesi veliky i tȯlsty.",
     },
     SteenCase {
+        id: "volk_i_pes-022",
+        source: VOLK,
+        source_text: "Verigy sut želězne, a želězo jest tvrdo.",
+        flavored_published: true,
+        normalization: "`sut`→`sųt`; `tvrdo`→`tvŕdo`. The sentence sits \
+                        inside direct speech.",
+        lead_in: None,
+        clitics: CliticStyle::Postverbal,
+        // Two full clauses with distinct subjects, joined by `a`. Not
+        // verb-phrase coordination, which shares one subject.
+        sexpr: "(clause (np :pl (n veriga)) (pred (adj želězny)) \
+                  (and-clause :conj a \
+                    (clause (np (n želězo)) (pred (adj tvŕdy)))))",
+        expected: "Verigy sųt želězne, a želězo jest tvŕdo.",
+    },
+    SteenCase {
         id: "volk_i_pes-003",
         source: VOLK,
         source_text: "Kde dostavaješ svoju jedu?",

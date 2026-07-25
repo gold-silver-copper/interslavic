@@ -240,6 +240,12 @@ pub const SAMPLE_CORPUS: &[(Option<&str>, CliticStyle, &str)] = &[
         "(clause (pron :2 :sg :m) (pred (adj veliky) (adj tȯlsty)))",
     ),
     (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (np :pl (n veriga)) (pred (adj želězny)) \
+         (and-clause :conj a (clause (np (n želězo)) (pred (adj tvŕdy)))))",
+    ),
+    (
         Some("A"),
         CliticStyle::Postverbal,
         "(clause (np (n ovca)) (pred (pp (prep bez) (np (n vȯlna)))))",

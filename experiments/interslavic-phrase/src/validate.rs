@@ -147,6 +147,13 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
         let next = depth + 1;
         match node {
             StructureNode::Clause(clause) => {
+                for (index, coordinate) in clause.coordinate_clauses.iter().enumerate() {
+                    stack.push((
+                        StructureNode::Clause(&coordinate.clause),
+                        next,
+                        format!("{path}.coordinate_clause[{index}]"),
+                    ));
+                }
                 for (index, adjunct) in clause.adverbial_clauses.iter().enumerate() {
                     stack.push((
                         StructureNode::Clause(&adjunct.clause),
@@ -331,6 +338,21 @@ fn validate_subordinate(sub: &SubClause, path: &str, errors: &mut Vec<Validation
 
 fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError>) {
     validate_nominal(&clause.subject, &format!("{path}.subject"), errors);
+    for (index, coordinate) in clause.coordinate_clauses.iter().enumerate() {
+        let coordinate_path = format!("{path}.coordinate_clause[{index}]");
+        // A coordinate clause is asserted alongside the matrix clause, so
+        // sentence force belongs to the sentence, not to each conjunct.
+        if coordinate.clause.force != Force::Declarative {
+            push(
+                errors,
+                format!("{coordinate_path}.force"),
+                ValidationErrorKind::InvalidSubordinate(
+                    "a coordinated clause cannot carry its own sentence force",
+                ),
+            );
+        }
+        validate_clause(&coordinate.clause, &coordinate_path, errors);
+    }
     for (index, adjunct) in clause.adverbial_clauses.iter().enumerate() {
         validate_subordinate(
             adjunct,
