@@ -46,21 +46,23 @@ reuse a validation result.
 | Concern | Owner | Consequence |
 | --- | --- | --- |
 | lexical NP content | `NounPhrase` | An NP never carries grammatical case. |
+| recipient constraint | `Recipient` | The recipient edge assigns dative to the entire nominal and precedes the theme in neutral order. |
 | direct-object constraint | `Complement` | An explicit override applies to the whole complement and can be compared with dictionary government once. |
 | PP case | `PrepPhrase` | Validation checks the selected case against the preposition before resolution. |
 | predicate case | copular role edge | A predicate NP cannot override `PredCase`. |
 | relative-gap case | `GapRole` plus verb government | `ktory` receives the resolved gap case; no child NP can change it. |
 | finite and nominal features | central `NominalProfile` | Realization and discourse share one count/plural-only/coordination policy. |
 | referential choice | `NounPhrase::referential` | Discourse requests a pronoun without replacing or impoverishing the syntax node. |
-| clitic placement | `VerbDomainPlan` | Only that VP's direct clitic object and reflexive marker enter its cluster. |
+| clitic placement | `VerbDomainPlan` | Only that VP's direct recipient/object clitics and reflexive marker enter its cluster. |
 | nested relative content | `RelativePlan` | Parent traversal cannot inspect or extract descendant tokens. |
 | punctuation and casing | `ClausePlan::stringify` | Surface nodes flatten once; no morphology is rewritten afterward. |
 
-Case resolution records whether a case came from subject position,
-default accusative, dictionary government, an explicit object edge,
-preposition, or predicate position. Coordination members receive the
-same resolved case recursively. This prevents PP objects, nested NPs,
-predicate NPs, or individual conjuncts from reopening the decision.
+Case resolution records whether a case came from subject position, a
+dative recipient edge, default accusative, dictionary government, an
+explicit object edge, preposition, or predicate position. Coordination
+members receive the same resolved case recursively. This prevents
+recipients, PP objects, nested NPs, predicate NPs, or individual
+conjuncts from reopening the decision.
 
 ## Validation and resolution
 
@@ -71,7 +73,8 @@ has an `AstPath`, such as `clause.core.vp[0].object`. It checks:
 - imperative/conditional/passive/tense coherence;
 - passive patient promotion (no retained direct object);
 - predicate-case applicability;
-- topic/focus existence and duplicate references;
+- topic/focus existence and duplicate references, including the
+  independent recipient slot;
 - relative gap versus overt subject/object coherence;
 - ordinary and relative-gap preposition government;
 - referential choices that would suppress a relative proposition.
@@ -94,6 +97,12 @@ remains realizable and emits one `GovernsConflict` warning; an object on
 a dictionary-intransitive verb is an error. Object gaps pass through the
 same case, valence, and government resolver as overt objects.
 
+The recipient edge is author-declared. The current dictionary records
+direct transitivity and direct-object government, but not indirect-object
+frames, so resolution cannot prove that a particular verb licenses a
+recipient. Restricting the edge to a hard-coded verb list would duplicate
+lexical policy in the phrase crate.
+
 ## Hierarchical clitic domains
 
 A partially planned nominal is never a flat token vector. A
@@ -103,10 +112,13 @@ A partially planned nominal is never a flat token vector. A
 placed its cluster.
 
 Each `VerbDomainPlan` owns a cluster ordered `li > dative > accusative >
-sę` for the arguments represented by this grammar. Postverbal placement
-inserts it after that VP's complex. Second-position placement inserts it
-after the first typed constituent of the domain. Coordinated VPs are
-separate domains; a discourse connective is outside the first domain.
+sę` for the arguments represented by this grammar. A direct recipient
+and object therefore produce `mu go`, never separate clusters. Full
+nominals use the source-attested neutral order verb–recipient–object.
+Postverbal placement inserts the cluster after that VP's complex.
+Second-position placement inserts it after the first typed constituent
+of the domain. Coordinated VPs are separate domains; a discourse
+connective is outside the first domain.
 
 Consequently:
 
@@ -163,10 +175,23 @@ The canonical direct-object grammar is:
 
 ```text
 (vp (v LEMMA)
-    (object [:case CASE] NOMINAL)
     (adv ADVERB)*
+    (recipient NOMINAL)?
+    (object [:case CASE] NOMINAL)?
     (pp (prep PREPOSITION) [:case CASE] NOMINAL)*)
 ```
+
+The source-backed ditransitive extension is:
+
+```text
+(vp (v LEMMA)
+    (recipient NOMINAL)
+    (object [:case CASE] NOMINAL))
+```
+
+`recipient` is a distinct role edge with dative case. It has its own
+information-structure spelling, `:topic recipient` or
+`:focus recipient`, and is serialized before the direct object.
 
 Legacy direct nominal children of `(vp ...)` remain readable, but the
 printer emits `(object ...)`. Case is illegal inside `(np ...)`.
@@ -212,6 +237,8 @@ or rewritten after the facade returns them.
   predicates.
 - Replace `np.case(CASE)` on direct objects with
   `vp.object_case(CASE, nominal)` or `Complement::new(nominal).case(CASE)`.
+- Use `vp.recipient(nominal)` / `(recipient NOMINAL)` for the dative
+  recipient in a ditransitive frame.
 - Use `RelClause::object_gap_case(CASE, subject, vp)` for an explicitly
   marked relative object gap.
 - Handle `BuildError` from `Clause::and_vp` and `Clause::conj`; these

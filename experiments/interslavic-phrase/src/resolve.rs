@@ -13,6 +13,7 @@ use std::fmt;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CaseSource {
     Subject,
+    Recipient,
     DefaultAccusative,
     Dictionary,
     ExplicitObject,
@@ -63,6 +64,7 @@ pub(crate) struct ResolvedVerbPhrase {
     pub bare_verb: String,
     pub reflexive: bool,
     pub info: Option<VerbInfo>,
+    pub recipient: Option<ResolvedNominal>,
     pub object: Option<ResolvedNominal>,
     pub object_case: Option<Case>,
     pub adverbs: Vec<String>,
@@ -311,6 +313,16 @@ fn resolve_vp(
         GapRole::Object { requested_case } => Some((*requested_case, path)),
         GapRole::Subject | GapRole::PpObject { .. } => None,
     });
+    let recipient = vp.recipient.as_ref().map(|recipient| {
+        resolve_nominal(
+            &recipient.nominal,
+            Case::Dat,
+            CaseSource::Recipient,
+            &format!("{path}.recipient.nominal"),
+            conflicts,
+            errors,
+        )
+    });
     let has_direct_object = vp.object.is_some() || object_gap.is_some();
     if has_direct_object
         && info.as_ref().and_then(|entry| entry.transitive) == Some(false)
@@ -376,6 +388,7 @@ fn resolve_vp(
         bare_verb,
         reflexive,
         info,
+        recipient,
         object,
         object_case,
         adverbs: vp.adverbs.clone(),

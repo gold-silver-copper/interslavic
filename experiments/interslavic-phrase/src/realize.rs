@@ -523,6 +523,7 @@ fn render_vp(
     number: Number,
     gender: Gender,
     subject_animacy: Animacy,
+    recipient_clitics: CliticContext,
     object_clitics: CliticContext,
     ctx: &mut Ctx,
 ) -> Result<VerbDomainPlan, PhraseError> {
@@ -543,6 +544,25 @@ fn render_vp(
     )?);
 
     let mut cluster: Vec<String> = Vec::new();
+    let mut recipient = None;
+    if let Some(recipient_nominal) = &verb_phrase.recipient {
+        let mut rendered = render_nominal(
+            recipient_nominal,
+            PronounStyle::Full,
+            recipient_clitics,
+            ctx,
+        )?;
+        if let Some(clitic) = rendered.direct_clitic.take() {
+            debug_assert_eq!(
+                recipient_nominal.case,
+                Case::Dat,
+                "the recipient edge owns dative case"
+            );
+            cluster.push(clitic);
+        } else {
+            recipient = Some(rendered);
+        }
+    }
     let mut object = None;
     if let Some(object_nominal) = &verb_phrase.object {
         let mut rendered = render_nominal(object_nominal, PronounStyle::Full, object_clitics, ctx)?;
@@ -550,13 +570,7 @@ fn render_vp(
         // descendants are opaque inside `body`, so relative-clause
         // clitics cannot migrate into this domain.
         if let Some(clitic) = rendered.direct_clitic.take() {
-            if object_nominal.case == Case::Dat {
-                let mut reordered = vec![clitic];
-                reordered.append(&mut cluster);
-                cluster = reordered;
-            } else {
-                cluster.push(clitic);
-            }
+            cluster.push(clitic);
         } else {
             object = Some(rendered);
         }
@@ -573,6 +587,7 @@ fn render_vp(
     Ok(VerbDomainPlan {
         complex,
         cluster,
+        recipient,
         object,
         object_case: verb_phrase.object_case,
         adjuncts,
@@ -653,10 +668,14 @@ fn render_relative(
         gender,
         head_animacy,
         CliticContext::Allowed,
+        CliticContext::Allowed,
         ctx,
     )?;
     body.extend(vp.complex);
     body.extend(vp.cluster.into_iter().map(word));
+    if let Some(recipient) = vp.recipient {
+        body.extend(recipient.into_surface());
+    }
     if let Some(object) = vp.object {
         body.extend(object.into_surface());
     }
@@ -836,14 +855,22 @@ pub(crate) fn realize_validated_with_lead_in(
         )
     };
 
-    // Information-structure marking = stress: a marked object renders
-    // full pronoun forms (a clitic cannot be topicalized or focused).
+    // Information-structure marking = stress: a marked complement
+    // renders a full pronoun form (a clitic cannot be topicalized or
+    // focused).
+    let recipient_marked =
+        clause.topic == Some(SlotRef::Recipient) || clause.focus == Some(SlotRef::Recipient);
     let object_marked =
         clause.topic == Some(SlotRef::Object) || clause.focus == Some(SlotRef::Object);
+    let information_recipient_index = match &clause.core {
+        ResolvedCore::Verbal { vps, .. } => vps.iter().position(|vp| vp.recipient.is_some()),
+        ResolvedCore::Copular(_) => None,
+    };
     let information_object_index = match &clause.core {
         ResolvedCore::Verbal { vps, .. } => vps.iter().position(|vp| vp.object.is_some()),
         ResolvedCore::Copular(_) => Some(0),
     };
+    let information_recipient_slot = information_recipient_index.map(SlotKind::Recipient);
     let information_object_slot = information_object_index.map(SlotKind::Object);
 
     // Build labeled constituents.
@@ -933,6 +960,11 @@ pub(crate) fn realize_validated_with_lead_in(
                     number,
                     gender,
                     subject.profile.animacy,
+                    if recipient_marked && information_recipient_index == Some(index) {
+                        CliticContext::ForceFull
+                    } else {
+                        CliticContext::Allowed
+                    },
                     if object_marked && information_object_index == Some(index) {
                         CliticContext::ForceFull
                     } else {
@@ -949,6 +981,12 @@ pub(crate) fn realize_validated_with_lead_in(
                 }
                 if !vp.cluster.is_empty() {
                     clusters.push((index, vp.cluster));
+                }
+                if let Some(recipient) = vp.recipient {
+                    constituents.push(Constituent {
+                        slot: SlotKind::Recipient(index),
+                        nodes: recipient.into_surface(),
+                    });
                 }
                 if let Some(object) = vp.object {
                     constituents.push(Constituent {
@@ -970,6 +1008,7 @@ pub(crate) fn realize_validated_with_lead_in(
     order_constituents(
         &mut constituents,
         clause,
+        information_recipient_slot.unwrap_or(SlotKind::Recipient(0)),
         information_object_slot.unwrap_or(SlotKind::Object(0)),
     );
 
@@ -998,6 +1037,9 @@ pub(crate) fn realize_validated_with_lead_in(
     // --- li, či, and clitic placement (structural) ----------------------
     if clause.force == Force::LiQuestion {
         let focus_slot = match clause.focus {
+            Some(SlotRef::Recipient) => {
+                information_recipient_slot.expect("validated recipient focus has a target")
+            }
             Some(SlotRef::Object) => {
                 information_object_slot.expect("validated object focus has a target")
             }
@@ -1083,14 +1125,16 @@ fn resolved_information_object(
     }
 }
 
-/// Order constituents by information structure: default S V O; `:topic`
-/// fronts its slot, `:focus` moves its slot last (theme-first,
-/// rheme-last — functional sentence perspective). LiQuestions front an
-/// explicit topic, then the focused slot (default: the verb), and follow
-/// with verb–subject–object (steen's own example order).
+/// Order constituents by information structure: default S V recipient
+/// O; `:topic` fronts its slot, `:focus` moves its slot last
+/// (theme-first, rheme-last — functional sentence perspective).
+/// LiQuestions front an explicit topic, then the focused slot (default:
+/// the verb), and follow with verb–subject–recipient–object (extending
+/// Steen's verb–subject–object example order).
 fn order_constituents(
     constituents: &mut Vec<Constituent>,
     clause: &ResolvedClause,
+    information_recipient_slot: SlotKind,
     information_object_slot: SlotKind,
 ) {
     let take = |constituents: &mut Vec<Constituent>, slot: SlotKind| -> Option<Constituent> {
@@ -1101,6 +1145,7 @@ fn order_constituents(
     };
     let slot_of = |slot: SlotRef| match slot {
         SlotRef::Subject => SlotKind::Subject,
+        SlotRef::Recipient => information_recipient_slot,
         SlotRef::Object => information_object_slot,
     };
 
@@ -1112,14 +1157,16 @@ fn order_constituents(
         let focus = take(constituents, focus_slot);
         let verb = take(constituents, SlotKind::Verb(0));
         let subject = take(constituents, SlotKind::Subject);
+        let recipient = take(constituents, SlotKind::Recipient(0));
         // Only VP0's object belongs to the special default
-        // verb0–subject–object sequence. A later VP's object stays with
-        // its own conjunct unless explicitly selected as topic/focus.
+        // verb0–subject–recipient–object sequence. Later complements
+        // stay with their own conjunct unless explicitly selected as
+        // topic/focus.
         let object = take(constituents, SlotKind::Object(0));
         let mut ordered = Vec::new();
         ordered.extend(topic);
         ordered.extend(focus);
-        for item in [verb, subject, object].into_iter().flatten() {
+        for item in [verb, subject, recipient, object].into_iter().flatten() {
             ordered.push(item);
         }
         ordered.append(constituents);

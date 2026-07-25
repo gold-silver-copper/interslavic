@@ -12,7 +12,7 @@
 //!                :mood cond                   :voice passive
 //!                :force li|či|intonation|imp  :addressee 2sg|1pl|2pl
 //!                :conj i|ili|a|ale            (verbal coordination)
-//!                :topic subj|obj              :focus subj|obj
+//!                :topic subj|recipient|obj    :focus subj|recipient|obj
 //!                :pred-case ins               (copular clauses)
 //! CORE   := VP+ | (pred NP | (adj L) | (part L))
 //! SUBJ   := NOMINAL
@@ -24,7 +24,8 @@
 //!                [:relativizer iže])
 //! PRON   := (pron :1|:2|:3 :sg|:pl :m|:f|:n [:clitic])
 //! NAME   := (name Word :m|:f|:n [:indecl])
-//! VP     := (vp (v L) [(adv L)]* [(object [:case CASE] NOMINAL)] PP*)
+//! VP     := (vp (v L) [(adv L)]* [(recipient NOMINAL)]
+//!              [(object [:case CASE] NOMINAL)] PP*)
 //! PP     := (pp (prep L) [:case CASE] NOMINAL)
 //! CASE   := nom|acc|gen|loc|dat|ins
 //! CONJ   := i|ili|a|ale
@@ -569,6 +570,7 @@ fn source_at_for_path(value: &Value, path: &str) -> Option<usize> {
                 Some("pp") => direct_nominal(current, 0)?,
                 _ => direct_form(current, "object", 0).unwrap_or(current),
             },
+            "recipient" => direct_form(current, "recipient", 0).unwrap_or(current),
             "head" => direct_form(current, "n", 0)?,
             "determiner" => direct_form(current, "det", 0)?,
             "relative" => direct_form(current, "rel", 0)?,
@@ -637,8 +639,9 @@ fn tense_of(text: &str, at: usize) -> Result<TenseSpec, SexprError> {
 fn slot_ref_of(text: &str, at: usize) -> Result<SlotRef, SexprError> {
     Ok(match text {
         "subj" => SlotRef::Subject,
+        "recipient" => SlotRef::Recipient,
         "obj" => SlotRef::Object,
-        _ => return err(at, format!("unknown slot `{text}` (subj|obj)")),
+        _ => return err(at, format!("unknown slot `{text}` (subj|recipient|obj)")),
     })
 }
 
@@ -984,6 +987,7 @@ fn compile_coord(items: &[Value], at: usize) -> Result<Nominal, SexprError> {
 
 fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
     let mut verb = None;
+    let mut recipient = None;
     let mut object = None;
     let mut adverbs = Vec::new();
     let mut pps = Vec::new();
@@ -1009,6 +1013,12 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
                 verb = Some(words.join(" "));
             }
             ("adv", _) => adverbs.push(sym_arg(child, "adv", *child_at)?),
+            ("recipient", _) => {
+                if recipient.is_some() {
+                    return err(*child_at, "`(vp …)` takes at most one recipient");
+                }
+                recipient = Some(compile_recipient(child, *child_at)?);
+            }
             ("object", _) => {
                 if object.is_some() {
                     return err(*child_at, "`(vp …)` takes at most one object");
@@ -1032,10 +1042,33 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
     };
     Ok(VerbPhrase {
         verb,
+        recipient,
         object,
         adverbs,
         pps,
     })
+}
+
+fn compile_recipient(items: &[Value], at: usize) -> Result<Recipient, SexprError> {
+    let mut nominal = None;
+    for item in &items[1..] {
+        match item {
+            Value::List(_, _) => {
+                if nominal.is_some() {
+                    return err(item.at(), "`(recipient …)` takes exactly one nominal");
+                }
+                nominal = Some(compile_nominal(item)?);
+            }
+            Value::Key(key, key_at) => {
+                return err(*key_at, format!("unknown recipient key `:{key}`"));
+            }
+            other => return err(other.at(), "unexpected atom inside `(recipient …)`"),
+        }
+    }
+    let Some(nominal) = nominal else {
+        return err(at, "`(recipient …)` needs a nominal");
+    };
+    Ok(Recipient { nominal })
 }
 
 fn compile_complement(items: &[Value], at: usize) -> Result<Complement, SexprError> {
@@ -1238,6 +1271,7 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
 fn slot_name(slot: SlotRef) -> &'static str {
     match slot {
         SlotRef::Subject => "subj",
+        SlotRef::Recipient => "recipient",
         SlotRef::Object => "obj",
     }
 }
@@ -1379,6 +1413,11 @@ fn print_vp(vp: &VerbPhrase, out: &mut String) {
     for adverb in &vp.adverbs {
         out.push_str(" (adv ");
         push_atom(out, adverb);
+        out.push(')');
+    }
+    if let Some(recipient) = &vp.recipient {
+        out.push_str(" (recipient ");
+        print_nominal(&recipient.nominal, out);
         out.push(')');
     }
     if let Some(object) = &vp.object {

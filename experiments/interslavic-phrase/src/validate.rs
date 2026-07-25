@@ -195,6 +195,13 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
                         format!("{path}.object.nominal"),
                     ));
                 }
+                if let Some(recipient) = &vp.recipient {
+                    stack.push((
+                        StructureNode::Nominal(&recipient.nominal),
+                        next,
+                        format!("{path}.recipient.nominal"),
+                    ));
+                }
                 for (index, pp) in vp.pps.iter().enumerate() {
                     stack.push((StructureNode::Pp(pp), next, format!("{path}.pp[{index}]")));
                 }
@@ -253,7 +260,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
         );
     }
 
-    let has_object_slot = match &clause.core {
+    let (has_recipient_slot, has_object_slot) = match &clause.core {
         ClauseCore::Verbal(coordination) => {
             if coordination.items.is_empty() {
                 push(
@@ -270,7 +277,10 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
                     errors,
                 );
             }
-            information_object_index(&clause.core).is_some()
+            (
+                information_recipient_index(&clause.core).is_some(),
+                information_object_index(&clause.core).is_some(),
+            )
         }
         ClauseCore::Copular {
             predicate,
@@ -324,7 +334,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
                     }
                 }
             }
-            true
+            (false, true)
         }
     };
 
@@ -333,6 +343,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
         if let Some(reference) = reference {
             let exists = match reference {
                 SlotRef::Subject => subject_surfaces,
+                SlotRef::Recipient => has_recipient_slot,
                 SlotRef::Object => has_object_slot,
             };
             if !exists {
@@ -362,6 +373,13 @@ fn validate_vp(vp: &VerbPhrase, path: &str, voice: Voice, errors: &mut Vec<Valid
             ValidationErrorKind::IncoherentClause(
                 "a passive clause promotes the patient; it cannot retain an object",
             ),
+        );
+    }
+    if let Some(recipient) = &vp.recipient {
+        validate_nominal(
+            &recipient.nominal,
+            &format!("{path}.recipient.nominal"),
+            errors,
         );
     }
     if let Some(object) = &vp.object {

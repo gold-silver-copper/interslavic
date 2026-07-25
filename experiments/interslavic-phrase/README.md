@@ -21,11 +21,12 @@ assert_eq!(
 );
 ```
 
-Version 0.2 adds copular predicates, active/passive voice,
-imperatives, conditionals, dictionary-backed government, relative
-gaps, nominal and VP coordination, clitic styles, topic/focus order,
-and discourse microplanning. The complete design and ownership rules
-are in [ARCHITECTURE.md](ARCHITECTURE.md).
+Version 0.2 added copular predicates, active/passive voice, imperatives,
+conditionals, dictionary-backed government, relative gaps, nominal and
+VP coordination, clitic styles, topic/focus order, and discourse
+microplanning. The current grammar expansion adds dative recipients.
+The complete design and ownership rules are in
+[ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Pipeline
 
@@ -50,13 +51,13 @@ form that discards warnings. The discourse equivalents are
 
 The important boundaries are structural:
 
-- `NounPhrase` has no case. `Complement`, `PrepPhrase`, predicate
-  position, and relative gaps own case constraints. Resolution assigns
-  one case to the entire governed nominal, including all coordination
-  members.
+- `NounPhrase` has no case. `Recipient`, `Complement`, `PrepPhrase`,
+  predicate position, and relative gaps own case constraints.
+  Resolution assigns one case to the entire governed nominal, including
+  all coordination members.
 - Every verb and relative clause owns a clitic domain. A parent can
-  extract only a direct clitic object, never tokens nested inside an NP
-  or relative.
+  extract only direct recipient/object clitics, never tokens nested
+  inside an NP or relative.
 - Discourse pronominalization changes `ReferentialForm` on the existing
   NP. It does not replace the NP or discard its entity, role, case, or
   lexical content.
@@ -70,6 +71,20 @@ The canonical direct-object form exposes the grammatical edge:
 ```text
 (object [:case nom|acc|gen|loc|dat|ins] NOMINAL)
 ```
+
+The source-backed ditransitive frame adds a dedicated dative edge:
+
+```text
+(vp (v dati)
+    (recipient NOMINAL)
+    (object NOMINAL))
+```
+
+Neutral full-form order is verb–recipient–object. Recipient and object
+clitics share the same VP domain in dative–accusative order.
+The recipient edge is author-declared: current dictionary metadata can
+validate direct transitivity and direct-object government, but does not
+describe indirect-object frames.
 
 Case is not legal inside `(np ...)`. Strings that are not safe bare
 atoms are quoted. The reader and printer escape `"`, `\`, newline,
@@ -99,9 +114,16 @@ conflicts.
 The package test suite includes the original 0.1 goldens, all intended
 0.2 constructions, architecture regressions, an exhaustive bounded
 force × mood × voice × tense matrix, generated atom roundtrips, and
-generated malformed parser inputs. `cargo xtask phrase-check` sends the
-golden corpus through slovowiki's independent agreement checker; set
-`SLOVOWIKI_DIR` when it is not in the default sibling location.
+generated malformed S-expression inputs. `cargo xtask phrase-check`
+sends the golden corpus through slovowiki's independent agreement
+checker; set `SLOVOWIKI_DIR` when it is not in the default sibling
+location.
+
+`tests/steen_sexpr.rs` is a separate source-conformance corpus: 12
+literal S-expressions totaling 44 whitespace-delimited sentence tokens
+are parsed, validated, realized byte-exactly, canonically printed, and
+reparsed. The [coverage matrix](STEEN_CONFORMANCE.md) preserves Steen's
+original text separately from documented orthographic normalization.
 
 ## Deliberately unsupported
 
@@ -109,7 +131,7 @@ golden corpus through slovowiki's independent agreement checker; set
 - the `iže` relativizer, because the facade has no paradigm
 - passive imperatives
 - preposition-phrasal verb government such as `bazovati na`
-- clitic arguments beyond the represented direct-object/reflexive set
+- complement roles beyond recipient, direct object, PP, and reflexive
 - parsing free Interslavic text into syntax trees
 - spelled-out numerals
 

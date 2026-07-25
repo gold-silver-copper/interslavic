@@ -3,9 +3,9 @@
 //! Leaves carry the flavored citation forms the `interslavic` facade
 //! expects (Nom-sg nouns, masc-Nom-sg adjectives, infinitives). A
 //! [`NounPhrase`] has no case: case constraints belong to grammatical
-//! role edges such as [`Complement`], [`PrepPhrase`], predicate case,
-//! and relative gaps. Resolution therefore produces one authoritative
-//! case for each nominal slot before linearization.
+//! role edges such as [`Complement`], [`Recipient`], [`PrepPhrase`],
+//! predicate case, and relative gaps. Resolution therefore produces one
+//! authoritative case for each nominal slot before linearization.
 //!
 //! 0.2.0 is a breaking revision of the 0.1.0 AST: `Clause.vp` became
 //! [`Clause::core`] (verbal cores are coordinations; copular cores are
@@ -272,6 +272,29 @@ pub struct Complement {
     pub(crate) requested_case: Option<Case>,
 }
 
+/// A recipient attached to a verb by a dedicated dative role edge.
+///
+/// Steen's possessive-pronoun contrast uses the ditransitive frame
+/// `Pjotr dal Ivanu svoju/jegovu knigu`: the recipient is dative and
+/// precedes the accusative theme. The case is therefore a property of
+/// this edge rather than an override stored on the nominal.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Recipient {
+    pub(crate) nominal: Nominal,
+}
+
+impl Recipient {
+    pub fn new(nominal: impl Into<Nominal>) -> Self {
+        Self {
+            nominal: nominal.into(),
+        }
+    }
+
+    pub fn nominal(&self) -> &Nominal {
+        &self.nominal
+    }
+}
+
 impl Complement {
     pub fn new(nominal: impl Into<Nominal>) -> Self {
         Self {
@@ -302,11 +325,13 @@ impl From<NounPhrase> for Nominal {
 
 /// A verb phrase: the verb (an infinitive; a trailing ` sę` marks it
 /// reflexive, as does the dictionary's own `v.refl.` metadata), an
-/// optional object (case from the verb's dictionary government,
-/// defaulting to accusative), adverbs, and prepositional adjuncts.
+/// optional recipient (dative), optional object (case from the verb's
+/// dictionary government, defaulting to accusative), adverbs, and
+/// prepositional adjuncts.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerbPhrase {
     pub(crate) verb: String,
+    pub(crate) recipient: Option<Recipient>,
     pub(crate) object: Option<Complement>,
     pub(crate) adverbs: Vec<String>,
     pub(crate) pps: Vec<PrepPhrase>,
@@ -316,10 +341,15 @@ impl VerbPhrase {
     pub fn new(verb: &str) -> Self {
         Self {
             verb: verb.trim().to_string(),
+            recipient: None,
             object: None,
             adverbs: Vec::new(),
             pps: Vec::new(),
         }
+    }
+    pub fn recipient(mut self, recipient: impl Into<Nominal>) -> Self {
+        self.recipient = Some(Recipient::new(recipient));
+        self
     }
     pub fn object(mut self, object: impl Into<Nominal>) -> Self {
         self.object = Some(Complement::new(object));
@@ -407,6 +437,18 @@ pub(crate) fn information_object_index(core: &ClauseCore) -> Option<usize> {
     }
 }
 
+/// The generic `SlotRef::Recipient` denotes the first recipient that
+/// exists in surface VP order.
+pub(crate) fn information_recipient_index(core: &ClauseCore) -> Option<usize> {
+    match core {
+        ClauseCore::Verbal(coordination) => coordination
+            .items
+            .iter()
+            .position(|vp| vp.recipient.is_some()),
+        ClauseCore::Copular { .. } => None,
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TenseSpec {
     Present,
@@ -465,11 +507,12 @@ pub enum Force {
 }
 
 /// A constituent reference for information-structure marking.
-/// `Object` selects the first object that exists in surface VP order
-/// (or the predicate of a copular clause).
+/// `Recipient` and `Object` select the first matching edge that exists
+/// in surface VP order; a copular predicate occupies the object slot.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SlotRef {
     Subject,
+    Recipient,
     Object,
 }
 

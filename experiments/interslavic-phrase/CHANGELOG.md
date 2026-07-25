@@ -1,5 +1,31 @@
 # interslavic-phrase changelog
 
+## Unreleased
+
+### Grammar
+
+- Added a dedicated dative `Recipient` role and canonical
+  `(recipient NOMINAL)` S-expression edge. Ditransitive VPs realize
+  full complements in the source-attested verb–recipient–object order.
+- Recipient and direct-object clitics share one VP domain in
+  dative–accusative order. `SlotRef::Recipient` and
+  `:topic recipient` / `:focus recipient` expose the new constituent to
+  information structure, while passive clauses retain it after theme
+  promotion.
+- Discourse traversal now tracks recipients in their typed surface
+  position and changes only their referential form, preserving the
+  dative role edge.
+
+### Conformance
+
+- Added 12 literal Steen S-expression fixtures (44 sentence tokens).
+  Every fixture records its source text and normalization, realizes
+  byte-exactly, then survives canonical print/reparse/rerealization.
+- Added focused regressions for recipient case and order, combined
+  dative/accusative clitics, information structure, passive retention,
+  discourse pronominalization, malformed syntax, and full-vocabulary
+  S-expression round-trip.
+
 ## 0.2.0 — 2026-07-24
 
 Breaking redesign of the experimental phrase API. Existing 0.1 builder
@@ -72,7 +98,7 @@ and S-expression canonical output changed.
 - Added a complete bounded force × mood × voice × tense matrix,
   generated realization panic checks, 500+ generated escaped-atom
   roundtrips across all free-text positions, and 2,000+ generated
-  malformed parser inputs.
+  malformed S-expression inputs.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for ownership, supported
 combinations, serialization, and migration details.

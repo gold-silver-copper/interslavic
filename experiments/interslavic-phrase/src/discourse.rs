@@ -170,6 +170,9 @@ fn pronominalize_relative(relative: &mut RelClause, mentions: &mut Mentions) {
     if let Some(subject) = &mut relative.subject {
         pronominalize_nominal(subject, mentions);
     }
+    if let Some(recipient) = &mut relative.vp.recipient {
+        pronominalize_nominal(&mut recipient.nominal, mentions);
+    }
     if let Some(object) = &mut relative.vp.object {
         pronominalize_nominal(&mut object.nominal, mentions);
     }
@@ -181,6 +184,7 @@ fn pronominalize_relative(relative: &mut RelClause, mentions: &mut Mentions) {
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum MentionSlot {
     Subject,
+    Recipient(usize),
     Object(usize),
     PpObject { vp: usize, pp: usize },
     Predicate,
@@ -197,6 +201,9 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
     match &clause.core {
         ClauseCore::Verbal(coordination) => {
             for (vp, verb_phrase) in coordination.items.iter().enumerate() {
+                if verb_phrase.recipient.is_some() {
+                    slots.push(MentionSlot::Recipient(vp));
+                }
                 if verb_phrase.object.is_some() {
                     slots.push(MentionSlot::Object(vp));
                 }
@@ -216,8 +223,15 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
         ClauseCore::Verbal(_) => information_object_index(&clause.core).map(MentionSlot::Object),
         ClauseCore::Copular { .. } => Some(MentionSlot::Predicate),
     };
+    let recipient_slot = match &clause.core {
+        ClauseCore::Verbal(_) => {
+            information_recipient_index(&clause.core).map(MentionSlot::Recipient)
+        }
+        ClauseCore::Copular { .. } => None,
+    };
     let slot_of = |slot| match slot {
         SlotRef::Subject => Some(MentionSlot::Subject),
+        SlotRef::Recipient => recipient_slot,
         SlotRef::Object => object_slot,
     };
     let take = |slots: &mut Vec<MentionSlot>, slot: MentionSlot| {
@@ -236,6 +250,7 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
             ordered.extend(take(&mut slots, focus));
         }
         ordered.extend(take(&mut slots, MentionSlot::Subject));
+        ordered.extend(take(&mut slots, MentionSlot::Recipient(0)));
         ordered.extend(take(&mut slots, MentionSlot::Object(0)));
         ordered.append(&mut slots);
         slots = ordered;
@@ -255,6 +270,16 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
     for slot in slots {
         match slot {
             MentionSlot::Subject => pronominalize_nominal(&mut clause.subject, mentions),
+            MentionSlot::Recipient(vp) => {
+                let ClauseCore::Verbal(coordination) = &mut clause.core else {
+                    unreachable!("recipient mention slots belong to verbal cores");
+                };
+                let recipient = coordination.items[vp]
+                    .recipient
+                    .as_mut()
+                    .expect("slot was derived from an existing recipient");
+                pronominalize_nominal(&mut recipient.nominal, mentions);
+            }
             MentionSlot::Object(vp) => {
                 let ClauseCore::Verbal(coordination) = &mut clause.core else {
                     unreachable!("object mention slots belong to verbal cores");

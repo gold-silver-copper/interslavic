@@ -12,11 +12,12 @@
 //! `RawClause` → [`validate`] → [`ValidatedClause`] → grammar
 //! resolution → hierarchical surface plans → one final stringification.
 //!
-//! Case belongs to grammatical-role edges such as [`Complement`] and
-//! [`PrepPhrase`], never to [`NounPhrase`]. Nested relative clauses and
-//! coordinated verb phrases remain distinct clitic domains until they
-//! place their own clusters. See `ARCHITECTURE.md` beside the crate
-//! README for the full ownership and serialization contracts.
+//! Case belongs to grammatical-role edges such as [`Recipient`],
+//! [`Complement`], and [`PrepPhrase`], never to [`NounPhrase`]. Nested
+//! relative clauses and coordinated verb phrases remain distinct clitic
+//! domains until they place their own clusters. See `ARCHITECTURE.md`
+//! beside the crate README for the full ownership and serialization
+//! contracts.
 //!
 //! ```
 //! use interslavic_phrase::*;
@@ -49,9 +50,9 @@ mod validate;
 
 pub use ast::{
     Addressee, BuildError, Clause, ClauseCore, Complement, Conj, Coordination, Force, GapRole,
-    Mood, Nominal, NounPhrase, Polarity, PredCase, Predicate, PrepPhrase, ReferentialForm,
-    RelClause, Relativizer, SlotRef, TenseSpec, VerbPhrase, Voice, clause, coordinate, copular,
-    name, np, pp, pron, pron_clitic, vp,
+    Mood, Nominal, NounPhrase, Polarity, PredCase, Predicate, PrepPhrase, Recipient,
+    ReferentialForm, RelClause, Relativizer, SlotRef, TenseSpec, VerbPhrase, Voice, clause,
+    coordinate, copular, name, np, pp, pron, pron_clitic, vp,
 };
 /// The unvalidated authoring tree produced by builders and the
 /// S-expression compiler.

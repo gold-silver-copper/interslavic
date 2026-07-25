@@ -75,6 +75,16 @@ fn main() {
             pron(Person::First, Number::Singular, Gender::Masculine),
             vp("dękovati").object(pron(Person::Second, Number::Singular, Gender::Masculine)),
         ),
+        // Dictionary-backed leaves for the Steen ditransitive frame.
+        // Proper names in the source fixture stay out of this external
+        // corpus because slovowiki intentionally lacks names.
+        clause(
+            np("otėc"),
+            vp("dati")
+                .recipient(np("žena"))
+                .object(np("kniga").det("svoj")),
+        )
+        .past(),
         clause(np("krålj"), vp("vladati").object(np("zemja"))),
         clause(
             coordinate(Conj::I, vec![np("otėc").into(), np("žena").into()]),

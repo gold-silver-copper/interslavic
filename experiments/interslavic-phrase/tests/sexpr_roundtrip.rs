@@ -166,6 +166,15 @@ fn trees() -> Vec<Clause> {
         .past()
         .topic(SlotRef::Object)
         .focus(SlotRef::Subject),
+        // Ditransitive recipient edge and its information slot.
+        clause(
+            name("Pjotr", Gender::Masculine),
+            vp("dati")
+                .recipient(name("Ivan", Gender::Masculine))
+                .object(np("kniga").det("svoj")),
+        )
+        .past()
+        .topic(SlotRef::Recipient),
     ]
 }
 

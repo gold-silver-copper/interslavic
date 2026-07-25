@@ -37,6 +37,7 @@ pub(crate) struct RelativePlan {
 pub(crate) struct VerbDomainPlan {
     pub complex: Vec<SurfaceNode>,
     pub cluster: Vec<String>,
+    pub recipient: Option<NominalPlan>,
     pub object: Option<NominalPlan>,
     pub object_case: Option<Case>,
     pub adjuncts: Vec<Vec<SurfaceNode>>,
@@ -46,6 +47,7 @@ pub(crate) struct VerbDomainPlan {
 pub(crate) enum SlotKind {
     Subject,
     Verb(usize),
+    Recipient(usize),
     Object(usize),
     QuestionParticle(QuestionParticle),
     Fixed,
