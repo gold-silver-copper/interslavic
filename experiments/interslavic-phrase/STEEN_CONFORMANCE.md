@@ -35,15 +35,34 @@ back to the corresponding Steen page.
 [pronouns]: https://interslavic.fun/learn/grammar/pronouns/
 [prepositions]: https://interslavic.fun/learn/grammar/prepositions/
 
-The same audit found coherent source families that remain unsupported:
+The expanded pass added every unique complete source sentence in the following
+families:
 
-| Source construction | Source examples | Architectural blocker |
+| Source construction | Added sentences | Grammar support exercised |
 | --- | ---: | --- |
-| constituent questions | 5 | needs interrogative nominal/adverb roles rather than repurposed topic/focus |
-| final clauses with `že by` / `da by` | 4 | needs an embedded-clause edge and subordinate clitic/punctuation ownership |
-| third-person optative `nehaj` | 2 | needs a distinct optative force, not an imperative-person workaround |
-| adverbial active participle | 1 | needs a clause-level participial adjunct |
-| short-form predicative adjectives | 4 | needs a facade-backed short-form predicate choice |
+| long and short predicative adjectives | 4 | `(adj …)` and facade-backed `(short-adj …)` |
+| overt/pro-drop and reciprocal-reflexive subjects | 3 | existing subject policy and reflexive clitic domain |
+| aspect, motion, perfect, and both pluperfects | 10 | dictionary aspect/motion forms plus `:tense pluperfect` and `:tense compound-pluperfect` |
+| past conditional, masculine and feminine | 2 | `:mood cond-perfect` |
+| third-person optative `nehaj` | 2 | `:force optative`, including Steen's postverbal adverb order |
+| adverbial active participle | 1 | `(initial-participle …)` plus a bare instrumental oblique |
+| passive tense/mood combinations | 7 | past/present passive participles across present, past, future, conditional, and past conditional |
+| constituent questions | 5 | explicit `:wh` slots and `:wh-adv`, including passive disambiguation |
+| present-passive pizza alternative | 1 | `:voice passive-present` |
+
+That leaves this explicit skip ledger:
+
+| Source construction | Source examples | Why it is skipped |
+| --- | ---: | --- |
+| final clauses with `že by` / `da by` | 4 | genuine sentences, but they require recursive subordinate-clause and punctuation/clitic ownership |
+| parallel clause ellipsis | 1 | `Jedni ljudi …, drugi …` omits the second finite predicate and needs an explicit ellipsis model |
+| strong focused reflexive | 1 | `Ja myju jedino sebe` needs a full reflexive-pronoun paradigm plus focus-particle attachment |
+| expanded reciprocal | 1 | `Oni bijut se jedin drugogo` needs a reciprocal nominal whose two parts receive different agreement/case |
+| parenthesized conditional paradigm notation | 1 | `ja byh dělal(a)` is two gender alternatives encoded as notation, not one genuine surface sentence |
+
+The remaining multiword examples on the grammar site are paradigms, noun
+phrases, preposition phrases, or metalinguistic fragments rather than
+sentences, so they are intentionally outside a sentence-generation suite.
 
 The recipient slice was selected because the source pair fixes all of the
 otherwise policy-sensitive decisions directly: the recipient is dative, it
@@ -52,7 +71,7 @@ agree with that theme. It extends the existing case-edge and clitic-domain
 architecture without inventing a general valency lexicon that the facade does
 not yet contain.
 
-## New grammar contract
+## Grammar contract
 
 The canonical ditransitive S-expression is:
 
@@ -85,16 +104,42 @@ vp("dati")
 allow the new constituent to participate in information structure without
 being confused with the direct object.
 
+The extended corpus adds these author-declared forms:
+
+```lisp
+; constituent question
+(clause SUBJECT (vp ...) :force wh :wh obj)
+(clause SUBJECT (vp ...) :force wh :wh-adv kde)
+
+; optative and historical/perfect forms
+(clause THIRD-PERSON-SUBJECT (vp ...) :force optative)
+(clause SUBJECT (vp ...) :tense pluperfect)
+(clause SUBJECT (vp ...) :tense compound-pluperfect)
+(clause SUBJECT (vp ...) :mood cond-perfect)
+
+; passive participle choice
+(clause PATIENT (vp ...) :voice passive)
+(clause PATIENT (vp ...) :voice passive-present)
+
+; clause-level participial adjunct and bare case-marked adjunct
+(initial-participle (v idti) (pp ...))
+(oblique :case ins NOMINAL)
+
+; optional short predicative adjective
+(pred (short-adj veliky))
+```
+
+These remain forward-generation instructions. No sentence-to-tree parser or
+heuristic recovery path is introduced.
+
 ## Executed source cases
 
-`tests/steen_sexpr.rs` contains 12 literal source fixtures totaling 44
-whitespace-delimited sentence tokens:
+`tests/steen_sexpr.rs` and `tests/steen_new_grammar.rs` contain 47 literal
+source fixtures totaling 172 whitespace-delimited generated sentence tokens:
 
-- 3 question examples;
-- 2 possessive/reflexive examples already expressible by the old grammar;
-- 2 newly expressible ditransitive possessive examples;
-- 2 spatial-preposition examples;
-- 3 passive/impersonal alternatives.
+- the original 12-question/pronoun/preposition/passive slice;
+- 35 newly expressible sentences from the adjective, pronoun, verb, and syntax
+  pages.
 
 Each fixture stores:
 
@@ -114,5 +159,8 @@ including `otėc`, `knigų`, `svojų`, `jegovų`, `myjų`, `sę`, and `dělajųt
 Sentence punctuation is added where the grammar page presents a bare example.
 For `Pica je dělana`, the expected output uses the facade's preferred full
 copula `jest`; the source's `je` remains recorded in the fixture.
+The same policy accounts for `je`→`jest`, `budu`→`bųdų`, nasal-vowel
+spellings, the facade's auxiliary-before-participle perfect order, and its
+explicit first-person perfect auxiliary in `Ja jesm byl neseny`.
 
 No phrase-specific inflected form or post-realization repair is used.

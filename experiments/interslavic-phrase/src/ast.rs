@@ -283,6 +283,31 @@ pub struct Recipient {
     pub(crate) nominal: Nominal,
 }
 
+/// A bare oblique nominal used adverbially, with case owned by the
+/// adjunct edge rather than the noun phrase.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Oblique {
+    pub(crate) case: Case,
+    pub(crate) nominal: Nominal,
+}
+
+impl Oblique {
+    pub fn new(case: Case, nominal: impl Into<Nominal>) -> Self {
+        Self {
+            case,
+            nominal: nominal.into(),
+        }
+    }
+
+    pub fn case(&self) -> Case {
+        self.case
+    }
+
+    pub fn nominal(&self) -> &Nominal {
+        &self.nominal
+    }
+}
+
 impl Recipient {
     pub fn new(nominal: impl Into<Nominal>) -> Self {
         Self {
@@ -335,6 +360,7 @@ pub struct VerbPhrase {
     pub(crate) object: Option<Complement>,
     pub(crate) adverbs: Vec<String>,
     pub(crate) pps: Vec<PrepPhrase>,
+    pub(crate) obliques: Vec<Oblique>,
 }
 
 impl VerbPhrase {
@@ -345,6 +371,7 @@ impl VerbPhrase {
             object: None,
             adverbs: Vec::new(),
             pps: Vec::new(),
+            obliques: Vec::new(),
         }
     }
     pub fn recipient(mut self, recipient: impl Into<Nominal>) -> Self {
@@ -371,6 +398,10 @@ impl VerbPhrase {
         self.pps.push(pp);
         self
     }
+    pub fn oblique(mut self, case: Case, nominal: impl Into<Nominal>) -> Self {
+        self.obliques.push(Oblique::new(case, nominal));
+        self
+    }
 }
 
 /// A prepositional phrase. `case` may be omitted only for prepositions
@@ -389,6 +420,28 @@ impl PrepPhrase {
     }
 }
 
+/// A clause-initial adverbial present active participle and its
+/// dependents, as in `Idųći do raboty, ona ...`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParticipialAdjunct {
+    pub(crate) verb: String,
+    pub(crate) pps: Vec<PrepPhrase>,
+}
+
+impl ParticipialAdjunct {
+    pub fn new(verb: &str) -> Self {
+        Self {
+            verb: verb.trim().to_string(),
+            pps: Vec::new(),
+        }
+    }
+
+    pub fn pp(mut self, pp: PrepPhrase) -> Self {
+        self.pps.push(pp);
+        self
+    }
+}
+
 /// A copular predicate: "X jest Y" with a nominal, adjectival, or
 /// participial Y. The participial form is the passive-participle
 /// construction ("Komnata jest osvětljena") via the facade's
@@ -397,6 +450,8 @@ impl PrepPhrase {
 pub enum Predicate {
     Nominal(NounPhrase),
     Adjectival(String),
+    /// Steen's optional short predicative form (`dom jest velik`).
+    ShortAdjectival(String),
     Participial(String),
 }
 
@@ -453,6 +508,14 @@ pub(crate) fn information_recipient_index(core: &ClauseCore) -> Option<usize> {
 pub enum TenseSpec {
     Present,
     Past,
+    /// Steen's optional simple past, which merges the historical
+    /// imperfect and aorist roles.
+    Imperfect,
+    /// Simple pluperfect (`běh dělal`).
+    Pluperfect,
+    /// Analytic alternative `byl jesm dělal` documented alongside the
+    /// simple pluperfect `běh dělal`.
+    CompoundPluperfect,
     Future,
 }
 
@@ -469,6 +532,9 @@ pub enum Mood {
     /// The `by` + l-participle conditional; person-marked auxiliaries
     /// come from the facade's own conditional paradigm row.
     Conditional,
+    /// Past conditional: past `byti` participle + conditional
+    /// auxiliary + the lexical verb's L-participle.
+    ConditionalPerfect,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -480,6 +546,8 @@ pub enum Voice {
     /// in the instrumental case or preceded by the preposition od with
     /// the genitive".
     Passive,
+    /// `byti` plus the present passive participle (`-omy`/`-imy`).
+    PresentPassive,
 }
 
 /// The imperative addressee: the three cells the facade's imperative
@@ -492,17 +560,22 @@ pub enum Addressee {
     YouAll,
 }
 
-/// Clause force. The three overt yes/no question strategies are steen's
-/// (syntax page); `li` attaches after the clause's focus — the finite
-/// verb unless `:focus` marks another constituent. The imperative omits
-/// its subject by default (the one construction where pro-drop is the
-/// norm) and takes `!`.
+/// Clause force. The three overt yes/no question strategies and
+/// constituent-question fronting are steen's syntax-page forms; `li`
+/// attaches after the clause's focus — the finite verb unless `:focus`
+/// marks another constituent. The imperative omits its subject by
+/// default. Imperative and optative clauses take `!`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Force {
     Declarative,
     IntonationQuestion,
     CiQuestion,
     LiQuestion,
+    /// A constituent or interrogative adverb is fronted explicitly via
+    /// [`Clause::wh_slot`] or [`Clause::wh_adverb`].
+    WhQuestion,
+    /// Third-person optative with the clause-initial particle `nehaj`.
+    Optative,
     Imperative(Addressee),
 }
 
@@ -514,6 +587,15 @@ pub enum SlotRef {
     Subject,
     Recipient,
     Object,
+}
+
+/// The explicitly fronted interrogative phrase in a constituent
+/// question. A slot reorders an existing constituent; an adverb is a
+/// clause-level leaf such as `kde`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum WhFront {
+    Slot(SlotRef),
+    Adverb(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -533,6 +615,8 @@ pub struct Clause {
     /// Clause-final constituent (rheme); also the attachment point of
     /// `li` (steen: "right after the focus point of the question").
     pub(crate) focus: Option<SlotRef>,
+    pub(crate) wh: Option<WhFront>,
+    pub(crate) initial_participles: Vec<ParticipialAdjunct>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -568,6 +652,8 @@ impl Clause {
             prodrop: false,
             topic: None,
             focus: None,
+            wh: None,
+            initial_participles: Vec::new(),
         }
     }
     /// Add a coordinated verb phrase (default conjunction `i`).
@@ -607,8 +693,16 @@ impl Clause {
         self.mood = Mood::Conditional;
         self
     }
+    pub fn conditional_perfect(mut self) -> Self {
+        self.mood = Mood::ConditionalPerfect;
+        self
+    }
     pub fn passive(mut self) -> Self {
         self.voice = Voice::Passive;
+        self
+    }
+    pub fn present_passive(mut self) -> Self {
+        self.voice = Voice::PresentPassive;
         self
     }
     pub fn prodrop(mut self) -> Self {
@@ -621,6 +715,20 @@ impl Clause {
     }
     pub fn focus(mut self, slot: SlotRef) -> Self {
         self.focus = Some(slot);
+        self
+    }
+    pub fn wh_slot(mut self, slot: SlotRef) -> Self {
+        self.force = Force::WhQuestion;
+        self.wh = Some(WhFront::Slot(slot));
+        self
+    }
+    pub fn wh_adverb(mut self, adverb: &str) -> Self {
+        self.force = Force::WhQuestion;
+        self.wh = Some(WhFront::Adverb(adverb.trim().to_string()));
+        self
+    }
+    pub fn initial_participle(mut self, adjunct: ParticipialAdjunct) -> Self {
+        self.initial_participles.push(adjunct);
         self
     }
 }
@@ -638,6 +746,9 @@ pub fn pp(preposition: &str, object: impl Into<Nominal>) -> PrepPhrase {
         case: None,
         object: object.into(),
     }
+}
+pub fn participial_adjunct(verb: &str) -> ParticipialAdjunct {
+    ParticipialAdjunct::new(verb)
 }
 pub fn pron(person: Person, number: Number, gender: Gender) -> Nominal {
     Nominal::Pron {

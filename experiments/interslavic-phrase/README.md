@@ -24,7 +24,10 @@ assert_eq!(
 Version 0.2 added copular predicates, active/passive voice, imperatives,
 conditionals, dictionary-backed government, relative gaps, nominal and
 VP coordination, clitic styles, topic/focus order, and discourse
-microplanning. The current grammar expansion adds dative recipients.
+microplanning. The current Steen expansion adds dative recipients,
+constituent questions, optatives, historical/perfect tense choices,
+present-passive and adverbial participles, bare obliques, and short
+predicative adjectives.
 The complete design and ownership rules are in
 [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -52,7 +55,7 @@ form that discards warnings. The discourse equivalents are
 The important boundaries are structural:
 
 - `NounPhrase` has no case. `Recipient`, `Complement`, `PrepPhrase`,
-  predicate position, and relative gaps own case constraints.
+  `Oblique`, predicate position, and relative gaps own case constraints.
   Resolution assigns one case to the entire governed nominal, including
   all coordination members.
 - Every verb and relative clause owns a clitic domain. A parent can
@@ -85,6 +88,20 @@ clitics share the same VP domain in dative–accusative order.
 The recipient edge is author-declared: current dictionary metadata can
 validate direct transitivity and direct-object government, but does not
 describe indirect-object frames.
+
+The extended source-backed forms include:
+
+```text
+:force wh :wh subj|recipient|obj
+:force wh :wh-adv ATOM
+:force optative
+:tense imperfect|pluperfect|compound-pluperfect
+:mood cond-perfect
+:voice passive-present
+(initial-participle (v LEMMA) PP*)
+(oblique :case CASE NOMINAL)
+(pred (short-adj LEMMA))
+```
 
 Case is not legal inside `(np ...)`. Strings that are not safe bare
 atoms are quoted. The reader and printer escape `"`, `\`, newline,
@@ -119,11 +136,12 @@ sends the golden corpus through slovowiki's independent agreement
 checker; set `SLOVOWIKI_DIR` when it is not in the default sibling
 location.
 
-`tests/steen_sexpr.rs` is a separate source-conformance corpus: 12
-literal S-expressions totaling 44 whitespace-delimited sentence tokens
-are parsed, validated, realized byte-exactly, canonically printed, and
+The two Steen source-conformance files contain 47 literal S-expressions
+totaling 172 whitespace-delimited generated sentence tokens. They are
+parsed, validated, realized byte-exactly, canonically printed, and
 reparsed. The [coverage matrix](STEEN_CONFORMANCE.md) preserves Steen's
-original text separately from documented orthographic normalization.
+original text separately from documented orthographic normalization
+and records every skipped sentence.
 
 ## Deliberately unsupported
 
@@ -131,7 +149,8 @@ original text separately from documented orthographic normalization.
 - the `iže` relativizer, because the facade has no paradigm
 - passive imperatives
 - preposition-phrasal verb government such as `bazovati na`
-- complement roles beyond recipient, direct object, PP, and reflexive
+- complement roles beyond recipient, direct object, PP, bare oblique,
+  and reflexive
 - parsing free Interslavic text into syntax trees
 - spelled-out numerals
 

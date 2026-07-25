@@ -15,16 +15,30 @@
 - Discourse traversal now tracks recipients in their typed surface
   position and changes only their referential form, preserving the
   dative role edge.
+- Added source-backed constituent questions (`:force wh` with `:wh` or
+  `:wh-adv`) and third-person optatives (`:force optative`).
+- Added the optional simple past, simple and compound pluperfect, past
+  conditional, and present-passive voice. Passive realization now
+  selects the documented past or present passive participle across
+  tense and conditional combinations.
+- Added clause-initial active adverbial participles, case-owning bare
+  obliques, and optional short predicative adjectives. The morphology
+  facade now exposes present-passive and active-adverbial participle
+  helpers plus short adjective forms.
 
 ### Conformance
 
-- Added 12 literal Steen S-expression fixtures (44 sentence tokens).
+- Added 47 literal Steen S-expression fixtures (172 sentence tokens).
   Every fixture records its source text and normalization, realizes
   byte-exactly, then survives canonical print/reparse/rerealization.
 - Added focused regressions for recipient case and order, combined
   dative/accusative clitics, information structure, passive retention,
   discourse pronominalization, malformed syntax, and full-vocabulary
   S-expression round-trip.
+- Expanded the bounded force × mood × voice × tense matrix from 84 to
+  486 combinations and documented the eight deliberately skipped Steen
+  examples: four embedded final clauses, three ellipsis/complex
+  reflexive constructions, and one paradigm notation string.
 
 ## 0.2.0 — 2026-07-24
 

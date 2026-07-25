@@ -5,6 +5,8 @@
 //! passes that tree through this validator before grammar resolution.
 
 use crate::ast::*;
+use crate::profile::nominal_profile;
+use interslavic::Person;
 use interslavic::preposition_cases;
 use std::fmt;
 
@@ -107,6 +109,7 @@ enum StructureNode<'a> {
     Relative(&'a RelClause),
     Vp(&'a VerbPhrase),
     Pp(&'a PrepPhrase),
+    Participial(&'a ParticipialAdjunct),
 }
 
 /// Iterative preflight: callers may construct arbitrarily deep public
@@ -127,6 +130,13 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
         let next = depth + 1;
         match node {
             StructureNode::Clause(clause) => {
+                for (index, adjunct) in clause.initial_participles.iter().enumerate() {
+                    stack.push((
+                        StructureNode::Participial(adjunct),
+                        next,
+                        format!("{path}.initial_participle[{index}]"),
+                    ));
+                }
                 stack.push((
                     StructureNode::Nominal(&clause.subject),
                     next,
@@ -205,6 +215,13 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
                 for (index, pp) in vp.pps.iter().enumerate() {
                     stack.push((StructureNode::Pp(pp), next, format!("{path}.pp[{index}]")));
                 }
+                for (index, oblique) in vp.obliques.iter().enumerate() {
+                    stack.push((
+                        StructureNode::Nominal(&oblique.nominal),
+                        next,
+                        format!("{path}.oblique[{index}].nominal"),
+                    ));
+                }
             }
             StructureNode::Pp(pp) => {
                 stack.push((
@@ -212,6 +229,11 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
                     next,
                     format!("{path}.object"),
                 ));
+            }
+            StructureNode::Participial(adjunct) => {
+                for (index, pp) in adjunct.pps.iter().enumerate() {
+                    stack.push((StructureNode::Pp(pp), next, format!("{path}.pp[{index}]")));
+                }
             }
         }
     }
@@ -227,16 +249,28 @@ fn push(errors: &mut Vec<ValidationError>, path: impl Into<String>, kind: Valida
 
 fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError>) {
     validate_nominal(&clause.subject, &format!("{path}.subject"), errors);
+    for (index, adjunct) in clause.initial_participles.iter().enumerate() {
+        let adjunct_path = format!("{path}.initial_participle[{index}]");
+        validate_leaf(
+            &adjunct.verb,
+            "participle lemma",
+            &format!("{adjunct_path}.verb"),
+            errors,
+        );
+        for (pp_index, pp) in adjunct.pps.iter().enumerate() {
+            validate_pp(pp, &format!("{adjunct_path}.pp[{pp_index}]"), errors);
+        }
+    }
 
     let imperative = matches!(clause.force, Force::Imperative(_));
-    if imperative && clause.mood == Mood::Conditional {
+    if imperative && clause.mood != Mood::Indicative {
         push(
             errors,
             format!("{path}.mood"),
             ValidationErrorKind::IncoherentClause("conditional imperative"),
         );
     }
-    if imperative && clause.voice == Voice::Passive {
+    if imperative && clause.voice != Voice::Active {
         push(
             errors,
             format!("{path}.voice"),
@@ -250,12 +284,79 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
             ValidationErrorKind::IncoherentClause("imperative cannot carry past/future tense"),
         );
     }
-    if clause.mood == Mood::Conditional && clause.tense != TenseSpec::Present {
+    if clause.mood != Mood::Indicative && clause.tense != TenseSpec::Present {
         push(
             errors,
             format!("{path}.tense"),
             ValidationErrorKind::IncoherentClause(
                 "conditional cannot carry independent past/future tense",
+            ),
+        );
+    }
+    if clause.force == Force::Optative {
+        if clause.mood != Mood::Indicative {
+            push(
+                errors,
+                format!("{path}.mood"),
+                ValidationErrorKind::IncoherentClause(
+                    "optative force cannot carry independent conditional mood",
+                ),
+            );
+        }
+        if clause.voice != Voice::Active {
+            push(
+                errors,
+                format!("{path}.voice"),
+                ValidationErrorKind::IncoherentClause("passive optative is unsupported"),
+            );
+        }
+        if clause.tense != TenseSpec::Present {
+            push(
+                errors,
+                format!("{path}.tense"),
+                ValidationErrorKind::IncoherentClause("optative must use present morphology"),
+            );
+        }
+        if nominal_profile(&clause.subject).person != Person::Third {
+            push(
+                errors,
+                format!("{path}.subject"),
+                ValidationErrorKind::IncoherentClause("optative requires a third-person subject"),
+            );
+        }
+    }
+    match (&clause.force, &clause.wh) {
+        (Force::WhQuestion, Some(WhFront::Adverb(adverb))) => {
+            validate_leaf(
+                adverb,
+                "interrogative adverb",
+                &format!("{path}.wh"),
+                errors,
+            );
+        }
+        (Force::WhQuestion, Some(WhFront::Slot(_))) => {}
+        (Force::WhQuestion, None) => push(
+            errors,
+            format!("{path}.wh"),
+            ValidationErrorKind::IncoherentClause(
+                "constituent question requires a fronted slot or adverb",
+            ),
+        ),
+        (_, Some(_)) => push(
+            errors,
+            format!("{path}.wh"),
+            ValidationErrorKind::IncoherentClause(
+                "a fronted interrogative requires constituent-question force",
+            ),
+        ),
+        (_, None) => {}
+    }
+    if clause.wh.is_some() && (clause.topic.is_some() || clause.focus.is_some()) {
+        push(
+            errors,
+            path,
+            ValidationErrorKind::IncoherentClause(
+                "constituent questions cannot also set topic or focus",
             ),
         );
     }
@@ -286,7 +387,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
             predicate,
             pred_case,
         } => {
-            if clause.voice == Voice::Passive {
+            if clause.voice != Voice::Active {
                 push(
                     errors,
                     format!("{path}.voice"),
@@ -299,7 +400,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
                 Predicate::Nominal(np) => {
                     validate_np(np, &format!("{path}.core.predicate"), errors);
                 }
-                Predicate::Adjectival(adjective) => {
+                Predicate::Adjectival(adjective) | Predicate::ShortAdjectival(adjective) => {
                     validate_leaf(
                         adjective,
                         "adjective",
@@ -339,6 +440,20 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
     };
 
     let subject_surfaces = !imperative && !clause.prodrop;
+    if let Some(WhFront::Slot(reference)) = &clause.wh {
+        let exists = match *reference {
+            SlotRef::Subject => subject_surfaces,
+            SlotRef::Recipient => has_recipient_slot,
+            SlotRef::Object => has_object_slot,
+        };
+        if !exists {
+            push(
+                errors,
+                format!("{path}.wh"),
+                ValidationErrorKind::MissingInformationSlot(*reference),
+            );
+        }
+    }
     for (name, reference) in [("topic", clause.topic), ("focus", clause.focus)] {
         if let Some(reference) = reference {
             let exists = match reference {
@@ -366,7 +481,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
 
 fn validate_vp(vp: &VerbPhrase, path: &str, voice: Voice, errors: &mut Vec<ValidationError>) {
     validate_leaf(&vp.verb, "verb", &format!("{path}.verb"), errors);
-    if voice == Voice::Passive && vp.object.is_some() {
+    if voice != Voice::Active && vp.object.is_some() {
         push(
             errors,
             format!("{path}.object"),
@@ -390,6 +505,13 @@ fn validate_vp(vp: &VerbPhrase, path: &str, voice: Voice, errors: &mut Vec<Valid
     }
     for (index, pp) in vp.pps.iter().enumerate() {
         validate_pp(pp, &format!("{path}.pp[{index}]"), errors);
+    }
+    for (index, oblique) in vp.obliques.iter().enumerate() {
+        validate_nominal(
+            &oblique.nominal,
+            &format!("{path}.oblique[{index}].nominal"),
+            errors,
+        );
     }
 }
 

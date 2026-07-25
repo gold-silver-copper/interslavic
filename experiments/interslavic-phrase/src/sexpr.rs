@@ -8,13 +8,19 @@
 //!
 //! ```text
 //! CLAUSE := (clause SUBJ CORE KEY*)
-//!           KEY: :tense present|past|future   :neg   :prodrop
-//!                :mood cond                   :voice passive
-//!                :force li|či|intonation|imp  :addressee 2sg|1pl|2pl
+//!           KEY: :tense present|past|imperfect|pluperfect|
+//!                       compound-pluperfect|future
+//!                :neg   :prodrop
+//!                :mood cond|cond-perfect
+//!                :voice passive|passive-present
+//!                :force li|či|intonation|wh|optative|imp
+//!                :wh subj|recipient|obj | :wh-adv L
+//!                :addressee 2sg|1pl|2pl
 //!                :conj i|ili|a|ale            (verbal coordination)
 //!                :topic subj|recipient|obj    :focus subj|recipient|obj
 //!                :pred-case ins               (copular clauses)
-//! CORE   := VP+ | (pred NP | (adj L) | (part L))
+//!           CHILD: (initial-participle (v L) PP*)
+//! CORE   := VP+ | (pred NP | (adj L) | (short-adj L) | (part L))
 //! SUBJ   := NOMINAL
 //! NOMINAL:= NP | PRON | NAME | (coord CONJ NOMINAL+)
 //! NP     := (np [:entity ID] [:refer full|pron|clitic] [(det L)] [(num N)]
@@ -25,7 +31,8 @@
 //! PRON   := (pron :1|:2|:3 :sg|:pl :m|:f|:n [:clitic])
 //! NAME   := (name Word :m|:f|:n [:indecl])
 //! VP     := (vp (v L) [(adv L)]* [(recipient NOMINAL)]
-//!              [(object [:case CASE] NOMINAL)] PP*)
+//!              [(object [:case CASE] NOMINAL)] PP*
+//!              (oblique :case CASE NOMINAL)*)
 //! PP     := (pp (prep L) [:case CASE] NOMINAL)
 //! CASE   := nom|acc|gen|loc|dat|ins
 //! CONJ   := i|ili|a|ale
@@ -327,6 +334,9 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
     let mut topic_at = None;
     let mut focus = None;
     let mut focus_at = None;
+    let mut wh = None;
+    let mut wh_at = None;
+    let mut initial_participles = Vec::new();
 
     let mut rest = items[1..].iter().peekable();
     while let Some(item) = rest.next() {
@@ -344,6 +354,8 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
                         "li" => force = Force::LiQuestion,
                         "či" => force = Force::CiQuestion,
                         "intonation" => force = Force::IntonationQuestion,
+                        "wh" => force = Force::WhQuestion,
+                        "optative" => force = Force::Optative,
                         "imp" | "imperative" => force_imperative = true,
                         other => return err(s_at, format!("unknown force `{other}`")),
                     }
@@ -363,6 +375,7 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
                     let (s, s_at) = key_sym(&mut rest, *key_at, ":mood")?;
                     mood = match s {
                         "cond" | "conditional" => Mood::Conditional,
+                        "cond-perfect" | "conditional-perfect" => Mood::ConditionalPerfect,
                         other => return err(s_at, format!("unknown mood `{other}`")),
                     };
                 }
@@ -371,6 +384,7 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
                     let (s, s_at) = key_sym(&mut rest, *key_at, ":voice")?;
                     voice = match s {
                         "passive" => Voice::Passive,
+                        "passive-present" | "present-passive" => Voice::PresentPassive,
                         other => return err(s_at, format!("unknown voice `{other}`")),
                     };
                 }
@@ -398,6 +412,16 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
                     let (s, s_at) = key_sym(&mut rest, *key_at, ":focus")?;
                     focus = Some(slot_ref_of(s, s_at)?);
                 }
+                "wh" => {
+                    mark_once(&mut wh_at, *key_at, "`:wh`/`:wh-adv`")?;
+                    let (s, s_at) = key_sym(&mut rest, *key_at, ":wh")?;
+                    wh = Some(WhFront::Slot(slot_ref_of(s, s_at)?));
+                }
+                "wh-adv" => {
+                    mark_once(&mut wh_at, *key_at, "`:wh`/`:wh-adv`")?;
+                    let (s, _) = key_sym(&mut rest, *key_at, ":wh-adv")?;
+                    wh = Some(WhFront::Adverb(s.to_string()));
+                }
                 "neg" => {
                     mark_once(&mut polarity_at, *key_at, "`:neg`")?;
                     polarity = Polarity::Negative;
@@ -415,6 +439,9 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
                         return err(*child_at, "`clause` takes at most one `(pred …)`");
                     }
                     predicate = Some(compile_pred(child, *child_at)?);
+                }
+                ("initial-participle", _) => {
+                    initial_participles.push(compile_initial_participle(child, *child_at)?);
                 }
                 ("np" | "pron" | "name" | "coord", _) => {
                     if subject.is_some() {
@@ -484,6 +511,8 @@ pub fn compile_clause(value: &Value) -> Result<Clause, SexprError> {
         prodrop,
         topic,
         focus,
+        wh,
+        initial_participles,
     };
     crate::validate(&clause).map_err(|errors| SexprError {
         at: errors
@@ -571,6 +600,7 @@ fn source_at_for_path(value: &Value, path: &str) -> Option<usize> {
                 _ => direct_form(current, "object", 0).unwrap_or(current),
             },
             "recipient" => direct_form(current, "recipient", 0).unwrap_or(current),
+            "oblique" => direct_form(current, "oblique", 0).unwrap_or(current),
             "head" => direct_form(current, "n", 0)?,
             "determiner" => direct_form(current, "det", 0)?,
             "relative" => direct_form(current, "rel", 0)?,
@@ -578,11 +608,16 @@ fn source_at_for_path(value: &Value, path: &str) -> Option<usize> {
             "preposition" => direct_form(current, "prep", 0)?,
             "gap" if last => direct_key(current, "gap").unwrap_or(current),
             "gap" => current,
-            "case" | "mood" | "voice" | "tense" | "topic" | "focus" | "entity" | "referential"
-            | "pred_case" => {
+            "case" | "mood" | "voice" | "tense" | "topic" | "focus" | "wh" | "entity"
+            | "referential" | "pred_case" => {
                 let key = match *segment {
                     "referential" => "refer",
                     "pred_case" => "pred-case",
+                    "wh" => {
+                        return direct_key(current, "wh")
+                            .or_else(|| direct_key(current, "wh-adv"))
+                            .map(Value::at);
+                    }
                     other => other,
                 };
                 direct_key(current, key).unwrap_or(current)
@@ -592,6 +627,14 @@ fn source_at_for_path(value: &Value, path: &str) -> Option<usize> {
             }
             segment if indexed_segment(segment, "pp").is_some() => {
                 direct_form(current, "pp", indexed_segment(segment, "pp")?)?
+            }
+            segment if indexed_segment(segment, "initial_participle").is_some() => direct_form(
+                current,
+                "initial-participle",
+                indexed_segment(segment, "initial_participle")?,
+            )?,
+            segment if indexed_segment(segment, "oblique").is_some() => {
+                direct_form(current, "oblique", indexed_segment(segment, "oblique")?)?
             }
             segment if indexed_segment(segment, "adverb").is_some() => {
                 direct_form(current, "adv", indexed_segment(segment, "adverb")?)?
@@ -631,6 +674,9 @@ fn tense_of(text: &str, at: usize) -> Result<TenseSpec, SexprError> {
     Ok(match text {
         "present" => TenseSpec::Present,
         "past" => TenseSpec::Past,
+        "imperfect" => TenseSpec::Imperfect,
+        "pluperfect" => TenseSpec::Pluperfect,
+        "compound-pluperfect" => TenseSpec::CompoundPluperfect,
         "future" => TenseSpec::Future,
         other => return err(at, format!("unknown tense `{other}`")),
     })
@@ -650,12 +696,17 @@ fn compile_pred(items: &[Value], at: usize) -> Result<Predicate, SexprError> {
         [Value::List(child, child_at)] => match head_of(child, *child_at)? {
             ("np", _) => Ok(Predicate::Nominal(compile_np(child, *child_at)?)),
             ("adj", _) => Ok(Predicate::Adjectival(sym_arg(child, "adj", *child_at)?)),
+            ("short-adj", _) => Ok(Predicate::ShortAdjectival(sym_arg(
+                child,
+                "short-adj",
+                *child_at,
+            )?)),
             ("part", _) => Ok(Predicate::Participial(sym_arg(child, "part", *child_at)?)),
             (other, other_at) => err(other_at, format!("unknown predicate `{other}`")),
         },
         _ => err(
             at,
-            "`(pred …)` takes exactly one of (np …)/(adj …)/(part …)",
+            "`(pred …)` takes exactly one of (np …)/(adj …)/(short-adj …)/(part …)",
         ),
     }
 }
@@ -991,6 +1042,7 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
     let mut object = None;
     let mut adverbs = Vec::new();
     let mut pps = Vec::new();
+    let mut obliques = Vec::new();
     for item in &items[1..] {
         let Value::List(child, child_at) = item else {
             return err(item.at(), "unexpected atom inside `(vp …)`");
@@ -1034,6 +1086,7 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
                 object = Some(Complement::new(compile_nominal(item)?));
             }
             ("pp", _) => pps.push(compile_pp(child, *child_at)?),
+            ("oblique", _) => obliques.push(compile_oblique(child, *child_at)?),
             (other, other_at) => return err(other_at, format!("unknown vp child `{other}`")),
         }
     }
@@ -1046,7 +1099,74 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
         object,
         adverbs,
         pps,
+        obliques,
     })
+}
+
+fn compile_oblique(items: &[Value], at: usize) -> Result<Oblique, SexprError> {
+    let mut case = None;
+    let mut case_at = None;
+    let mut nominal = None;
+    let mut rest = items[1..].iter().peekable();
+    while let Some(item) = rest.next() {
+        match item {
+            Value::Key(key, key_at) if key == "case" => {
+                mark_once(&mut case_at, *key_at, "`:case`")?;
+                let (value, value_at) = key_sym(&mut rest, *key_at, ":case")?;
+                case = Some(case_of(value, value_at)?);
+            }
+            Value::Key(key, key_at) => {
+                return err(*key_at, format!("unknown oblique key `:{key}`"));
+            }
+            Value::List(_, _) => {
+                if nominal.is_some() {
+                    return err(item.at(), "`(oblique …)` takes exactly one nominal");
+                }
+                nominal = Some(compile_nominal(item)?);
+            }
+            other => return err(other.at(), "unexpected atom inside `(oblique …)`"),
+        }
+    }
+    match (case, nominal) {
+        (Some(case), Some(nominal)) => Ok(Oblique { case, nominal }),
+        (None, _) => err(at, "`(oblique …)` needs `:case CASE`"),
+        (_, None) => err(at, "`(oblique …)` needs a nominal"),
+    }
+}
+
+fn compile_initial_participle(
+    items: &[Value],
+    at: usize,
+) -> Result<ParticipialAdjunct, SexprError> {
+    let mut verb = None;
+    let mut pps = Vec::new();
+    for item in &items[1..] {
+        let Value::List(child, child_at) = item else {
+            return err(item.at(), "unexpected atom inside `(initial-participle …)`");
+        };
+        match head_of(child, *child_at)? {
+            ("v", _) => {
+                if verb.is_some() {
+                    return err(
+                        *child_at,
+                        "`(initial-participle …)` takes exactly one `(v …)`",
+                    );
+                }
+                verb = Some(sym_arg(child, "v", *child_at)?);
+            }
+            ("pp", _) => pps.push(compile_pp(child, *child_at)?),
+            (other, other_at) => {
+                return err(
+                    other_at,
+                    format!("unknown initial-participle child `{other}`"),
+                );
+            }
+        }
+    }
+    let Some(verb) = verb else {
+        return err(at, "`(initial-participle …)` needs a `(v …)`");
+    };
+    Ok(ParticipialAdjunct { verb, pps })
 }
 
 fn compile_recipient(items: &[Value], at: usize) -> Result<Recipient, SexprError> {
@@ -1213,6 +1333,11 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
                     push_atom(&mut out, adjective);
                     out.push(')');
                 }
+                Predicate::ShortAdjectival(adjective) => {
+                    out.push_str("(short-adj ");
+                    push_atom(&mut out, adjective);
+                    out.push(')');
+                }
                 Predicate::Participial(infinitive) => {
                     out.push_str("(part ");
                     push_atom(&mut out, infinitive);
@@ -1225,9 +1350,21 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
             }
         }
     }
+    for adjunct in &clause.initial_participles {
+        out.push_str(" (initial-participle (v ");
+        push_atom(&mut out, &adjunct.verb);
+        out.push(')');
+        for pp in &adjunct.pps {
+            print_pp(pp, &mut out);
+        }
+        out.push(')');
+    }
     match clause.tense {
         TenseSpec::Present => {}
         TenseSpec::Past => out.push_str(" :tense past"),
+        TenseSpec::Imperfect => out.push_str(" :tense imperfect"),
+        TenseSpec::Pluperfect => out.push_str(" :tense pluperfect"),
+        TenseSpec::CompoundPluperfect => out.push_str(" :tense compound-pluperfect"),
         TenseSpec::Future => out.push_str(" :tense future"),
     }
     if clause.polarity == Polarity::Negative {
@@ -1238,6 +1375,8 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
         Force::LiQuestion => out.push_str(" :force li"),
         Force::CiQuestion => out.push_str(" :force či"),
         Force::IntonationQuestion => out.push_str(" :force intonation"),
+        Force::WhQuestion => out.push_str(" :force wh"),
+        Force::Optative => out.push_str(" :force optative"),
         Force::Imperative(addressee) => {
             out.push_str(" :force imp");
             match addressee {
@@ -1247,11 +1386,15 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
             }
         }
     }
-    if clause.mood == Mood::Conditional {
-        out.push_str(" :mood cond");
+    match clause.mood {
+        Mood::Indicative => {}
+        Mood::Conditional => out.push_str(" :mood cond"),
+        Mood::ConditionalPerfect => out.push_str(" :mood cond-perfect"),
     }
-    if clause.voice == Voice::Passive {
-        out.push_str(" :voice passive");
+    match clause.voice {
+        Voice::Active => {}
+        Voice::Passive => out.push_str(" :voice passive"),
+        Voice::PresentPassive => out.push_str(" :voice passive-present"),
     }
     if let Some(topic) = clause.topic {
         out.push_str(" :topic ");
@@ -1260,6 +1403,17 @@ pub fn print_validated(validated: &ValidatedClause) -> String {
     if let Some(focus) = clause.focus {
         out.push_str(" :focus ");
         out.push_str(slot_name(focus));
+    }
+    match &clause.wh {
+        Some(WhFront::Slot(slot)) => {
+            out.push_str(" :wh ");
+            out.push_str(slot_name(*slot));
+        }
+        Some(WhFront::Adverb(adverb)) => {
+            out.push_str(" :wh-adv ");
+            push_atom(&mut out, adverb);
+        }
+        None => {}
     }
     if clause.prodrop {
         out.push_str(" :prodrop");
@@ -1395,6 +1549,9 @@ fn print_rel(rel: &RelClause, out: &mut String) {
     match rel.tense {
         TenseSpec::Present => {}
         TenseSpec::Past => out.push_str(" :tense past"),
+        TenseSpec::Imperfect => out.push_str(" :tense imperfect"),
+        TenseSpec::Pluperfect => out.push_str(" :tense pluperfect"),
+        TenseSpec::CompoundPluperfect => out.push_str(" :tense compound-pluperfect"),
         TenseSpec::Future => out.push_str(" :tense future"),
     }
     if rel.polarity == Polarity::Negative {
@@ -1431,17 +1588,28 @@ fn print_vp(vp: &VerbPhrase, out: &mut String) {
         out.push(')');
     }
     for pp in &vp.pps {
-        out.push_str(" (pp (prep ");
-        push_atom(out, &pp.preposition);
-        out.push(')');
-        if let Some(case) = pp.case {
-            out.push_str(" :case ");
-            out.push_str(case_name(case));
-        }
+        print_pp(pp, out);
+    }
+    for oblique in &vp.obliques {
+        out.push_str(" (oblique :case ");
+        out.push_str(case_name(oblique.case));
         out.push(' ');
-        print_nominal(&pp.object, out);
+        print_nominal(&oblique.nominal, out);
         out.push(')');
     }
+    out.push(')');
+}
+
+fn print_pp(pp: &PrepPhrase, out: &mut String) {
+    out.push_str(" (pp (prep ");
+    push_atom(out, &pp.preposition);
+    out.push(')');
+    if let Some(case) = pp.case {
+        out.push_str(" :case ");
+        out.push_str(case_name(case));
+    }
+    out.push(' ');
+    print_nominal(&pp.object, out);
     out.push(')');
 }
 

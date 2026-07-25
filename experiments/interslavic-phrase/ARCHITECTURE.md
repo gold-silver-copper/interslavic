@@ -49,12 +49,14 @@ reuse a validation result.
 | recipient constraint | `Recipient` | The recipient edge assigns dative to the entire nominal and precedes the theme in neutral order. |
 | direct-object constraint | `Complement` | An explicit override applies to the whole complement and can be compared with dictionary government once. |
 | PP case | `PrepPhrase` | Validation checks the selected case against the preposition before resolution. |
+| bare adjunct case | `Oblique` | The adjunct edge assigns one explicit case to its whole nominal. |
 | predicate case | copular role edge | A predicate NP cannot override `PredCase`. |
 | relative-gap case | `GapRole` plus verb government | `ktory` receives the resolved gap case; no child NP can change it. |
 | finite and nominal features | central `NominalProfile` | Realization and discourse share one count/plural-only/coordination policy. |
 | referential choice | `NounPhrase::referential` | Discourse requests a pronoun without replacing or impoverishing the syntax node. |
 | clitic placement | `VerbDomainPlan` | Only that VP's direct recipient/object clitics and reflexive marker enter its cluster. |
 | nested relative content | `RelativePlan` | Parent traversal cannot inspect or extract descendant tokens. |
+| wh/optative/participial order | `ClausePlan` constituents | Fronting and particles move typed constituents, not realized strings. |
 | punctuation and casing | `ClausePlan::stringify` | Surface nodes flatten once; no morphology is rewritten afterward. |
 
 Case resolution records whether a case came from subject position, a
@@ -70,10 +72,10 @@ Validation returns `ValidationErrors(Vec<ValidationError>)`. Every error
 has an `AstPath`, such as `clause.core.vp[0].object`. It checks:
 
 - non-empty coordination and non-empty leaves;
-- imperative/conditional/passive/tense coherence;
+- imperative/optative/conditional/passive/tense coherence;
 - passive patient promotion (no retained direct object);
 - predicate-case applicability;
-- topic/focus existence and duplicate references, including the
+- wh/topic/focus existence and duplicate references, including the
   independent recipient slot;
 - relative gap versus overt subject/object coherence;
 - ordinary and relative-gap preposition government;
@@ -82,13 +84,15 @@ has an `AstPath`, such as `clause.core.vp[0].object`. It checks:
 
 The supported combination rule is compact:
 
-- indicative non-imperative verbal clauses support present, past, and
-  future in active or passive voice; copular clauses are active;
-- conditionals use their own auxiliary/participle construction and
-  cannot carry independent past/future tense;
+- indicative non-imperative verbal clauses support present, past,
+  imperfect, simple and compound pluperfect, and future in active,
+  past-passive, or present-passive voice; copular clauses are active;
+- present and past conditionals use their own auxiliary/participle
+  construction and cannot carry an independent tense;
 - imperatives are present, active, and indicative;
-- declarative and all three question forces can combine with supported
-  non-imperative shapes.
+- optatives are third-person, present, active, and indicative;
+- constituent questions own an explicit wh slot/adverb and cannot
+  simultaneously reuse topic/focus ordering.
 
 Dictionary valence requires lexical metadata and therefore belongs to
 grammar resolution. `ResolutionErrors` is also pathful. An explicit
@@ -178,7 +182,8 @@ The canonical direct-object grammar is:
     (adv ADVERB)*
     (recipient NOMINAL)?
     (object [:case CASE] NOMINAL)?
-    (pp (prep PREPOSITION) [:case CASE] NOMINAL)*)
+    (pp (prep PREPOSITION) [:case CASE] NOMINAL)*
+    (oblique :case CASE NOMINAL)*)
 ```
 
 The source-backed ditransitive extension is:
@@ -192,6 +197,12 @@ The source-backed ditransitive extension is:
 `recipient` is a distinct role edge with dative case. It has its own
 information-structure spelling, `:topic recipient` or
 `:focus recipient`, and is serialized before the direct object.
+
+Clause-level source-backed forms use `:force wh` with `:wh SLOT` or
+`:wh-adv ATOM`, `:force optative`, `:mood cond-perfect`,
+`:voice passive-present`, the historical/perfect `:tense` values, and
+`(initial-participle (v LEMMA) PP*)`. Short predicative adjectives use
+`(pred (short-adj LEMMA))`.
 
 Legacy direct nominal children of `(vp ...)` remain readable, but the
 printer emits `(object ...)`. Case is illegal inside `(np ...)`.
@@ -218,9 +229,9 @@ every valid serializable tree, `clause_from_str(&print(tree)?) == tree`.
 Raw printing validates first; only `print_validated(&ValidatedClause)`
 is infallible. A deterministic bounded
 generator covers hundreds of arbitrary combinations in noun,
-determiner, adjective, entity, name, verb, adverb, predicate, and
-relative fields. Another generator proves malformed inputs do not
-panic.
+determiner, adjective, entity, name, verb, adverb, predicate, wh-adverb,
+oblique, participial-adjunct, and relative fields. Another generator
+proves malformed inputs do not panic.
 
 ## Morphology boundary
 

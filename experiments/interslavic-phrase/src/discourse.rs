@@ -179,14 +179,19 @@ fn pronominalize_relative(relative: &mut RelClause, mentions: &mut Mentions) {
     for pp in &mut relative.vp.pps {
         pronominalize_nominal(&mut pp.object, mentions);
     }
+    for oblique in &mut relative.vp.obliques {
+        pronominalize_nominal(&mut oblique.nominal, mentions);
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum MentionSlot {
+    InitialPpObject { adjunct: usize, pp: usize },
     Subject,
     Recipient(usize),
     Object(usize),
     PpObject { vp: usize, pp: usize },
+    Oblique { vp: usize, oblique: usize },
     Predicate,
 }
 
@@ -195,6 +200,11 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
     // realization. Salience follows what the reader encounters, not
     // storage order in the AST.
     let mut slots = Vec::new();
+    for (adjunct, participle) in clause.initial_participles.iter().enumerate() {
+        for pp in 0..participle.pps.len() {
+            slots.push(MentionSlot::InitialPpObject { adjunct, pp });
+        }
+    }
     if !clause.prodrop && !matches!(clause.force, Force::Imperative(_)) {
         slots.push(MentionSlot::Subject);
     }
@@ -209,6 +219,9 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
                 }
                 for pp in 0..verb_phrase.pps.len() {
                     slots.push(MentionSlot::PpObject { vp, pp });
+                }
+                for oblique in 0..verb_phrase.obliques.len() {
+                    slots.push(MentionSlot::Oblique { vp, oblique });
                 }
             }
         }
@@ -240,8 +253,21 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
             .position(|candidate| *candidate == slot)
             .map(|index| slots.remove(index))
     };
+    let mut initial = Vec::new();
+    let mut index = 0;
+    while index < slots.len() {
+        if matches!(slots[index], MentionSlot::InitialPpObject { .. }) {
+            initial.push(slots.remove(index));
+        } else {
+            index += 1;
+        }
+    }
 
-    if clause.force == Force::LiQuestion {
+    if let Some(WhFront::Slot(front)) = clause.wh.as_ref()
+        && let Some(slot) = slot_of(*front).and_then(|slot| take(&mut slots, slot))
+    {
+        slots.insert(0, slot);
+    } else if clause.force == Force::LiQuestion {
         let mut ordered = Vec::new();
         if let Some(topic) = clause.topic.and_then(slot_of) {
             ordered.extend(take(&mut slots, topic));
@@ -266,9 +292,17 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
             slots.push(slot);
         }
     }
+    initial.append(&mut slots);
+    slots = initial;
 
     for slot in slots {
         match slot {
+            MentionSlot::InitialPpObject { adjunct, pp } => {
+                pronominalize_nominal(
+                    &mut clause.initial_participles[adjunct].pps[pp].object,
+                    mentions,
+                );
+            }
             MentionSlot::Subject => pronominalize_nominal(&mut clause.subject, mentions),
             MentionSlot::Recipient(vp) => {
                 let ClauseCore::Verbal(coordination) = &mut clause.core else {
@@ -295,6 +329,15 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
                     unreachable!("PP mention slots belong to verbal cores");
                 };
                 pronominalize_nominal(&mut coordination.items[vp].pps[pp].object, mentions);
+            }
+            MentionSlot::Oblique { vp, oblique } => {
+                let ClauseCore::Verbal(coordination) = &mut clause.core else {
+                    unreachable!("oblique mention slots belong to verbal cores");
+                };
+                pronominalize_nominal(
+                    &mut coordination.items[vp].obliques[oblique].nominal,
+                    mentions,
+                );
             }
             MentionSlot::Predicate => {
                 let ClauseCore::Copular {
@@ -372,8 +415,12 @@ fn can_aggregate(first: &Clause, second: &DiscourseSentence) -> bool {
         && second.clause.force == Force::Declarative
         && first.topic.is_none()
         && first.focus.is_none()
+        && first.wh.is_none()
+        && first.initial_participles.is_empty()
         && second.clause.topic.is_none()
         && second.clause.focus.is_none()
+        && second.clause.wh.is_none()
+        && second.clause.initial_participles.is_empty()
         && plain_and(&first.core)
         && plain_and(&second.clause.core)
 }

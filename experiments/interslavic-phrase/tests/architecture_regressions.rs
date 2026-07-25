@@ -246,6 +246,59 @@ fn discourse_salience_follows_typed_information_order() {
 }
 
 #[test]
+fn initial_participles_stay_initial_and_define_discourse_order_under_wh_fronting() {
+    let question = clause(
+        np("mųž").entity("subject"),
+        vp("kupiti").object(np("kniga").entity("book").det("koj")),
+    )
+    .past()
+    .wh_slot(SlotRef::Object)
+    .initial_participle(
+        participial_adjunct("idti").pp(pp("do", np("rabota").entity("destination"))),
+    );
+    assert_eq!(
+        sentence(&question),
+        "Idųći do raboty, kojų knigų kupil mųž?"
+    );
+
+    let story = vec![
+        DiscourseSentence::new(question),
+        DiscourseSentence::new(clause(
+            np("mųž"),
+            vp("čitati").object(np("kniga").entity("book")),
+        )),
+    ];
+    assert_eq!(
+        narrate(story, RealizeOpts::sentence()).unwrap(),
+        "Idųći do raboty, kojų knigų kupil mųž? Mųž čitaje jų."
+    );
+}
+
+#[test]
+fn second_position_clitics_use_the_matrix_domain_after_initial_participles() {
+    let base = clause(np("krålj"), vp("myti sę"))
+        .initial_participle(participial_adjunct("idti").pp(pp("do", np("rabota"))));
+    let opts = RealizeOpts::sentence().clitics(CliticStyle::SecondPosition);
+
+    assert_eq!(
+        realize(&base, opts).unwrap(),
+        "Idųći do raboty, krålj sę myje."
+    );
+    assert_eq!(
+        realize(&base.clone().force(Force::CiQuestion), opts).unwrap(),
+        "Idųći do raboty, či sę krålj myje?"
+    );
+    assert_eq!(
+        realize(&base.clone().wh_adverb("kde"), opts).unwrap(),
+        "Idųći do raboty, kde sę krålj myje?"
+    );
+    assert_eq!(
+        realize(&base.force(Force::Optative), opts).unwrap(),
+        "Idųći do raboty, nehaj sę krålj myje!"
+    );
+}
+
+#[test]
 fn plural_only_counted_subject_and_reference_share_one_profile_policy() {
     let story = vec![
         DiscourseSentence::new(clause(np("noviny").count(1).entity("news"), vp("ležati"))),
@@ -417,13 +470,26 @@ fn all_force_mood_voice_tense_combinations_are_decided_and_panic_free() {
         Force::IntonationQuestion,
         Force::CiQuestion,
         Force::LiQuestion,
+        Force::WhQuestion,
+        Force::Optative,
         Force::Imperative(Addressee::You),
         Force::Imperative(Addressee::We),
         Force::Imperative(Addressee::YouAll),
     ];
-    let moods = [Mood::Indicative, Mood::Conditional];
-    let voices = [Voice::Active, Voice::Passive];
-    let tenses = [TenseSpec::Present, TenseSpec::Past, TenseSpec::Future];
+    let moods = [
+        Mood::Indicative,
+        Mood::Conditional,
+        Mood::ConditionalPerfect,
+    ];
+    let voices = [Voice::Active, Voice::Passive, Voice::PresentPassive];
+    let tenses = [
+        TenseSpec::Present,
+        TenseSpec::Past,
+        TenseSpec::Imperfect,
+        TenseSpec::Pluperfect,
+        TenseSpec::CompoundPluperfect,
+        TenseSpec::Future,
+    ];
 
     let mut combinations = 0;
     for force in forces {
@@ -431,20 +497,35 @@ fn all_force_mood_voice_tense_combinations_are_decided_and_panic_free() {
             for voice in voices {
                 for tense in tenses {
                     combinations += 1;
-                    let mut raw = clause(np("kniga"), vp("kupiti")).force(force).tense(tense);
-                    if mood == Mood::Conditional {
-                        raw = raw.conditional();
+                    let tree = clause(np("kniga"), vp("kupiti"));
+                    let mut raw = if force == Force::WhQuestion {
+                        tree.wh_slot(SlotRef::Subject)
+                    } else {
+                        tree.force(force)
                     }
-                    if voice == Voice::Passive {
-                        raw = raw.passive();
-                    }
+                    .tense(tense);
+                    raw = match mood {
+                        Mood::Indicative => raw,
+                        Mood::Conditional => raw.conditional(),
+                        Mood::ConditionalPerfect => raw.conditional_perfect(),
+                    };
+                    raw = match voice {
+                        Voice::Active => raw,
+                        Voice::Passive => raw.passive(),
+                        Voice::PresentPassive => raw.present_passive(),
+                    };
 
                     let imperative = matches!(force, Force::Imperative(_));
+                    let optative = force == Force::Optative;
                     let expected_valid = !(imperative
-                        && (mood == Mood::Conditional
-                            || voice == Voice::Passive
+                        && (mood != Mood::Indicative
+                            || voice != Voice::Active
                             || tense != TenseSpec::Present))
-                        && !(mood == Mood::Conditional && tense != TenseSpec::Present);
+                        && !(optative
+                            && (mood != Mood::Indicative
+                                || voice != Voice::Active
+                                || tense != TenseSpec::Present))
+                        && !(mood != Mood::Indicative && tense != TenseSpec::Present);
                     let validated = validate(&raw);
                     assert_eq!(
                         validated.is_ok(),
@@ -464,7 +545,7 @@ fn all_force_mood_voice_tense_combinations_are_decided_and_panic_free() {
             }
         }
     }
-    assert_eq!(combinations, 84);
+    assert_eq!(combinations, 486);
 }
 
 #[test]
@@ -590,7 +671,18 @@ fn generated_escaped_atoms_roundtrip_in_every_free_text_position() {
                 .pp(pp("od", name(&atom, Gender::Masculine))),
         ));
         assert_roundtrip(copular(np("dom"), Predicate::Adjectival(atom.clone())));
+        assert_roundtrip(copular(np("dom"), Predicate::ShortAdjectival(atom.clone())));
         assert_roundtrip(copular(np("komnata"), Predicate::Participial(atom.clone())));
+        assert_roundtrip(
+            clause(
+                np("žena"),
+                vp(&atom)
+                    .oblique(Case::Ins, np(&atom))
+                    .pp(pp("od", np(&atom))),
+            )
+            .initial_participle(participial_adjunct(&atom).pp(pp("do", np(&atom))))
+            .wh_adverb(&atom),
+        );
         assert_roundtrip(clause(
             np("dom").relative(RelClause::pp_gap(
                 "v",

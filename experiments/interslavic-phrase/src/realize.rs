@@ -26,9 +26,10 @@ use crate::resolve::{
 };
 use crate::validate::{ValidationErrors, validate};
 use interslavic::{
-    Animacy, Aspect, Case, Gender, Number, Person, PronounStyle, Provenance, Tense, adj, cells,
-    conditional_parts, noun_with, passive_participle, perfect_parts, personal_pronoun, pronoun,
-    quantified_parts_with_info, verb, verb_forms,
+    Animacy, Aspect, Case, Gender, Number, Person, PronounStyle, Provenance, Tense,
+    active_adverbial_participle, adj, cells, conditional_parts, l_participle, noun_with,
+    passive_participle, perfect_parts, personal_pronoun, present_passive_participle, pronoun,
+    quantified_parts_with_info, short_adj, verb, verb_forms,
 };
 use std::fmt;
 
@@ -396,6 +397,7 @@ fn render_pp(pp: &ResolvedPrep, ctx: &mut Ctx) -> Result<Vec<SurfaceNode>, Phras
 // The one verb-complex builder.
 // ---------------------------------------------------------------------------
 
+#[derive(Clone, Copy)]
 struct ClauseShape {
     force: Force,
     mood: Mood,
@@ -438,38 +440,65 @@ fn build_complex(
         return Ok(tokens);
     }
 
-    if shape.voice == Voice::Passive {
+    if shape.voice != Voice::Active {
         // The passive IS the participial copular construction: byti in
         // the clause's tense/mood plus the passive participle agreeing
         // with the subject.
-        let copula_shape = ClauseShape {
-            voice: Voice::Active,
-            polarity: Polarity::Affirmative, // negation already emitted
-            ..*shape
-        };
-        let mut copula = build_complex(
-            path,
-            "byti",
-            None,
-            &copula_shape,
-            person,
-            number,
-            gender,
-            subject_animacy,
-            warnings,
-        )?;
-        tokens.append(&mut copula);
-        let participle = passive_participle(lemma, Case::Nom, number, gender, subject_animacy)
-            .ok_or(PhraseError::Unsupported {
-                path: path.to_string(),
-                feature: "no passive participle (intransitive verb?)",
-            })?;
+        match shape.mood {
+            Mood::Indicative => {
+                let copula_shape = ClauseShape {
+                    voice: Voice::Active,
+                    polarity: Polarity::Affirmative, // negation already emitted
+                    ..*shape
+                };
+                let mut copula = build_complex(
+                    path,
+                    "byti",
+                    None,
+                    &copula_shape,
+                    person,
+                    number,
+                    gender,
+                    subject_animacy,
+                    warnings,
+                )?;
+                tokens.append(&mut copula);
+            }
+            Mood::Conditional => {
+                tokens.push(word(
+                    conditional_parts("byti", person, number, gender).auxiliary,
+                ));
+            }
+            Mood::ConditionalPerfect => {
+                tokens.push(word(surface(&l_participle("byti", gender, number))));
+                tokens.push(word(
+                    conditional_parts("byti", person, number, gender).auxiliary,
+                ));
+            }
+        }
+        let participle = match shape.voice {
+            Voice::Passive => passive_participle(lemma, Case::Nom, number, gender, subject_animacy),
+            Voice::PresentPassive => {
+                present_passive_participle(lemma, Case::Nom, number, gender, subject_animacy)
+            }
+            Voice::Active => unreachable!("guarded above"),
+        }
+        .ok_or(PhraseError::Unsupported {
+            path: path.to_string(),
+            feature: "no passive participle (intransitive verb?)",
+        })?;
         tokens.push(word(surface(&participle)));
         return Ok(tokens);
     }
 
     match shape.mood {
         Mood::Conditional => {
+            let parts = conditional_parts(lemma, person, number, gender);
+            tokens.push(word(parts.auxiliary));
+            tokens.push(word(parts.participle));
+        }
+        Mood::ConditionalPerfect => {
+            tokens.push(word(surface(&l_participle("byti", gender, number))));
             let parts = conditional_parts(lemma, person, number, gender);
             tokens.push(word(parts.auxiliary));
             tokens.push(word(parts.participle));
@@ -495,6 +524,22 @@ fn build_complex(
                 tokens.extend(complex.split_whitespace().map(word));
             }
             TenseSpec::Past => {
+                let parts = perfect_parts(lemma, person, number, gender);
+                if let Some(auxiliary) = parts.auxiliary {
+                    tokens.push(word(auxiliary));
+                }
+                tokens.push(word(parts.participle));
+            }
+            TenseSpec::Imperfect => {
+                let complex = surface(&verb(lemma, person, number, gender, Tense::Imperfect));
+                tokens.extend(complex.split_whitespace().map(word));
+            }
+            TenseSpec::Pluperfect => {
+                let complex = surface(&verb(lemma, person, number, gender, Tense::Pluperfect));
+                tokens.extend(complex.split_whitespace().map(word));
+            }
+            TenseSpec::CompoundPluperfect => {
+                tokens.push(word(surface(&l_participle("byti", gender, number))));
                 let parts = perfect_parts(lemma, person, number, gender);
                 if let Some(auxiliary) = parts.auxiliary {
                     tokens.push(word(auxiliary));
@@ -527,10 +572,15 @@ fn render_vp(
     object_clitics: CliticContext,
     ctx: &mut Ctx,
 ) -> Result<VerbDomainPlan, PhraseError> {
-    // Adverbs precede the verb complex (POLICY; the sources are silent
-    // on neutral adverb position). They are part of the complex
-    // constituent so placement can never split them from their verb.
-    let mut complex: Vec<SurfaceNode> = verb_phrase.adverbs.iter().map(word).collect();
+    // Adverbs precede the verb complex by default (POLICY). Steen's
+    // optative example fixes the opposite order (`nehaj žive dolgo`),
+    // so that force keeps the adverb in the same constituent but places
+    // it after the finite form.
+    let mut complex: Vec<SurfaceNode> = if shape.force == Force::Optative {
+        Vec::new()
+    } else {
+        verb_phrase.adverbs.iter().map(word).collect()
+    };
     complex.extend(build_complex(
         path,
         &verb_phrase.bare_verb,
@@ -542,6 +592,9 @@ fn render_vp(
         subject_animacy,
         &mut ctx.warnings,
     )?);
+    if shape.force == Force::Optative {
+        complex.extend(verb_phrase.adverbs.iter().map(word));
+    }
 
     let mut cluster: Vec<String> = Vec::new();
     let mut recipient = None;
@@ -582,6 +635,12 @@ fn render_vp(
     let mut adjuncts = Vec::new();
     for adjunct in &verb_phrase.pps {
         adjuncts.push(render_pp(adjunct, ctx)?);
+    }
+    for oblique in &verb_phrase.obliques {
+        adjuncts.push(
+            render_nominal(oblique, PronounStyle::Full, CliticContext::ForceFull, ctx)?
+                .into_surface(),
+        );
     }
 
     Ok(VerbDomainPlan {
@@ -858,10 +917,12 @@ pub(crate) fn realize_validated_with_lead_in(
     // Information-structure marking = stress: a marked complement
     // renders a full pronoun form (a clitic cannot be topicalized or
     // focused).
-    let recipient_marked =
-        clause.topic == Some(SlotRef::Recipient) || clause.focus == Some(SlotRef::Recipient);
-    let object_marked =
-        clause.topic == Some(SlotRef::Object) || clause.focus == Some(SlotRef::Object);
+    let recipient_marked = clause.topic == Some(SlotRef::Recipient)
+        || clause.focus == Some(SlotRef::Recipient)
+        || clause.wh == Some(WhFront::Slot(SlotRef::Recipient));
+    let object_marked = clause.topic == Some(SlotRef::Object)
+        || clause.focus == Some(SlotRef::Object)
+        || clause.wh == Some(WhFront::Slot(SlotRef::Object));
     let information_recipient_index = match &clause.core {
         ResolvedCore::Verbal { vps, .. } => vps.iter().position(|vp| vp.recipient.is_some()),
         ResolvedCore::Copular(_) => None,
@@ -875,6 +936,22 @@ pub(crate) fn realize_validated_with_lead_in(
 
     // Build labeled constituents.
     let mut constituents: Vec<Constituent> = Vec::new();
+    for (index, adjunct) in clause.initial_participles.iter().enumerate() {
+        let participle =
+            active_adverbial_participle(&adjunct.verb).ok_or(PhraseError::Unsupported {
+                path: format!("clause.initial_participle[{index}].verb"),
+                feature: "no present active adverbial participle (perfective verb?)",
+            })?;
+        let mut nodes = vec![word(surface(&participle))];
+        for pp in &adjunct.pps {
+            nodes.extend(render_pp(pp, &mut ctx)?);
+        }
+        nodes.push(SurfaceNode::Punct(','));
+        constituents.push(Constituent {
+            slot: SlotKind::InitialAdjunct(index),
+            nodes,
+        });
+    }
     if !imperative && !clause.prodrop {
         constituents.push(Constituent {
             slot: SlotKind::Subject,
@@ -914,6 +991,13 @@ pub(crate) fn realize_validated_with_lead_in(
                 )?
                 .into_surface(),
                 ResolvedPredicate::Adjectival(adjective) => vec![word(surface(&adj(
+                    adjective,
+                    Case::Nom,
+                    number,
+                    gender,
+                    subject.profile.animacy,
+                )))],
+                ResolvedPredicate::ShortAdjectival(adjective) => vec![word(surface(&short_adj(
                     adjective,
                     Case::Nom,
                     number,
@@ -1011,6 +1095,32 @@ pub(crate) fn realize_validated_with_lead_in(
         information_recipient_slot.unwrap_or(SlotKind::Recipient(0)),
         information_object_slot.unwrap_or(SlotKind::Object(0)),
     );
+    if let Some(WhFront::Adverb(adverb)) = &clause.wh {
+        let index = constituents
+            .iter()
+            .take_while(|item| matches!(item.slot, SlotKind::InitialAdjunct(_)))
+            .count();
+        constituents.insert(
+            index,
+            Constituent {
+                slot: SlotKind::Fixed,
+                nodes: vec![word(adverb.clone())],
+            },
+        );
+    }
+    if clause.force == Force::Optative {
+        let index = constituents
+            .iter()
+            .take_while(|item| matches!(item.slot, SlotKind::InitialAdjunct(_)))
+            .count();
+        constituents.insert(
+            index,
+            Constituent {
+                slot: SlotKind::Fixed,
+                nodes: vec![word("nehaj")],
+            },
+        );
+    }
 
     // Syncretism guard on the ACTUAL final order: warn only when subject
     // and the information object genuinely inverted, the object was rendered in
@@ -1063,8 +1173,12 @@ pub(crate) fn realize_validated_with_lead_in(
     // second-position cluster ("Či sę krålj myl?" — POLICY, parallel to
     // the pan-Slavic particle-as-host pattern).
     if clause.force == Force::CiQuestion {
+        let index = constituents
+            .iter()
+            .take_while(|item| matches!(item.slot, SlotKind::InitialAdjunct(_)))
+            .count();
         constituents.insert(
-            0,
+            index,
             Constituent {
                 slot: SlotKind::QuestionParticle(QuestionParticle::Ci),
                 nodes: vec![word("či")],
@@ -1137,6 +1251,16 @@ fn order_constituents(
     information_recipient_slot: SlotKind,
     information_object_slot: SlotKind,
 ) {
+    let mut initial = Vec::new();
+    let mut index = 0;
+    while index < constituents.len() {
+        if matches!(constituents[index].slot, SlotKind::InitialAdjunct(_)) {
+            initial.push(constituents.remove(index));
+        } else {
+            index += 1;
+        }
+    }
+
     let take = |constituents: &mut Vec<Constituent>, slot: SlotKind| -> Option<Constituent> {
         constituents
             .iter()
@@ -1148,6 +1272,21 @@ fn order_constituents(
         SlotRef::Recipient => information_recipient_slot,
         SlotRef::Object => information_object_slot,
     };
+
+    if let Some(WhFront::Slot(slot)) = &clause.wh {
+        let front = take(constituents, slot_of(*slot));
+        let mut ordered = Vec::new();
+        ordered.extend(front);
+        if *slot == SlotRef::Object {
+            ordered.extend(take(constituents, SlotKind::Verb(0)));
+            ordered.extend(take(constituents, SlotKind::Subject));
+            ordered.extend(take(constituents, SlotKind::Recipient(0)));
+        }
+        ordered.append(constituents);
+        initial.append(&mut ordered);
+        *constituents = initial;
+        return;
+    }
 
     if clause.force == Force::LiQuestion {
         let topic = clause
@@ -1170,7 +1309,8 @@ fn order_constituents(
             ordered.push(item);
         }
         ordered.append(constituents);
-        *constituents = ordered;
+        initial.append(&mut ordered);
+        *constituents = initial;
         return;
     }
 
@@ -1184,6 +1324,8 @@ fn order_constituents(
             constituents.push(constituent);
         }
     }
+    initial.append(constituents);
+    *constituents = initial;
 }
 
 /// Place one VP's clitic cluster structurally. Postverbal: directly
@@ -1208,10 +1350,19 @@ fn place_cluster(
     };
     let insert_at = match (style, vp_index) {
         (CliticStyle::SecondPosition, 0) => {
-            constituents.iter().position(is_li_particle).map_or_else(
-                || 1.min(constituents.len()),
-                |li_at| after_li(constituents, li_at),
-            )
+            let domain_start = constituents
+                .iter()
+                .take_while(|item| matches!(item.slot, SlotKind::InitialAdjunct(_)))
+                .count();
+            constituents
+                .iter()
+                .enumerate()
+                .skip(domain_start)
+                .find(|(_, constituent)| is_li_particle(constituent))
+                .map_or_else(
+                    || (domain_start + 1).min(constituents.len()),
+                    |(li_at, _)| after_li(constituents, li_at),
+                )
         }
         _ => match constituents
             .iter()

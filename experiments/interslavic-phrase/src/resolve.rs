@@ -14,6 +14,7 @@ use std::fmt;
 pub(crate) enum CaseSource {
     Subject,
     Recipient,
+    Oblique,
     DefaultAccusative,
     Dictionary,
     ExplicitObject,
@@ -69,6 +70,13 @@ pub(crate) struct ResolvedVerbPhrase {
     pub object_case: Option<Case>,
     pub adverbs: Vec<String>,
     pub pps: Vec<ResolvedPrep>,
+    pub obliques: Vec<ResolvedNominal>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct ResolvedParticipialAdjunct {
+    pub verb: String,
+    pub pps: Vec<ResolvedPrep>,
 }
 
 #[derive(Debug, Clone)]
@@ -87,6 +95,7 @@ pub(crate) struct ResolvedRelative {
 pub(crate) enum ResolvedPredicate {
     Nominal(ResolvedNominal),
     Adjectival(String),
+    ShortAdjectival(String),
     Participial(String),
 }
 
@@ -111,6 +120,8 @@ pub(crate) struct ResolvedClause {
     pub prodrop: bool,
     pub topic: Option<SlotRef>,
     pub focus: Option<SlotRef>,
+    pub wh: Option<WhFront>,
+    pub initial_participles: Vec<ResolvedParticipialAdjunct>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -207,11 +218,35 @@ pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, Resolut
                 Predicate::Adjectival(adjective) => {
                     ResolvedPredicate::Adjectival(adjective.clone())
                 }
+                Predicate::ShortAdjectival(adjective) => {
+                    ResolvedPredicate::ShortAdjectival(adjective.clone())
+                }
                 Predicate::Participial(verb) => ResolvedPredicate::Participial(verb.clone()),
             };
             ResolvedCore::Copular(predicate)
         }
     };
+    let initial_participles = clause
+        .initial_participles
+        .iter()
+        .enumerate()
+        .map(|(index, adjunct)| ResolvedParticipialAdjunct {
+            verb: adjunct.verb.clone(),
+            pps: adjunct
+                .pps
+                .iter()
+                .enumerate()
+                .map(|(pp_index, pp)| {
+                    resolve_pp(
+                        pp,
+                        &format!("clause.initial_participle[{index}].pp[{pp_index}]"),
+                        &mut conflicts,
+                        &mut errors,
+                    )
+                })
+                .collect(),
+        })
+        .collect();
     let resolution = Resolution {
         clause: ResolvedClause {
             subject,
@@ -224,6 +259,8 @@ pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, Resolut
             prodrop: clause.prodrop,
             topic: clause.topic,
             focus: clause.focus,
+            wh: clause.wh.clone(),
+            initial_participles,
         },
         conflicts,
     };
@@ -367,21 +404,21 @@ fn resolve_vp(
         .pps
         .iter()
         .enumerate()
-        .map(|(index, pp)| {
-            let allowed = preposition_cases(&pp.preposition)
-                .expect("preposition validated before resolution");
-            let case = pp.case.unwrap_or(allowed[0]);
-            ResolvedPrep {
-                preposition: pp.preposition.clone(),
-                object: resolve_nominal(
-                    &pp.object,
-                    case,
-                    CaseSource::Preposition,
-                    &format!("{path}.pp[{index}].object"),
-                    conflicts,
-                    errors,
-                ),
-            }
+        .map(|(index, pp)| resolve_pp(pp, &format!("{path}.pp[{index}]"), conflicts, errors))
+        .collect();
+    let obliques = vp
+        .obliques
+        .iter()
+        .enumerate()
+        .map(|(index, oblique)| {
+            resolve_nominal(
+                &oblique.nominal,
+                oblique.case,
+                CaseSource::Oblique,
+                &format!("{path}.oblique[{index}].nominal"),
+                conflicts,
+                errors,
+            )
         })
         .collect();
     ResolvedVerbPhrase {
@@ -393,6 +430,29 @@ fn resolve_vp(
         object_case,
         adverbs: vp.adverbs.clone(),
         pps,
+        obliques,
+    }
+}
+
+fn resolve_pp(
+    pp: &PrepPhrase,
+    path: &str,
+    conflicts: &mut Vec<GovernmentConflict>,
+    errors: &mut Vec<ResolutionError>,
+) -> ResolvedPrep {
+    let allowed =
+        preposition_cases(&pp.preposition).expect("preposition validated before resolution");
+    let case = pp.case.unwrap_or(allowed[0]);
+    ResolvedPrep {
+        preposition: pp.preposition.clone(),
+        object: resolve_nominal(
+            &pp.object,
+            case,
+            CaseSource::Preposition,
+            &format!("{path}.object"),
+            conflicts,
+            errors,
+        ),
     }
 }
 

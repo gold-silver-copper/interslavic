@@ -50,6 +50,7 @@ pub(crate) enum SlotKind {
     Recipient(usize),
     Object(usize),
     QuestionParticle(QuestionParticle),
+    InitialAdjunct(usize),
     Fixed,
 }
 
@@ -164,7 +165,7 @@ fn join_flat(tokens: &[FlatToken], force: Force, sentence: bool) -> String {
         }
         out.push(match force {
             Force::Declarative => '.',
-            Force::Imperative(_) => '!',
+            Force::Imperative(_) | Force::Optative => '!',
             _ => '?',
         });
     } else {
