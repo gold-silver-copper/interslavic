@@ -54,6 +54,10 @@
 
 ### Facade
 
+- `cells::variants` now splits `" / "` byforms (`den / denj`,
+  `oka / očese`), which the noun builders emit for genuine alternative
+  cells. Callers taking "the first clean variant" were receiving the
+  whole string and putting it into sentences as a single word.
 - Added `vocative()` and `vocative_with()`. Deliberately not a seventh
   `Case`: the source states the vocative "is not a real case", has no
   plural, and never affects neuter nouns, adjectives, or pronouns.
@@ -61,16 +65,27 @@
 
 ### Conformance
 
-- Added the Steen sample-text corpus: a committed ledger of all 220
-  candidate sentences (`corpus/steen_samples.tsv`) and 14 fixtures.
+- Added copular predicate coordination (`(pred P P …)`), prepositional
+  predicates (`(pred (pp …))`), and degree (`(comp-adj L)` /
+  `(super-adj L)`, built from the facade's own `comparative`/
+  `superlative` off the positive lemma).
+- Added coordination of full clauses, `(and-clause [:conj CONJ] CLAUSE)`,
+  each conjunct with its own subject, tense, polarity, and clitic domain.
+  Distinct from verb-phrase coordination, which shares one subject.
+- Added the Steen sample-text corpus: a committed ledger of all 222
+  candidate sentences (`corpus/steen_samples.tsv`) and 22 fixtures.
   Every row carries a `fixture:` or `skip:<reason>` disposition and
   `tests/corpus_inventory.rs` fails on any untriaged row, so coverage
-  is a property of committed data. Ten of the fourteen check their
+  is a property of committed data. Sixteen of the twenty-two check their
   expected output against the page's own published etymological text.
   A fixture must reproduce a whole inventory row, so sentences that
   realize exactly only as fragments are skips, not fixtures.
-- `cargo xtask phrase-check` now also covers the sample fixtures: 175
-  tokens, 0 unknown, 0 agreement errors.
+- `cargo xtask phrase-check` now also covers the sample fixtures: 223
+  tokens, 2 unknown, 0 agreement errors, with both unknowns waived
+  per-token as slovowiki lexicon gaps.
+- Re-mined the ledger with quotation tracking. 42 rows had carried stray
+  `«`/`»` because sentence splitting ignored quotation depth, and 41 of
+  those sat under `skip:quotative-frame` without belonging there.
 - Added 47 literal Steen S-expression fixtures (172 sentence tokens).
   Every fixture records its source text and normalization, realizes
   byte-exactly, then survives canonical print/reparse/rerealization.

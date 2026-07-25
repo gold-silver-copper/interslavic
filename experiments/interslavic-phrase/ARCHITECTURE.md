@@ -133,8 +133,8 @@ Consequently:
 
 The relative `sę` and `go` are not visible to the parent VP.
 
-Subordinate clauses and infinitive complements extend the same rule
-rather than adding an exception to it.
+Subordinate clauses, infinitive complements, and coordinated clauses all
+extend the same rule rather than adding an exception to it.
 
 `plan_clause` is the single implementation for matrix and embedded
 clauses alike. Each call places its own clitic clusters into its own
@@ -146,7 +146,13 @@ reach one inside a relative:
 ```text
 Ja myjų sę, že ona myje sę.
 Ja viđų, že on myje sę.
+Ja myjų sę, i ona myje sę.
 ```
+
+The third is clause coordination — `(and-clause …)`, distinct from
+verb-phrase coordination, which shares one subject. Each conjunct is a
+full clause with its own subject agreement, tense, polarity, and clitic
+domain; only the conjunction and its comma are added by the parent.
 
 An infinitive complement is likewise its own domain. Steen's `mogų
 slomiti ti hrėbet` puts the dative clitic with `slomiti`, not with the

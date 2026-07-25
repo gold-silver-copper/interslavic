@@ -164,17 +164,17 @@ and liturgical texts behind *Věža Babelja* and *Otče naš*.
 | --- | ---: | ---: | ---: |
 | `babel_text` | 12 | 0 | 12 |
 | `declaration` | 2 | 0 | 2 |
-| `jokes` | 24 | 0 | 24 |
-| `maly_princ` | 96 | 4 | 92 |
+| `jokes` | 24 | 2 | 22 |
+| `maly_princ` | 96 | 6 | 90 |
 | `northwind` | 6 | 0 | 6 |
 | `otcze_nasz` | 10 | 0 | 10 |
-| `schleicher` | 6 | 0 | 6 |
-| `selo` | 5 | 1 | 4 |
-| `volk_i_pes` | 31 | 5 | 26 |
+| `schleicher` | 6 | 1 | 5 |
+| `selo` | 7 | 1 | 6 |
+| `volk_i_pes` | 31 | 8 | 23 |
 | `wren` | 28 | 4 | 24 |
-| **total** | **220** | **14** | **206** |
+| **total** | **222** | **22** | **200** |
 
-Fourteen fixtures out of 220 candidates is a deliberately conservative
+Twenty-two fixtures out of 222 candidates is a deliberately conservative
 count. A fixture must reproduce an entire inventory row, enforced by
 `fixture_source_text_matches_the_inventory_row`. Several sentences
 realize byte-exactly as *fragments* of longer periods — `Pŕvy tęgal
@@ -186,28 +186,66 @@ counting those would have claimed rows the generator cannot produce.
 
 | Reason | Rows | What it would take |
 | --- | ---: | --- |
-| `quotative-frame` | 96 | direct speech plus its `rěkl X` frame, including split frames. One uniform decision, not a mix |
-| `untriaged` | 40 | genuinely not yet analysed — recorded as unexamined rather than given a fabricated reason |
-| `spelled-out-numerals` | 12 | a documented non-goal |
-| `fronted-adjunct` | 10 | a clause-initial PP or adverbial ahead of the subject |
-| `adverb-position` | 9 | Steen places these adverbs after the verb; this generator places adverbs before it |
-| `degree` | 8 | comparatives, superlatives, and `neželi` standards wired into the phrase layer |
-| `postposed-possessive-and-address` | 7 | verse-order possessives after the noun; named imperative addressees |
-| `relative-clause-shape` | 6 | gap roles beyond subj/obj/pp |
-| `multiple-adjuncts` | 4 | faithful ordering of more adjuncts than the clause currently orders |
+| `quotative-frame` | 55 | direct speech plus its `rěkl X` frame, including split frames; one uniform decision, not a mix |
+| `adverb-position` | 17 | Steen places these adverbs after the verb; this generator places adverbs before it |
+| `spelled-out-numerals` | 15 | a documented non-goal |
+| `fronted-adjunct` | 13 | a clause-initial prepositional or adverbial adjunct ahead of the subject |
+| `degree` | 12 | comparative forms where the facade and the sample texts disagree, and `neželi` standards |
+| `postposed-possessive-and-address` | 9 | verse-order possessives after the noun; named imperative addressees |
+| `fragment` | 9 | an elliptical turn with no finite predicate; an explicit ellipsis model |
+| `relative-clause-shape` | 8 | gap roles beyond subj/obj/pp |
+| `connective-fragment` | 7 | a subordinate clause standing as a whole sentence, or one ending in a colon |
+| `dash-turn` | 7 | a dialogue turn introduced by an em dash |
+| `negative-concord` | 5 | a negative pronoun alongside clausal `ne` |
 | `vocative-edge` | 4 | the facade has the vocative; the phrase layer has no address slot yet |
-| `clause-coordination` | 3 | coordinating two finite clauses |
-| `facade-orthography` | 2 | see the findings below |
+| `dative-experiencer` | 4 | a dative argument of a predicate adjective or impersonal verb |
+| `correlative` | 3 | paired correlative clauses (`kako … tako`, `čim … tym`) |
+| `coordination-shape` | 3 | three-or-more-way or nested coordination |
+| `long-period` | 2 | a sentence beyond what one clause tree expresses |
+| `degree-adverb` | 2 | a degree adverb modifying a predicate |
+| `facade-orthography` | 2 | realized correctly but for one letter; see Findings |
+| `clitic-climbing` | 2 | the infinitive's clitic raised to the finite verb; deliberately not modelled |
+| `nominal-complement` | 2 | a genitive complement inside a predicate noun phrase |
+| `oblique-in-copular` | 2 | a bare oblique adverbial in a copular clause, which has no verb phrase to host it |
 | `past-adverbial-participle` | 2 | `Uslyšavši to, …`; only present active participles exist |
-| `negative-concord` | 1 | a negative pronoun alongside clausal `ne` |
-| `predicate-coordination` | 1 | `veliky i tȯlsty` |
-| `fragment` | 1 | an elliptical turn with no finite predicate |
+| `existential` | 2 | an existential `byti` whose subject follows the locative phrase |
+| `impersonal-modal` | 2 | the impersonal `možno`/`trěba` frame with an infinitive |
+| `reflexive-pronoun` | 2 | the full reflexive pronoun, as against the `sę` clitic |
+| `adverb-phrase` | 2 | multiword and parenthetical adverbials |
+| `adjunct-order` | 1 | interleaving obliques, adverbs, and prepositional phrases in source order |
+| `participle-with-object` | 1 | an adverbial participle governing an object |
+| `verb-phrase-negation` | 1 | coordinated verb phrases each carrying their own `ne`, while polarity is clause-level |
+| `intensifier` | 1 | the postposed intensifier `sam` |
+| `conditional-clause-plus-imperative` | 1 | an `ako` clause whose matrix is an imperative |
+| `purposive-infinitive` | 1 | an infinitive of purpose after an imperative of motion |
+| `predicate-complement` | 1 | a predicate adjective governing a prepositional complement |
 
-`untriaged` is a real category, not a euphemism. It means the sentence
-was extracted and not yet analysed, so it must not be read as evidence
-that the generator cannot produce it — some of those rows are probably
-reachable today. A bare `skip:` with no reason is rejected by
-`skips_state_a_reason`.
+There is no `untriaged` category. Every row names a specific missing
+capability, and two tests keep it that way: `skips_state_a_reason`
+rejects a bare `skip:`, and `no_skip_is_left_as_the_untriaged_placeholder`
+rejects the placeholder that earlier stood in for "extracted but not yet
+analysed".
+
+### Row boundaries
+
+Rows are sentences, mined with quotation tracking. An earlier pass split
+paragraphs at sentence punctuation without tracking quotation depth, so
+42 rows carried stray `«`/`»` and 41 of them sat under
+`skip:quotative-frame` without belonging there. A sentence inside direct
+speech is still a sentence, so it is its own row; the surrounding
+quotation's delimiters belong to the span, not to it, and are stripped.
+`framed` marks a sentence carrying a quotative frame of its own, where
+the marks are structural and stay.
+
+Per-row `«`/`»` balance is deliberately NOT asserted, and would be the
+wrong check: a quotation routinely spans several sentences, so a sentence
+closing one opened three sentences earlier is correct. Demanding per-row
+balance would force quotations into paragraph-sized rows that no fixture
+could reproduce. Page-level balance is not asserted either, and its
+failure would be a false alarm, since stripping quoted-interior
+delimiters unbalances the ledger by design. What is asserted is that a
+row with no frame of its own carries no quotation marks at all, and that
+a row inside direct speech is preceded on its page by a frame.
 
 ### Findings
 
@@ -218,9 +256,10 @@ normalized away:
 | --- | --- |
 | `vųglom` vs `vųglȯm` (`wren-017`) | otherwise byte-exact; the instrumental of `vųgȯl` loses the `ȯ` |
 | `hoće` vs `hȯće` (`jokes-010`) | otherwise byte-exact; the generator follows this repo's dictionary, whose present-stem hint for `hotěti` is `(hoće)`. The disagreement is between the dictionary and Steen's sample-text orthography |
-| `cells::variants` and `" / "` byforms | `noun_with("denj", Acc, …)` returns the string `den / denj`, which reaches output as one token. `variants` splits parenthesised byforms but not slash-separated ones |
 | `da byhmo ne …` | Steen puts the irrealis auxiliary before the negation; this generator emits `ne` clause-initially. One witness, so no rule was added |
-| `psi` unknown to slovowiki | the plural Steen writes and this dictionary produces from `pės`; the external checker's lexicon lacks it, so that one sentence is excluded from `phrase-check` with a stated reason |
+| `psi` and `pėśjų` unknown to slovowiki | forms Steen writes and this dictionary produces; the external checker's lexicon lacks them. Waived per-token in `xtask`'s `SLOVOWIKI_LEXICON_GAPS` with a source citation each, so those sentences stay under agreement checking; a stale entry is reported so it gets removed |
+| `cells::variants` and `" / "` byforms | FIXED. `noun.rs` emits slash byforms for genuine alternative cells, and `variants` did not split them, so `den / denj` and `očami / očesami` reached output as single tokens. Fixed at the normalization boundary rather than in the caller |
+| `tęžši` vs Steen's `tęžejša` | the facade's synthetic comparative of `tęžky`; same class as `hoće`/`hȯće` — repository data against sample-text orthography |
 | clitic order is not uniform in Steen | `Ja myju se` (pronouns page) is postverbal, `Ja go shvaću` (wren) is second-position. Both are supported styles; each fixture records which it uses |
 
 ## Executed source cases

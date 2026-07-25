@@ -140,8 +140,8 @@ Source conformance comes from two corpora:
 
 - the **grammar pages**: 47 literal S-expressions in
   `tests/steen_sexpr.rs` and `tests/steen_new_grammar.rs`;
-- the **sample texts**: 14 fixtures in `tests/steen_samples.rs`, drawn
-  from a ledger of all 220 candidate sentences in
+- the **sample texts**: 22 fixtures in `tests/steen_samples.rs`, drawn
+  from a ledger of all 222 candidate sentences in
   `corpus/steen_samples.tsv`.
 
 Every fixture is parsed, validated, realized byte-exactly, canonically
@@ -151,17 +151,20 @@ normalization and records every skipped sentence.
 
 The sample-text corpus is the stronger evidence. Nine of its ten pages
 publish each text three times — etymological Latin, standard Latin,
-Cyrillic — so for ten of the fourteen fixtures the expected output is
+Cyrillic — so for sixteen of the twenty-two fixtures the expected output is
 *the source's own etymological text*, checked verbatim rather than
 invented here. Every candidate sentence carries a disposition
-(`fixture:` or `skip:<reason>`), and `tests/corpus_inventory.rs` fails
-if any row is left untriaged, so the coverage claim is a property of
-committed data rather than an assertion about work done.
+(`fixture:` or `skip:<reason>`) naming a specific missing capability,
+and `tests/corpus_inventory.rs` fails if any row is left untriaged or
+carries a bare reason, so the coverage claim is a property of committed
+data rather than an assertion about work done.
 
-`cargo xtask phrase-check` sends the goldens plus thirteen of the
-fourteen sample fixtures through slovowiki's independent agreement
-checker: 175 tokens, 0 unknown, 0 agreement errors. The fourteenth is
-excluded for a stated reason recorded in `examples/goldens.rs`.
+`cargo xtask phrase-check` sends the goldens plus every sample fixture
+through slovowiki's independent agreement checker: 223 tokens, 2 unknown,
+0 agreement errors. Both unknowns are forms Steen writes and this
+dictionary produces (`psi`, `pėśjų`) which slovowiki's lexicon lacks;
+they are waived per-token in `SLOVOWIKI_LEXICON_GAPS` with a source
+citation each, so the sentences stay under agreement checking.
 
 ## Deliberately unsupported
 
@@ -170,7 +173,9 @@ excluded for a stated reason recorded in `examples/goldens.rs`.
   `mogų slomiti ti hrėbet` and `načęl go napominati`; only the first,
   which matches this crate's per-verb clitic domains, is modelled)
 - quotative frames for direct speech
-- clause coordination, ellipsis, and coordinated predicates
+- ellipsis, and the full reflexive pronoun paradigm
+- adverb position as a lexical property: adverbs precede the verb, while
+  the sample texts place several of them after it
 - the `iže` relativizer, because the facade has no paradigm
 - passive imperatives
 - preposition-phrasal verb government such as `bazovati na`
