@@ -171,3 +171,39 @@ fn empty_and_whitespace_input_is_not_a_form() {
     assert_eq!(vocative_with("", Gender::Masculine), None);
     assert_eq!(vocative_with("   ", Gender::Masculine), None);
 }
+
+/// Slash byforms are a paradigm-cell convention, not a display string.
+///
+/// `noun.rs` emits `den / denj`, `oka / očese`, and `oči / očesa` for
+/// genuine alternative cells. Before `cells::variants` split them, a
+/// consumer taking "the first variant" received the whole string, and
+/// `interslavic-phrase` put the literal token `den / denj` into a
+/// sentence as if it were one word — twice in the Steen sample corpus
+/// (`na drugy den / denj`, `svojimi velikymi očami / očesami`).
+#[test]
+fn slash_byforms_are_split_into_separate_variants() {
+    use interslavic::cells::variants;
+    assert_eq!(variants("den / denj"), ["den", "denj"]);
+    assert_eq!(variants("oka / očese"), ["oka", "očese"]);
+    assert_eq!(variants("oči / očesa"), ["oči", "očesa"]);
+
+    // The first variant is now a single word, which is what every
+    // caller that renders "one clean surface form" relies on.
+    for cell in ["den / denj", "oka / očese", "oči / očesa"] {
+        let first = variants(cell).into_iter().next().unwrap();
+        assert!(
+            !first.contains(' '),
+            "`{cell}` still yields a multi-word first variant: {first}"
+        );
+    }
+}
+
+/// A cell with no slash is untouched, and a slash byform still gets the
+/// other normalizations applied to each side.
+#[test]
+fn slash_splitting_composes_with_the_other_conventions() {
+    use interslavic::cells::variants;
+    assert_eq!(variants("čas"), ["čas"]);
+    assert_eq!(variants("dělaĵųći"), ["dělajųći"]);
+    assert_eq!(variants("dělaĵ / dělaný"), ["dělaj", "dělany"]);
+}
