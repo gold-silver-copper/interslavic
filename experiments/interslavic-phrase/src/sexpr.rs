@@ -25,7 +25,8 @@
 //! CORE   := VP+ | (pred NP | (adj L) | (short-adj L) | (part L))
 //! SUBJ   := NOMINAL
 //! NOMINAL:= NP | PRON | NAME | (coord CONJ NOMINAL+)
-//! NP     := (np [:entity ID] [:refer full|pron|clitic] [(det L)] [(num N)]
+//! NP     := (np [:pl|:sg] [:entity ID] [:refer full|pron|clitic]
+//!               [(det L)] [(num N)]
 //!               (adj L)* (n L) [REL])
 //! REL    := (rel :gap subj|obj|pp [(prep L)] [:case CASE]
 //!                [SUBJ-NOMINAL] (vp …) [:tense …] [:neg]
@@ -759,6 +760,7 @@ fn compile_np(items: &[Value], at: usize) -> Result<NounPhrase, SexprError> {
     let mut head_seen = false;
     let mut entity_at = None;
     let mut referential_at = None;
+    let mut number_at = None;
     let mut rest = items[1..].iter().peekable();
     while let Some(item) = rest.next() {
         match item {
@@ -776,6 +778,14 @@ fn compile_np(items: &[Value], at: usize) -> Result<NounPhrase, SexprError> {
                     "clitic" => ReferentialForm::Clitic,
                     other => return err(s_at, format!("unknown referential form `{other}`")),
                 };
+            }
+            Value::Key(key, key_at) if key == "pl" || key == "sg" => {
+                mark_once(&mut number_at, *key_at, "`:pl`/`:sg`")?;
+                np.number = Some(if key == "pl" {
+                    Number::Plural
+                } else {
+                    Number::Singular
+                });
             }
             Value::Key(key, key_at) => return err(*key_at, format!("unknown np key `:{key}`")),
             Value::List(child, child_at) => match head_of(child, *child_at)? {
@@ -1646,6 +1656,11 @@ fn print_nominal(nominal: &Nominal, out: &mut String) {
 
 fn print_np(np: &NounPhrase, out: &mut String) {
     out.push_str("(np");
+    match np.number {
+        Some(Number::Plural) => out.push_str(" :pl"),
+        Some(Number::Singular) => out.push_str(" :sg"),
+        None => {}
+    }
     if let Some(entity) = &np.entity {
         out.push_str(" :entity ");
         push_atom(out, entity);

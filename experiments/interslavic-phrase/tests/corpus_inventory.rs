@@ -65,6 +65,24 @@ fn skips_state_a_reason() {
     }
 }
 
+/// No row may be left untriaged. A pending row is a sentence that was
+/// extracted and then silently dropped, which is exactly the failure this
+/// ledger exists to prevent: it would let a coverage claim rest on work
+/// nobody did.
+#[test]
+fn no_candidate_is_left_untriaged() {
+    let pending: Vec<String> = rows()
+        .into_iter()
+        .filter(|row| row.disposition() == Disposition::Pending)
+        .map(|row| row.id)
+        .collect();
+    assert!(
+        pending.is_empty(),
+        "{} inventory rows have no disposition: {pending:?}",
+        pending.len()
+    );
+}
+
 /// The per-page ledger, printed so a coverage claim can be read off the
 /// test output rather than taken on trust.
 #[test]

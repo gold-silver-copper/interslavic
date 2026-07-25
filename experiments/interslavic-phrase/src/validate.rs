@@ -685,6 +685,18 @@ fn validate_nominal(nominal: &Nominal, path: &str, errors: &mut Vec<ValidationEr
 
 fn validate_np(np: &NounPhrase, path: &str, errors: &mut Vec<ValidationError>) {
     validate_leaf(&np.head, "noun", &format!("{path}.head"), errors);
+    // A numeral already determines number — and determines it by a rule
+    // (`2..=4` against `5+`) that an explicit number could contradict.
+    // Rather than silently letting one win, reject the combination.
+    if np.count.is_some() && np.number.is_some() {
+        push(
+            errors,
+            format!("{path}.number"),
+            ValidationErrorKind::IncoherentClause(
+                "a counted noun phrase already has its number; drop `:pl`/`:sg`",
+            ),
+        );
+    }
     if let Some(determiner) = &np.determiner {
         validate_leaf(
             determiner,

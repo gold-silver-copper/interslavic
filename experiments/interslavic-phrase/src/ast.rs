@@ -24,6 +24,13 @@ use std::fmt;
 pub struct NounPhrase {
     pub(crate) determiner: Option<String>,
     pub(crate) count: Option<u64>,
+    /// Grammatical number when no numeral fixes it. `None` is singular.
+    ///
+    /// This is distinct from `count`: `vsi psi`, `moje děti`, and
+    /// `vlåsy` are plural without being quantified, and before this
+    /// existed the only route to a plural noun phrase was to invent a
+    /// numeral it does not have.
+    pub(crate) number: Option<Number>,
     pub(crate) adjectives: Vec<String>,
     pub(crate) head: String,
     pub(crate) relative: Option<Box<RelClause>>,
@@ -36,6 +43,7 @@ impl NounPhrase {
         Self {
             determiner: None,
             count: None,
+            number: None,
             adjectives: Vec::new(),
             head: head.trim().to_string(),
             relative: None,
@@ -49,6 +57,11 @@ impl NounPhrase {
     }
     pub fn count(mut self, n: u64) -> Self {
         self.count = Some(n);
+        self
+    }
+    /// An unquantified plural (`vsi psi`, `moje děti`).
+    pub fn plural(mut self) -> Self {
+        self.number = Some(Number::Plural);
         self
     }
     pub fn adj(mut self, adjective: &str) -> Self {
@@ -447,7 +460,7 @@ pub enum Complementizer {
     /// `da` — purpose, always with conditional mood in the sources
     /// (`da by uviděl gråd`).
     Da,
-    /// `kogda` — temporal (`kȯgda viđų, kako člověk vladaje konjami`).
+    /// `kȯgda` — temporal (`kȯgda viđų, kako člověk vladaje konjami`).
     Kogda,
     /// `ako` — hypothetical (`ako ty tam ješče raz prijdeš`).
     Ako,
@@ -460,11 +473,15 @@ pub enum Complementizer {
 impl Complementizer {
     /// The surface words, in order. Two-word complementizers are one
     /// lexical choice, not a coordination.
+    ///
+    /// These are flavored citation forms, like every other leaf in this
+    /// crate, and are spelled as the dictionary spells them — `kȯgda`,
+    /// not `kogda`.
     pub fn words(self) -> &'static [&'static str] {
         match self {
             Complementizer::Že => &["že"],
             Complementizer::Da => &["da"],
-            Complementizer::Kogda => &["kogda"],
+            Complementizer::Kogda => &["kȯgda"],
             Complementizer::Ako => &["ako"],
             Complementizer::ZatoŽe => &["zato", "že"],
             Complementizer::TomuŽe => &["tomu", "že"],

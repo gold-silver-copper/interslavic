@@ -55,6 +55,11 @@ pub(crate) fn nominal_profile(nominal: &Nominal) -> NominalProfile {
                 (Number::Plural, Number::Plural, info.gender, Number::Plural)
             } else {
                 match np.count {
+                    // An explicit grammatical number applies only when no
+                    // numeral is present; a numeral computes its own.
+                    None if np.number == Some(Number::Plural) => {
+                        (Number::Plural, Number::Plural, info.gender, Number::Plural)
+                    }
                     None | Some(1) => (
                         Number::Singular,
                         Number::Singular,

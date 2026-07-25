@@ -90,14 +90,14 @@ fn adverbial_clauses_front_and_follow() {
                  (clause (np (n ljudi)) (vp (v prěměstiti sę)) :tense past)) \
                :tense past)"
         ),
-        "Kogda ljudi prěměstili sę, oni našli råvninų."
+        "Kȯgda ljudi prěměstili sę, oni našli råvninų."
     );
     assert_eq!(
         realized(
             "(clause (np (n sŕdce)) (vp (v bolěti)) \
                (sub :comp kogda (clause (pron :1 :sg :m) (vp (v viděti)))))"
         ),
-        "Sŕdce bolěje, kogda ja viđų."
+        "Sŕdce bolěje, kȯgda ja viđų."
     );
 }
 
@@ -200,7 +200,7 @@ fn matrix_force_survives_a_fronted_adverbial() {
                (sub :comp kogda :pos initial (clause (np (n noč)) (vp (v byti)))) \
                :force či)"
         ),
-        "Kogda noč jest, či pes spi?"
+        "Kȯgda noč jest, či pes spi?"
     );
 }
 
