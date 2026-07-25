@@ -222,6 +222,13 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
                 stack.push((StructureNode::Vp(&relative.vp), next, format!("{path}.vp")));
             }
             StructureNode::Vp(vp) => {
+                if let Some(infinitive) = &vp.infinitive {
+                    stack.push((
+                        StructureNode::Vp(infinitive),
+                        next,
+                        format!("{path}.infinitive"),
+                    ));
+                }
                 if let Some(sub) = &vp.complement_clause {
                     stack.push((
                         StructureNode::Clause(&sub.clause),
@@ -555,6 +562,18 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
 
 fn validate_vp(vp: &VerbPhrase, path: &str, voice: Voice, errors: &mut Vec<ValidationError>) {
     validate_leaf(&vp.verb, "verb", &format!("{path}.verb"), errors);
+    if let Some(infinitive) = &vp.infinitive {
+        // The infinitive is non-finite: tense, mood, voice, and force all
+        // belong to the finite verb governing it. Passing `Voice::Active`
+        // keeps the object check meaningful without letting a passive
+        // matrix clause silently strip the infinitive's own object.
+        validate_vp(
+            infinitive,
+            &format!("{path}.infinitive"),
+            Voice::Active,
+            errors,
+        );
+    }
     if let Some(sub) = &vp.complement_clause {
         if sub.position != AdjunctPosition::Final {
             push(

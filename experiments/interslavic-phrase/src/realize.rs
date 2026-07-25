@@ -560,6 +560,17 @@ fn build_complex(
 /// aspect — applied identically wherever a VP appears (main clause,
 /// conjunct, relative clause). The resolved VP already owns its one
 /// authoritative object case.
+/// Whether a verb phrase realizes as a finite complex or as the bare
+/// infinitive of a governed complement.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum VerbForm {
+    Finite,
+    /// Non-finite: tense, mood, voice, force, and agreement all belong to
+    /// the governing finite verb, so none of them are consulted here. The
+    /// citation lemma IS the infinitive.
+    Infinitive,
+}
+
 #[allow(clippy::too_many_arguments)]
 fn render_vp(
     verb_phrase: &ResolvedVerbPhrase,
@@ -571,6 +582,7 @@ fn render_vp(
     subject_animacy: Animacy,
     recipient_clitics: CliticContext,
     object_clitics: CliticContext,
+    verb_form: VerbForm,
     ctx: &mut Ctx,
 ) -> Result<VerbDomainPlan, PhraseError> {
     // Adverbs precede the verb complex by default (POLICY). Steen's
@@ -582,17 +594,20 @@ fn render_vp(
     } else {
         verb_phrase.adverbs.iter().map(word).collect()
     };
-    complex.extend(build_complex(
-        path,
-        &verb_phrase.bare_verb,
-        verb_phrase.info.as_ref(),
-        shape,
-        person,
-        number,
-        gender,
-        subject_animacy,
-        &mut ctx.warnings,
-    )?);
+    match verb_form {
+        VerbForm::Finite => complex.extend(build_complex(
+            path,
+            &verb_phrase.bare_verb,
+            verb_phrase.info.as_ref(),
+            shape,
+            person,
+            number,
+            gender,
+            subject_animacy,
+            &mut ctx.warnings,
+        )?),
+        VerbForm::Infinitive => complex.push(word(surface(&verb_phrase.bare_verb))),
+    }
     if shape.force == Force::Optative {
         complex.extend(verb_phrase.adverbs.iter().map(word));
     }
@@ -647,6 +662,41 @@ fn render_vp(
     // The complement clause is planned as a whole clause and sealed, so
     // its clitics are already placed inside it and cannot join this
     // domain's cluster.
+    // The infinitive complement is its own clitic domain, laid out
+    // immediately: infinitive, its cluster, then its complements. Steen's
+    // `mogų slomiti ti hrėbet` is exactly this shape — the dative clitic
+    // belongs to `slomiti`, not to the finite `mogų`.
+    if let Some(inner) = &verb_phrase.infinitive {
+        let nested = render_vp(
+            inner,
+            &format!("{path}.infinitive"),
+            shape,
+            person,
+            number,
+            gender,
+            subject_animacy,
+            CliticContext::Allowed,
+            CliticContext::Allowed,
+            VerbForm::Infinitive,
+            ctx,
+        )?;
+        let mut nodes = nested.complex;
+        nodes.extend(nested.cluster.into_iter().map(word));
+        if let Some(recipient) = nested.recipient {
+            nodes.extend(recipient.into_surface());
+        }
+        if let Some(object) = nested.object {
+            nodes.extend(object.into_surface());
+        }
+        for adjunct in nested.adjuncts {
+            nodes.extend(adjunct);
+        }
+        if let Some(sub) = nested.complement_clause {
+            nodes.extend(sub);
+        }
+        adjuncts.push(nodes);
+    }
+
     let opts = ctx.opts;
     let complement_clause = match &verb_phrase.complement_clause {
         Some(sub) => Some(vec![SurfaceNode::Subordinate(Box::new(
@@ -741,6 +791,7 @@ fn render_relative(
         head_animacy,
         CliticContext::Allowed,
         CliticContext::Allowed,
+        VerbForm::Finite,
         ctx,
     )?;
     body.extend(vp.complex);
@@ -1103,6 +1154,7 @@ fn plan_clause(
                     } else {
                         CliticContext::Allowed
                     },
+                    VerbForm::Finite,
                     ctx,
                 )?;
                 constituents.push(Constituent {

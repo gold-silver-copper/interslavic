@@ -34,7 +34,8 @@
 //! NAME   := (name Word :m|:f|:n [:indecl])
 //! VP     := (vp (v L) [(adv L)]* [(recipient NOMINAL)]
 //!              [(object [:case CASE] NOMINAL)] PP*
-//!              (oblique :case CASE NOMINAL)* [SUB])
+//!              (oblique :case CASE NOMINAL)* [INF] [SUB])
+//! INF    := (inf …)   — the children of VP; a non-finite verb phrase
 //! PP     := (pp (prep L) [:case CASE] NOMINAL)
 //! CASE   := nom|acc|gen|loc|dat|ins
 //! CONJ   := i|ili|a|ale
@@ -1160,6 +1161,7 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
     let mut pps = Vec::new();
     let mut obliques = Vec::new();
     let mut complement_clause = None;
+    let mut infinitive = None;
     for item in &items[1..] {
         let Value::List(child, child_at) = item else {
             return err(item.at(), "unexpected atom inside `(vp …)`");
@@ -1210,6 +1212,15 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
                 }
                 complement_clause = Some(Box::new(compile_sub(child, *child_at)?));
             }
+            // `(inf …)` takes exactly the children `(vp …)` does — it is
+            // a verb phrase in every respect but finiteness — so it is
+            // compiled by the same function.
+            ("inf", _) => {
+                if infinitive.is_some() {
+                    return err(*child_at, "`(vp …)` takes at most one `(inf …)`");
+                }
+                infinitive = Some(Box::new(compile_vp(child, *child_at)?));
+            }
             (other, other_at) => return err(other_at, format!("unknown vp child `{other}`")),
         }
     }
@@ -1224,6 +1235,7 @@ fn compile_vp(items: &[Value], at: usize) -> Result<VerbPhrase, SexprError> {
         pps,
         obliques,
         complement_clause,
+        infinitive,
     })
 }
 
@@ -1708,7 +1720,16 @@ fn print_rel(rel: &RelClause, out: &mut String) {
 }
 
 fn print_vp(vp: &VerbPhrase, out: &mut String) {
-    out.push_str("(vp (v ");
+    out.push_str("(vp");
+    print_vp_children(vp, out);
+    out.push(')');
+}
+
+/// The children shared by `(vp …)` and `(inf …)`. An infinitive
+/// complement is a verb phrase in every respect but finiteness, so it
+/// prints — and compiles — through the same code.
+fn print_vp_children(vp: &VerbPhrase, out: &mut String) {
+    out.push_str(" (v ");
     push_atom(out, &vp.verb);
     out.push(')');
     for adverb in &vp.adverbs {
@@ -1741,11 +1762,15 @@ fn print_vp(vp: &VerbPhrase, out: &mut String) {
         print_nominal(&oblique.nominal, out);
         out.push(')');
     }
+    if let Some(inner) = &vp.infinitive {
+        out.push_str(" (inf");
+        print_vp_children(inner, out);
+        out.push(')');
+    }
     if let Some(sub) = &vp.complement_clause {
         out.push(' ');
         print_sub(sub, out);
     }
-    out.push(')');
 }
 
 fn print_pp(pp: &PrepPhrase, out: &mut String) {

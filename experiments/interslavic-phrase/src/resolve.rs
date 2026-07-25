@@ -72,6 +72,7 @@ pub(crate) struct ResolvedVerbPhrase {
     pub pps: Vec<ResolvedPrep>,
     pub obliques: Vec<ResolvedNominal>,
     pub complement_clause: Option<Box<ResolvedSubClause>>,
+    pub infinitive: Option<Box<ResolvedVerbPhrase>>,
 }
 
 #[derive(Debug, Clone)]
@@ -475,6 +476,17 @@ fn resolve_vp(
             errors,
         ))
     });
+    // The infinitive resolves through the same VP path: its own valence
+    // check, its own government, its own object case.
+    let infinitive = vp.infinitive.as_ref().map(|inner| {
+        Box::new(resolve_vp(
+            inner,
+            None,
+            &format!("{path}.infinitive"),
+            conflicts,
+            errors,
+        ))
+    });
     ResolvedVerbPhrase {
         bare_verb,
         reflexive,
@@ -486,6 +498,7 @@ fn resolve_vp(
         pps,
         obliques,
         complement_clause,
+        infinitive,
     }
 }
 

@@ -366,6 +366,16 @@ pub struct VerbPhrase {
     /// so it lives on the VP; clause-level adverbials live on
     /// [`Clause::adverbial_clauses`] instead.
     pub(crate) complement_clause: Option<Box<SubClause>>,
+    /// A bare infinitive complement: the `spati` of `ne mogų spati`, the
+    /// `prinesti jědų` of `htěli prinesti jědų svojim malym`.
+    ///
+    /// It is itself a [`VerbPhrase`], so it carries its own object,
+    /// recipient, adjuncts, and — like every verb here — its own clitic
+    /// domain. Steen's `mogų slomiti ti hrėbet` puts the infinitive's
+    /// dative clitic inside that domain, which is what this models.
+    /// (`načęl go napominati`, where the clitic climbs to the finite
+    /// verb instead, is the opposite pattern and is not modelled.)
+    pub(crate) infinitive: Option<Box<VerbPhrase>>,
 }
 
 impl VerbPhrase {
@@ -378,7 +388,13 @@ impl VerbPhrase {
             pps: Vec::new(),
             obliques: Vec::new(),
             complement_clause: None,
+            infinitive: None,
         }
+    }
+    /// Govern a bare infinitive complement (`mogų spati`).
+    pub fn infinitive(mut self, infinitive: VerbPhrase) -> Self {
+        self.infinitive = Some(Box::new(infinitive));
+        self
     }
     /// Govern a finite complement clause (`že …`, `da by …`).
     pub fn complement_clause(mut self, complementizer: Complementizer, clause: Clause) -> Self {
