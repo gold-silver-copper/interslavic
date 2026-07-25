@@ -66,7 +66,7 @@ fn trees() -> Vec<Clause> {
         Clause::with_core(
             pron(Person::Third, Number::Singular, Gender::Masculine),
             ClauseCore::Copular {
-                predicate: Predicate::Nominal(np("krålj")),
+                predicates: Coordination::single(Predicate::Nominal(np("krålj"))),
                 pred_case: PredCase::Instrumental,
             },
         )
@@ -166,6 +166,15 @@ fn trees() -> Vec<Clause> {
         .past()
         .topic(SlotRef::Object)
         .focus(SlotRef::Subject),
+        // Ditransitive recipient edge and its information slot.
+        clause(
+            name("Pjotr", Gender::Masculine),
+            vp("dati")
+                .recipient(name("Ivan", Gender::Masculine))
+                .object(np("kniga").det("svoj")),
+        )
+        .past()
+        .topic(SlotRef::Recipient),
     ]
 }
 

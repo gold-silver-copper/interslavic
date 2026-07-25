@@ -95,6 +95,81 @@ pub fn adj(word: &str, case: Case, number: Number, gender: Gender, animacy: Anim
     adjective::decline_adj(word, case, number, gender, animacy)
 }
 
+/// The optional short adjective form described by Steen. It differs
+/// from the regular paradigm only in masculine nominative singular,
+/// where final `-y`/`-i` is absent; every other cell is the regular
+/// adjective form.
+///
+/// ```
+/// use interslavic::{Animacy, Case, Gender, Number};
+/// assert_eq!(
+///     interslavic::short_adj(
+///         "veliky",
+///         Case::Nom,
+///         Number::Singular,
+///         Gender::Masculine,
+///         Animacy::Inanimate,
+///     ),
+///     "velik",
+/// );
+/// ```
+/// The vocative of a noun, with gender taken from the dictionary (or the
+/// rule engine's guess). See [`vocative_with()`] for the explicit-gender
+/// form and for why the vocative is a standalone function rather than a
+/// [`Case`] variant.
+///
+/// ```
+/// use interslavic::vocative;
+///
+/// assert_eq!(vocative("brat").as_deref(), Some("brate"));
+/// assert_eq!(vocative("muž").as_deref(), Some("mužu"));
+/// assert_eq!(vocative("žena").as_deref(), Some("ženo"));
+/// // The source says to address neuters with the nominative instead.
+/// assert_eq!(vocative("slovo"), None);
+/// ```
+pub fn vocative(lemma: &str) -> Option<String> {
+    vocative_with(lemma, noun_info(lemma).gender)
+}
+
+/// The vocative with an explicit gender, for names and other lemmas the
+/// dictionary does not carry.
+///
+/// The vocative is exposed as its own function, not as a seventh [`Case`],
+/// because the source is explicit that it "is not a real case, and it
+/// behaves significantly different from other cases: it does not have a
+/// plural, it never affects neuter nouns, adjectives or pronouns, and it
+/// has nothing to do with the syntactic structure of the sentence" (nouns
+/// page). `None` means the source recommends the nominative in that
+/// position, not that the form is unknown.
+///
+/// ```
+/// use interslavic::{Gender, vocative_with};
+///
+/// assert_eq!(vocative_with("Ivan", Gender::Masculine).as_deref(), Some("Ivane"));
+/// assert_eq!(vocative_with("otec", Gender::Masculine).as_deref(), Some("otče"));
+/// ```
+pub fn vocative_with(lemma: &str, gender: Gender) -> Option<String> {
+    interslavic_core::noun::vocative(lemma, gender)
+}
+
+pub fn short_adj(
+    word: &str,
+    case: Case,
+    number: Number,
+    gender: Gender,
+    animacy: Animacy,
+) -> String {
+    let long = adj(word, case, number, gender, animacy);
+    if case == Case::Nom && number == Number::Singular && gender == Gender::Masculine {
+        long.strip_suffix('y')
+            .or_else(|| long.strip_suffix('i'))
+            .unwrap_or(&long)
+            .to_string()
+    } else {
+        long
+    }
+}
+
 /// The whole noun paradigm — every case in both numbers — with gender and
 /// animacy inferred from the dictionary (falling back to the rule engine's
 /// guess for out-of-lexicon words), the counterpart of [`verb_forms()`].
@@ -1183,6 +1258,44 @@ pub fn passive_participle(
     Some(adj(&participle_lemma(&pfpp), case, number, gender, animacy))
 }
 
+/// One declined form of the present passive participle — the `prpp`
+/// from [`verb_forms()`] declined as an adjective. `None` when the verb
+/// is perfective or intransitive and therefore has no such participle.
+///
+/// ```
+/// use interslavic::*;
+/// assert_eq!(
+///     present_passive_participle(
+///         "dělati",
+///         Case::Nom,
+///         Number::Singular,
+///         Gender::Feminine,
+///         Animacy::Inanimate,
+///     ),
+///     Some("dělajema".into()),
+/// );
+/// assert_eq!(
+///     present_passive_participle(
+///         "nesti",
+///         Case::Nom,
+///         Number::Singular,
+///         Gender::Masculine,
+///         Animacy::Animate,
+///     ),
+///     Some("nesomy".into()),
+/// );
+/// ```
+pub fn present_passive_participle(
+    infinitive: &str,
+    case: Case,
+    number: Number,
+    gender: Gender,
+    animacy: Animacy,
+) -> Option<String> {
+    let prpp = verb_forms(infinitive).prpp?;
+    Some(adj(&participle_lemma(&prpp), case, number, gender, animacy))
+}
+
 /// One declined form of the present active participle — the `prap` from
 /// [`verb_forms()`] declined as a (soft) adjective ("pišųća žena").
 /// `None` when the verb has no present active participle (perfectives).
@@ -1205,6 +1318,24 @@ pub fn active_participle(
 ) -> Option<String> {
     let prap = verb_forms(infinitive).prap?;
     Some(adj(&participle_lemma(&prap), case, number, gender, animacy))
+}
+
+/// The indeclinable adverbial present active participle (transgressive).
+///
+/// This is the citation head of the present-active-participle paradigm:
+/// unlike [`active_participle`], it is not declined for the subject.
+///
+/// ```
+/// assert_eq!(
+///     interslavic::active_adverbial_participle("idti"),
+///     Some("idųći".into()),
+/// );
+/// assert_eq!(interslavic::active_adverbial_participle("ubiti"), None);
+/// ```
+pub fn active_adverbial_participle(infinitive: &str) -> Option<String> {
+    verb_forms(infinitive)
+        .prap
+        .map(|participle| participle_lemma(&participle))
 }
 
 /// Full verb paradigm with explicit dictionary metadata. Cells are RAW

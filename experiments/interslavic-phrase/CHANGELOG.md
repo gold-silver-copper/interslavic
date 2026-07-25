@@ -1,5 +1,103 @@
 # interslavic-phrase changelog
 
+## Unreleased
+
+### Grammar
+
+- Added a dedicated dative `Recipient` role and canonical
+  `(recipient NOMINAL)` S-expression edge. Ditransitive VPs realize
+  full complements in the source-attested verb–recipient–object order.
+- Recipient and direct-object clitics share one VP domain in
+  dative–accusative order. `SlotRef::Recipient` and
+  `:topic recipient` / `:focus recipient` expose the new constituent to
+  information structure, while passive clauses retain it after theme
+  promotion.
+- Discourse traversal now tracks recipients in their typed surface
+  position and changes only their referential form, preserving the
+  dative role edge.
+- Added source-backed constituent questions (`:force wh` with `:wh` or
+  `:wh-adv`) and third-person optatives (`:force optative`).
+- Added the optional simple past, simple and compound pluperfect, past
+  conditional, and present-passive voice. Passive realization now
+  selects the documented past or present passive participle across
+  tense and conditional combinations.
+- Added clause-initial active adverbial participles, case-owning bare
+  obliques, and optional short predicative adjectives. The morphology
+  facade now exposes present-passive and active-adverbial participle
+  helpers plus short adjective forms.
+
+- Added finite subordinate clauses: `(sub :comp že|da|kȯgda|ako|zato-že|
+  tomu-že [:pos initial|final] CLAUSE)`, as a verb's complement inside
+  `(vp …)` or a clause adverbial inside `(clause …)`. An embedded clause
+  is a full clause and recurses through the same validation, resolution,
+  and planning as a matrix clause. It owns its own clitic domain, and
+  terminal punctuation and capitalization remain with the matrix
+  sentence's single stringification pass. `da by` is not a unit: the
+  complementizer supplies `da` and the embedded clause's conditional
+  mood supplies the person-marked `by` / `byh` / `byhmo`.
+- Added `MAX_CLAUSE_DEPTH`, enforced in the S-expression preflight
+  before the recursive compiler runs. The generic `MAX_STRUCTURE_DEPTH`
+  counts list levels, which a clause is cheap in, so it permitted
+  nesting that exhausted the stack instead of producing a diagnostic.
+- Added bare infinitive complements, `(inf …)`, taking exactly the
+  children of `(vp …)`. The infinitive owns its object, valence check,
+  government, and clitic domain — Steen's `mogų slomiti ti hrėbet`.
+  Clitic climbing (`načęl go napominati`) is deliberately not modelled.
+- Added unquantified plural noun phrases, `(np :pl …)`. Bare plurals
+  (`vsi psi`, `moje děti`, `vlåsy`) previously required attaching a
+  numeral the phrase does not have. A numeral still determines number;
+  combining the two is rejected rather than silently resolved.
+- Fixed the `kȯgda` complementizer, which had been hardcoded in
+  standard spelling in a crate whose every leaf is a flavored citation
+  form. The other hardcoded function words were audited against the
+  dictionary and are correct.
+
+### Facade
+
+- `cells::variants` now splits `" / "` byforms (`den / denj`,
+  `oka / očese`), which the noun builders emit for genuine alternative
+  cells. Callers taking "the first clean variant" were receiving the
+  whole string and putting it into sentences as a single word.
+- Added `vocative()` and `vocative_with()`. Deliberately not a seventh
+  `Case`: the source states the vocative "is not a real case", has no
+  plural, and never affects neuter nouns, adjectives, or pronouns.
+  `None` encodes the source's own advice to use the nominative instead.
+
+### Conformance
+
+- Added copular predicate coordination (`(pred P P …)`), prepositional
+  predicates (`(pred (pp …))`), and degree (`(comp-adj L)` /
+  `(super-adj L)`, built from the facade's own `comparative`/
+  `superlative` off the positive lemma).
+- Added coordination of full clauses, `(and-clause [:conj CONJ] CLAUSE)`,
+  each conjunct with its own subject, tense, polarity, and clitic domain.
+  Distinct from verb-phrase coordination, which shares one subject.
+- Added the Steen sample-text corpus: a committed ledger of all 222
+  candidate sentences (`corpus/steen_samples.tsv`) and 22 fixtures.
+  Every row carries a `fixture:` or `skip:<reason>` disposition and
+  `tests/corpus_inventory.rs` fails on any untriaged row, so coverage
+  is a property of committed data. Sixteen of the twenty-two check their
+  expected output against the page's own published etymological text.
+  A fixture must reproduce a whole inventory row, so sentences that
+  realize exactly only as fragments are skips, not fixtures.
+- `cargo xtask phrase-check` now also covers the sample fixtures: 223
+  tokens, 2 unknown, 0 agreement errors, with both unknowns waived
+  per-token as slovowiki lexicon gaps.
+- Re-mined the ledger with quotation tracking. 42 rows had carried stray
+  `«`/`»` because sentence splitting ignored quotation depth, and 41 of
+  those sat under `skip:quotative-frame` without belonging there.
+- Added 47 literal Steen S-expression fixtures (172 sentence tokens).
+  Every fixture records its source text and normalization, realizes
+  byte-exactly, then survives canonical print/reparse/rerealization.
+- Added focused regressions for recipient case and order, combined
+  dative/accusative clitics, information structure, passive retention,
+  discourse pronominalization, malformed syntax, and full-vocabulary
+  S-expression round-trip.
+- Expanded the bounded force × mood × voice × tense matrix from 84 to
+  486 combinations and documented the eight deliberately skipped Steen
+  examples: four embedded final clauses, three ellipsis/complex
+  reflexive constructions, and one paradigm notation string.
+
 ## 0.2.0 — 2026-07-24
 
 Breaking redesign of the experimental phrase API. Existing 0.1 builder
@@ -72,7 +170,7 @@ and S-expression canonical output changed.
 - Added a complete bounded force × mood × voice × tense matrix,
   generated realization panic checks, 500+ generated escaped-atom
   roundtrips across all free-text positions, and 2,000+ generated
-  malformed parser inputs.
+  malformed S-expression inputs.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for ownership, supported
 combinations, serialization, and migration details.

@@ -75,6 +75,16 @@ fn main() {
             pron(Person::First, Number::Singular, Gender::Masculine),
             vp("dękovati").object(pron(Person::Second, Number::Singular, Gender::Masculine)),
         ),
+        // Dictionary-backed leaves for the Steen ditransitive frame.
+        // Proper names in the source fixture stay out of this external
+        // corpus because slovowiki intentionally lacks names.
+        clause(
+            np("otėc"),
+            vp("dati")
+                .recipient(np("žena"))
+                .object(np("kniga").det("svoj")),
+        )
+        .past(),
         clause(np("krålj"), vp("vladati").object(np("zemja"))),
         clause(
             coordinate(Conj::I, vec![np("otėc").into(), np("žena").into()]),
@@ -137,4 +147,145 @@ fn main() {
         .connective(Connective::Potom),
     ];
     println!("{}", narrate(story, RealizeOpts::sentence()).unwrap());
+
+    // The Steen sample-corpus fixtures, so slovowiki's independent
+    // agreement checker sees the source-backed sentences too and not only
+    // the hand-built goldens. Kept in step with `tests/steen_samples.rs`
+    // by `sample_corpus_sentences_are_all_checked_by_slovowiki` there.
+    for (lead_in, clitics, sexpr) in SAMPLE_CORPUS {
+        let tree = clause_from_str(sexpr).expect("sample fixture parses");
+        let opts = RealizeOpts::sentence().clitics(*clitics);
+        let realized =
+            realize_with_lead_in(&tree, *lead_in, opts).expect("sample fixture realizes");
+        println!("{}", realized.text);
+    }
 }
+
+/// The `tests/steen_samples.rs` fixtures, in the same order. Two of them
+/// contain forms slovowiki's lexicon lacks (`psi`, `pėśjų`); those are
+/// waived per-token in `xtask`'s `SLOVOWIKI_LEXICON_GAPS` so the
+/// sentences stay under agreement checking rather than being dropped
+/// from the external corpus.
+pub const SAMPLE_CORPUS: &[(Option<&str>, CliticStyle, &str)] = &[
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (name Strižik :m) (vp (v iměti) (object (np (det svoj) (n gnězdo))) \
+         (pp (prep v) :case loc (np (n garaž)))) :tense past)",
+    ),
+    (
+        None,
+        CliticStyle::SecondPosition,
+        "(clause (pron :1 :sg :m) (vp (v shvatiti) (object (pron :3 :sg :n :clitic))))",
+    ),
+    (
+        Some("Potom"),
+        CliticStyle::Postverbal,
+        "(clause (pron :3 :sg :m) (vp (v odletěti) \
+         (pp (prep za) :case ins (np (n čudovišče)))) :tense past)",
+    ),
+    (
+        Some("Ale"),
+        CliticStyle::Postverbal,
+        "(clause (name strižik :m) (vp (v iměti) (object (np (n strah)))) :tense past :neg)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :2 :sg :m) (vp (v dostavati) (object (np (det svoj) (n jeda)))) \
+         :force wh :wh-adv kde :prodrop)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :2 :sg :m) (vp (v žiti)) :force wh :wh-adv kde :prodrop)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :2 :sg :m) (vp (v jesti)) :force wh :wh-adv kde :prodrop)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (coord i (np (det moj) (n žena)) (np :pl (det moj) (n dětę))) \
+         (vp (v umirati) (pp (prep od) (np (n glåd)))))",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (np :pl (det vsi) (n pės)) (vp (v iměti) (object (np :pl (n šija))) \
+         (pp (prep bez) (np :pl (n vlås)))) :force li)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (np (n pųť)) (pred (adj dȯlgy)) :tense future :neg)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :3 :pl :m) (vp (v razvoditi) (adv takože) (object (np :pl (n kura)))))",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :3 :pl :m) (vp (v kupovati) \
+         (object (np :pl (adj gotovy) (n prědmet))) \
+         (pp (prep od) (np :pl (n trgovec)))))",
+    ),
+    (
+        Some("Ale"),
+        CliticStyle::Postverbal,
+        "(clause (pron :2 :sg :m) (pred (adj veliky) (adj tȯlsty)))",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (np :pl (n veriga)) (pred (adj želězny)) \
+         (and-clause :conj a (clause (np (n želězo)) (pred (adj tvŕdy)))))",
+    ),
+    (
+        Some("A"),
+        CliticStyle::Postverbal,
+        "(clause (np (n ovca)) (pred (pp (prep bez) (np (n vȯlna)))))",
+    ),
+    (
+        Some("Naglo"),
+        CliticStyle::Postverbal,
+        "(clause (np (n vȯlk)) (vp (v uviděti) (object (np (adj pėśji) (n šija)))) :tense past)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :1 :sg :m) (vp (v mysliti) \
+         (sub :comp že (clause (pron :1 :sg :m) \
+           (vp (v mogti) (inf (v iměti) (object (np :pl (n dětę))))) :neg :prodrop))))",
+    ),
+    (
+        Some("Zato"),
+        CliticStyle::Postverbal,
+        "(clause (pron :3 :pl :m) (vp (v idti) (pp (prep k) (name Isus :m))))",
+    ),
+    (
+        Some("Togda"),
+        CliticStyle::Postverbal,
+        "(clause (np (n lisica)) (vp (v pojaviti sę)) :tense past :focus subj)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :1 :sg :m) (pred (part odomašniti)) :neg :prodrop)",
+    ),
+    (
+        Some("Tako"),
+        CliticStyle::Postverbal,
+        "(clause (np (adj maly) (n princ)) (vp (v odomašniti) (object (np (n lisica)))) \
+         :tense past)",
+    ),
+    (
+        Some("I"),
+        CliticStyle::Postverbal,
+        "(clause (pron :3 :sg :m) (vp (v vratiti sę) (pp (prep k) (np (n lisica)))) :tense past)",
+    ),
+];

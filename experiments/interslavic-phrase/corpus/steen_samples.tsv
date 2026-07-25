@@ -1,0 +1,244 @@
+# Steen sample-text candidate inventory.
+#
+# Provenance: the ten sample-text pages of Jan van Steenbergen's Interslavic
+# site (https://steen.free.fr/interslavic/), which publish each text three
+# times in parallel: etymological/flavored Latin, standard Latin, Cyrillic.
+# `source_text` is the standard-Latin version; `flavored_text` is the
+# etymological version as published by the source, and is empty for
+# maly_princ.html, which pairs standard spelling with an English gloss
+# instead.
+#
+# Rows are sentences, mined with quotation tracking. A sentence inside
+# direct speech is still a sentence, so it is its own row; the surrounding
+# quotation's delimiters belong to the span, not to it, and are stripped.
+# `framed` marks a sentence that carries a quotative frame of its own
+# (words outside the quotation, as in `«Ne», odgovoril pes.`) — there the
+# marks are structural and are kept. `quoted` marks a sentence that sits
+# inside direct speech.
+#
+# `disposition` is `fixture:<case id>` or `skip:<reason>`; it must be
+# non-empty for every row. tests/corpus_inventory.rs enforces that, and each
+# fixture file asserts its own ids appear here.
+id	page	index	source_text	flavored_text	framed	quoted	disposition
+babel_text-001	babel_text	1	I vsa zemja iměla jedin jezyk i podobne slova.	I vśa zemja iměla jedin język i podobne slova.	no	no	skip:spelled-out-numerals: a documented non-goal
+babel_text-002	babel_text	2	Ale kogda ljudi prěměstili se iz vozhoda, oni našli ravninu v kraju Šinar i onde osadili se.	Ale kȯgda ljudi prěměstili sę iz vȯzhoda, oni našli råvninų v kraju Šinar i onde osadili sę.	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+babel_text-003	babel_text	3	I oni govorili jedin k drugomu: «Hodite, izdělajmo cegliny i dobro je palimo!»	I oni govorili jedin k drugomu: «Hodite, izdělajmo cegliny i dobro je palimȯ!»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+babel_text-004	babel_text	4	I cegliny služili jim kako kamenje, a smola služila jim kako cement.	I cegliny služili jim kako kamenje, a smola služila jim kako cement.	no	no	skip:correlative: the `kako` comparison phrase in each conjunct has no construction
+babel_text-005	babel_text	5	I oni govorili: «Hodite, budujmo grad i věžu, ktora bude dosegati až do neba, i izdělajmo sobě ime, da byhmo ne razprostranili se po cěloj zemji.»	I oni govorili: «Hodite, budujmo gråd i věžų, ktora bųde dosęgati až do neba, i izdělajmȯ sobě imę, da byhmo ne råzprostrånili sę po cěloj zemji.»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+babel_text-006	babel_text	6	Togda Bog sšel v dol, da by uviděl grad i věžu, ktore děti ljudij budovali.	Tȯgda Bog sšel v dol, da by uviděl gråd i věžų, ktore děti ljudij budovali.	no	no	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+babel_text-007	babel_text	7	I Bog govoril: «Vidite!	I Bog govoril: «Vidite!	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+babel_text-008	babel_text	8	Jedin narod i jedin jezyk za vsih, a vidi, čto oni načeli dělati.	Jedin narod i jedin język za vsih, a vidi, čto oni načęli dělati.	no	yes	skip:spelled-out-numerals: a documented non-goal
+babel_text-009	babel_text	9	I nyně, ničto ne bude jim nemožno, čto by oni ne htěli sdělati.	I nyně, ničto ne bųde jim nemožno, čto by oni ne htěli sdělati.	no	yes	skip:negative-concord: a negative pronoun alongside clausal `ne` is not modelled
+babel_text-010	babel_text	10	Sojdimo i razměšajmo jim jezyk, da by oni ne razuměli se jedin drugogo.»	Sȯjdimo i råzměšajmo jim język, da by oni ne råzuměli sę jedin drugogo.»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+babel_text-011	babel_text	11	I Bog razprostranil jih po cěloj zemji, a oni prěstali budovati grad.	I Bog råzprostrånil jih po cěloj zemji, a oni prěstali budovati gråd.	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+babel_text-012	babel_text	12	Zato on nazyvaje se Babelj, zato že onde Bog razměšal jezyk cěloj zemje i odtud Bog razprostranil jih po cěloj zemji.	Zato on nazyvaje sę Babelj, zato že onde Bog råzměšal język cěloj zemje i odtųd Bog råzprostrånil jih po cěloj zemji.	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+northwind-001	northwind	1	Sěverny Větr i Solnce sporili se o tom, koj iz njih jest silnějši, kogda prohodil putovatelj ovineny v teplom plašču.	Sěverny Větr i Sȯlnce sporili sę o tom, koj iz njih jest silnějši, kȯgda prohodil pųtovatelj ovineny v teplom plašču.	no	no	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+northwind-002	northwind	2	Oni dogovorili se, že togo, kto prvy uspěje pričiniti, že putovatelj sojme svoj plašč, trěba jest uznati za silnějšego od drugogo.	Oni dogovorili sę, že togo, kto pŕvy uspěje pričiniti, že pųtovatelj sȯjme svoj plašč, trěba jest uznati za silnějšego od drugogo.	no	no	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+northwind-003	northwind	3	Na čto Sěverny Větr načel duti tako močno kako mogl, ale čim močněje on dul, tym bolje putovatelj ovival se v plašču.	Na čto Sěverny Větr načęl dųti tako moćno kako mogl, ale čim moćněje on dųl, tym bolje pųtovatelj ovival sę v plašču.	no	no	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+northwind-004	northwind	4	I nakonec Sěverny Větr byl prinudženy, da by poddal se.	I nakonec Sěverny Větr byl prinuđeny, da by poddal sę.	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+northwind-005	northwind	5	Potom Solnce načelo blěskati goreče, a putovatelj směsta sjel svoj plašč.	Potom Sȯlnce načęlo blěskati goręće, a pųtovatelj směsta sjęl svoj plašč.	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+northwind-006	northwind	6	Togda Sěverny Větr iměl priznati, že Solnce jest silnějše iz njih dvoh.	Tȯgda Sěverny Větr iměl priznati, že Sȯlnce jest silnějše iz njih dvoh.	no	no	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+otcze_nasz-001	otcze_nasz	1	Otče naš, ktory jesi v nebesah,	Otče naš, ktory jesi v nebesah,	no	no	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+otcze_nasz-002	otcze_nasz	2	nehaj sveti se ime Tvoje.	nehaj svęti sę imę Tvoje.	no	no	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+otcze_nasz-003	otcze_nasz	3	Nehaj prijde kraljevstvo Tvoje,	Nehaj prijde kråljevstvo Tvoje,	no	no	skip:postposed-possessive-and-address: the possessive follows its noun in verse order (`kråljevstvo Tvoje`)
+otcze_nasz-004	otcze_nasz	4	nehaj bude volja Tvoja, kako v nebu tako i na zemji.	nehaj bųde volja Tvoja, kako v nebu tako i na zemji.	no	no	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+otcze_nasz-005	otcze_nasz	5	Hlěb naš vsakodenny daj nam dnes,	Hlěb naš vśakodenny daj nam dneś,	no	no	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+otcze_nasz-006	otcze_nasz	6	i odpusti nam naše grěhy,	i odpusti nam naše grěhy,	no	no	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+otcze_nasz-007	otcze_nasz	7	tako kako my odpuščajemo našim grěšnikam.	tako kako my odpušćajemo našim grěšnikam.	no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+otcze_nasz-008	otcze_nasz	8	I ne vvedi nas v pokušenje,	I ne vvedi nas v pokušeńje,	no	no	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+otcze_nasz-009	otcze_nasz	9	ale izbavi nas od zlogo.	ale izbavi nas od zlogo.	no	no	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+otcze_nasz-010	otcze_nasz	10	Ibo Tvoje jest kraljevstvo i moč i slava, na věky věkov.	Ibo Tvoje jest kråljevstvo i moć i slava, na věky věkov.	no	no	skip:coordination-shape: three-or-more-way or nested coordination
+wren-001	wren	1	Strižik iměl svoje gnězdo v garažu.	Strižik iměl svoje gnězdo v garažu.	no	no	fixture:wren-001
+wren-002	wren	2	Jedin raz oboje roditeljev odletělo – oni htěli prinesti jedu svojim malym - i ostavili jih samyh.	Jedin raz oboje roditeljev odletělo – oni htěli prinesti jědų svojim malym - i ostavili jih samyh.	no	no	skip:long-period: an em-dash parenthetical spliced between two coordinated clauses
+wren-003	wren	3	Poslě někojego vrěmene, otec strižik vratil se do doma.	Poslě někojego vrěmene, otėc strižik vråtil sę do doma.	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+wren-004	wren	4	«Čto stalo se tu?», zapytal.	«Čto stalo sę tu?», zapytal.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-005	wren	5	Kto vam zlo učinil, děti?	Kto vam zlo učinil, děti?	no	yes	skip:vocative-edge: the facade has the vocative, but no phrase-level address slot uses it yet
+wren-006	wren	6	Vy jeste cělo prěstrašeni!	Vy jeste cělo prěstrašeni!	no	yes	skip:degree-adverb: a degree adverb modifying a predicate, which the copular core cannot carry
+wren-007	wren	7	«Oj, tato», skazali oni, «toliko čto bylo tu někako veliko čudovišče.	«Oj, tato», skazali oni, «toliko čto bylo tu někako veliko čudovišče.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-008	wren	8	Ono bylo zaisto grozno i strašno!	Ono bylo zaisto grozno i strašno!	no	yes	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+wren-009	wren	9	Gledělo svojimi velikymi očami bezposrědnje v naše gnězdo.	Ględělo svojimi velikymi očami bezposrědnje v naše gnězdo.	no	yes	skip:adjunct-order: the byform leak is fixed, but the source orders oblique, adverb, prepositional phrase, while adjuncts render as prepositional phrases then obliques with no way to interleave them
+wren-010	wren	10	Zato my jesmo taki prěstrašeni!	Zato my jesmȯ taki prěstrašeni!	no	yes	skip:degree-adverb: a degree adverb modifying a predicate, which the copular core cannot carry
+wren-011	wren	11	«Aha, jasno», skazal otec strižik, «a kamo pošlo?»	«Aha, jasno», skazal otėc strižik, «a kamo pošlo?»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-012	wren	12	«Nu», odgovorili děti, «pošlo v tamtu stranu.»	«Nu», odgovorili děti, «pošlo v tamtų strånų.»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-013	wren	13	«Počekajte sde», otec strižik skazal, «pojdu za njim.	«Počěkajte sde», otėc strižik skazal, «pojdų za njim.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-014	wren	14	Uže ne bojte se, děti.	Uže ne bojte sę, děti.	no	yes	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+wren-015	wren	15	Ja go shvaču.	Ja go shvaćų.	no	yes	fixture:wren-015
+wren-016	wren	16	Potom on odletěl za čudoviščem.	Potom on odletěl za čudoviščem.	no	no	fixture:wren-016
+wren-017	wren	17	Kogda on dosegnul za vuglom, on uviděl, že ide ljev.	Kȯgda on dosęgnųl za vųglȯm, on uviděl, že ide ljėv.	no	no	skip:facade-orthography: expressible and realized correctly except that the instrumental of `vųgȯl` comes out `vųglom` where Steen's text has `vųglȯm`
+wren-018	wren	18	Ale strižik ne iměl strah.	Ale strižik ne iměl strah.	no	no	fixture:wren-018
+wren-019	wren	19	Prizemil na hrebet ljva i načel go napominati.	Prizemil na hrėbet ljva i načęl go napominati.	no	no	skip:clitic-climbing: `načęl go napominati` climbs the infinitive's object clitic to the finite verb, the pattern this crate deliberately does not model
+wren-020	wren	20	«Kako ty imaješ pravo idti do mojego doma», rěkl, «i čemu jesi postrašil moje děti?!»	«Kako ty imaješ pravo idti do mojego doma», rěkl, «i čemu jesi postrašil moje děti?!»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-021	wren	21	Ljev vpolno ignoroval go i šel dalje.	Ljėv vpȯlno ignoroval go i šėl dalje.	no	no	skip:adverb-position: `šėl dalje` places the adverb after the verb; this generator places adverbs before it
+wren-022	wren	22	To razgněvalo malogo krikuna, ktory načel kričati ješče glasněje.	To råzgněvalo malogo krikuna, ktory načęl kričati ješče glåsněje.	no	no	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+wren-023	wren	23	Ty ne imaješ tam ničto do raboty, ja ti govorju!	Ty ne imaješ tam ničto do råboty, ja ti govorjų!	no	yes	skip:negative-concord: `ne imaješ tam ničto` combines clausal `ne` with a negative pronoun
+wren-024	wren	24	I ako ty tam ješče raz prijdeš», on skazal, «togda uvidiš něčto!	I ako ty tam ješče raz prijdeš», on skazal, «tȯgda uvidiš něčto!	yes	yes	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-025	wren	25	Ja napravdu ne hoču sdělati to», skazal, podimajuči jednu nogu, «ale tutoju nogoju mogu slomiti ti hrebet v jednoj sekundě!»	Ja napravdų ne hoćų sdělati to», skazal, podimajųći jednų nogų, «ale tutojų nogojų mogų slomiti ti hrėbet v jednoj sekundě!»	yes	yes	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-026	wren	26	Poslě togo on poletěl nazad do svojego gnězda.	Poslě togo on poletěl nazad do svojego gnězda.	no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+wren-027	wren	27	«Dobro, děti», rěkl, «jesm dal mu lekciju.	«Dobro, děti», rěkl, «jesm dal mu lekcijų.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+wren-028	wren	28	Toj uže nikogda se tu ne vrati.	Toj uže nikȯgda sę tu ne vråti.	no	yes	skip:negative-concord: a negative pronoun alongside clausal `ne` is not modelled
+selo-001	selo	1	Iz vsih možnyh měst postojannogo prěbyvanja, najprijemnějše javi mi se malo selo daleko od gradskogo šuma, malo susědstvo, bez mnogokomnatnyh domov v prěpolnjenyh blokah, ale s malymi drěvěnymi, selskymi domikami; [...] prosto, neopisujemo žilišče, s obyvateljami, čije lica sut nam ravno znane kako cvěty v našem sadu; maly, osobny svět za nas samyh, těsno sjedinjeny i zatvorjeny kako mravky v mravjej kopě, ili pčely v ulji, ili ovce v ovčarnji, ili mnišky v konventu, ili morjaki na korabu; kde my znajemo vsih i jesmo znajemi od vsih, kde interesujemo se vsimi i možemo iměti naděju, že vsi interesujut se nami.	Iz vsih možnyh měst postojannogo prěbyvańja, najprijėmnějše javi mi sę malo selo daleko od grådskogo šuma, malo sųsědstvo, bez mnogokomnatnyh domov v prěpȯlnjenyh blokah, ale s malymi drěvěnymi, seľskymi domikami; [...] prosto, neopisujemo žilišče, s obyvateljami, čije lica sųt nam råvno znane kako cvěty v našem sadu; maly, osobny svět za nas samyh, těsno sjedinjeny i zatvorjeny kako mråvky v mråvjej kopě, ili pčely v ulji, ili ovce v ovčarnji, ili mnišky v konventu, ili morjaki na korabu; kde my znajemȯ vsih i jesmȯ znajemi od vsih, kde interesujemȯ sę vsimi i možemȯ iměti nadějų, že vsi interesujųt sę nami.	no	no	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+selo-002	selo	2	Kako milo bylo by zanuriti se v tyh istinnyh srdečnyh čutjah milogo, nevědomogo vplyva privyčaja i poznati i poljubiti ljudij okolo nas, s vsimi jihnymi osoblivostami!	Kako milo bylo by zanuriti sę v tyh istinnyh sŕdėčnyh čuťjah milogo, nevědomogo vplyva privyčaja i poznati i poljubiti ljudij okolo nas, s vsimi jihnymi osoblivosťami!	no	no	skip:long-period: a single authorial sentence beyond what one clause tree expresses; not split, per the mining rules
+selo-003	selo	3	Tako samo, kako poznajemo i poljubimo vse zakutky i povraty tenkyh uliček i solnečnyh lukov, ktore my prohodimo vsaky denj. [...]	Tako samo, kako poznajemȯ i poljubimȯ vse zakųtky i povråty tėnkyh uliček i sȯlnečnyh lųkov, ktore my prohodimȯ vśaky denj. [...]	no	no	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+selo-004	selo	4	Malo spoločenstvo, ktorym jest selska občina, jest takože samo dobro v svojej trězvoj stvarnosti, kako v poeziji ili prozě, [...] dolga, razprostranjena, motajuča se ulica u podnožja krasivoj vozvyšenosti, s širokoju dragoju poprěk, vsegda zapolnjenoju vozami i konnikami. [...]	Malo spolȯčenstvo, ktorym jest seľska obćina, jest takože samo dobro v svojej trězvoj stvårnosti, kako v poeziji ili prozě, [...] dȯlga, råzprostrånjena, motajųća sę ulica u podnožja krasivoj vȯzvyšenosti, s širokojų drågojų poprěk, vsegda zapȯlnjenojų vozami i konnikami. [...]	no	no	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+selo-005	selo	5	Ne hočete li pohoditi so mnoju po našem selu, ljubezny čitatelju?	Ne hoćete li pohoditi sȯ mnojų po našem selu, ljubezny čitatelju?	no	no	skip:vocative-edge: the facade has the vocative, but no phrase-level address slot uses it yet
+selo-006	selo	6	Put ne bude dolgy.	Pųť ne bųde dȯlgy.	no	no	fixture:selo-006
+selo-007	selo	7	My počnemo na dolnom koncu i odtud budemo šli v vrh.	My počnemȯ na doľnom koncu i odtųd bųdemȯ šli v vŕh.	no	no	skip:adverb-position: `odtųd` and the directional `v vŕh` follow the verb in the second conjunct
+volk_i_pes-001	volk_i_pes	1	Gladny volk podšel k staromu psu i rěkl: «Dragy prijatelju, jesm taky gladny, že ne mogu spati.	Glådny vȯlk podšėl k staromu psu i rěkl: «Drågy prijatelju, jesm taky glådny, že ne mogų spati.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+volk_i_pes-002	volk_i_pes	2	Ale ty jesi veliky i tolsty.	Ale ty jesi veliky i tȯlsty.	no	yes	fixture:volk_i_pes-002
+volk_i_pes-003	volk_i_pes	3	Kde dostavaješ svoju jedu?	Kde dostavaješ svojų jedų?	no	yes	fixture:volk_i_pes-003
+volk_i_pes-004	volk_i_pes	4	Kde živeš?	Kde živeš?	no	yes	fixture:volk_i_pes-004
+volk_i_pes-005	volk_i_pes	5	Kde ješ?	Kde ješ?	no	yes	fixture:volk_i_pes-005
+volk_i_pes-006	volk_i_pes	6	«Ja jesm sluga svojego gospodara», odgovoril pes.	«Ja jesm sluga svojego gospodaŕa», odgovoril pės.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+volk_i_pes-007	volk_i_pes	7	Služu gospodara, strěguči jegov dom.	Služų gospodaŕa, strěgųći jegov dom.	no	yes	skip:participle-with-object: an adverbial participle governing an object (`strěgųći jegov dom`); the participle adjunct holds only a lemma and prepositional phrases
+volk_i_pes-008	volk_i_pes	8	Zato moj gospodar davaje mi toliko jedy, koliko hoču.	Zato moj gospodaŕ davaje mi toliko jědy, koliko hoćų.	no	yes	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+volk_i_pes-009	volk_i_pes	9	Na čto volk govoril: «Ja živu velmi bědno.	Na čto vȯlk govoril: «Ja živų veľmi bědno.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+volk_i_pes-010	volk_i_pes	10	Denj i noč ja bludžu po lěsah i poljah, a ne nahodžu ničto do jedenja dlja ženy i dětij.	Dėnj i noć ja blųđų po lěsah i poljah, a ne nahođų ničto do jedeńja dlja ženy i dětij.	no	yes	skip:coordination-shape: three-or-more-way or nested coordination
+volk_i_pes-011	volk_i_pes	11	Tako ne mogu žiti dolžeje.	Tako ne mogų žiti dȯlžeje.	no	yes	skip:adverb-position: `dȯlžeje` follows the infinitive; this generator places adverbs before the verb
+volk_i_pes-012	volk_i_pes	12	Moja žena i moje děti umirajut od glada.	Moja žena i moje děti umirajųt od glåda.	no	yes	fixture:volk_i_pes-012
+volk_i_pes-013	volk_i_pes	13	Zato ja takože budu sluga ljudij i budu strěgti jihne domy.	Zato ja takože bųdų sluga ljudij i bųdų strěgti jihne domy.	no	yes	skip:nominal-complement: a genitive complement inside a predicate noun phrase
+volk_i_pes-014	volk_i_pes	14	Pes i volk zajedno poběgli črěz lěsy do doma psa.	Pės i vȯlk zajedno poběgli črěz lěsy do doma psa.	no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+volk_i_pes-015	volk_i_pes	15	Naglo volk uviděl pesju šiju.	Naglo vȯlk uviděl pėśjų šijų.	no	no	fixture:volk_i_pes-015
+volk_i_pes-016	volk_i_pes	16	Udivjeny, on rěkl: «Vidžu, že na tvojej šiji nemaje vlasov.	Udivjeny, on rěkl: «Viđų, že na tvojej šiji nemaje vlåsov.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+volk_i_pes-017	volk_i_pes	17	Imajut li vsi psi šije bez vlasov?	Imajųt li vsi psi šije bez vlåsov?	no	yes	fixture:volk_i_pes-017
+volk_i_pes-018	volk_i_pes	18	«Ne», odgovoril pes.	«Ne», odgovoril pės.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+volk_i_pes-019	volk_i_pes	19	Ne vsi psi.	Ne vsi psi.	no	yes	skip:fragment: an elliptical turn with no finite predicate
+volk_i_pes-020	volk_i_pes	20	Ale kogda jest denj, ja nošu verigu.	Ale kȯgda jest dėnj, ja nošų verigų.	no	yes	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+volk_i_pes-021	volk_i_pes	21	V tečenju dnja ležu prěd domom gospodara na verigě.	V tečeńju dnja ležų prěd domom gospodaŕa na verigě.	no	yes	skip:oblique-in-copular: a bare oblique adverbial in a copular clause, which has no verb phrase to host it
+volk_i_pes-022	volk_i_pes	22	Verigy sut želězne, a želězo jest tvrdo.	Verigy sųt želězne, a želězo jest tvŕdo.	no	yes	fixture:volk_i_pes-022
+volk_i_pes-023	volk_i_pes	23	Iz toj pričiny ne imaju vlasy na šiji.	Iz toj pričiny ne imajų vlåsy na šiji.	no	yes	skip:fronted-adjunct: `Iz toj pričiny` is a clause-initial prepositional adjunct
+volk_i_pes-024	volk_i_pes	24	Ale nočju jesm svobodny.	Ale noćjų jesm svobodny.	no	yes	skip:oblique-in-copular: a bare oblique adverbial in a copular clause, which has no verb phrase to host it
+volk_i_pes-025	volk_i_pes	25	V noči bludžu vesde, kde hoču.	V noći blųđų vėsde, kde hoćų.	no	yes	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+volk_i_pes-026	volk_i_pes	26	«Dragy brate», volk govoril psu.	«Drågy brate», vȯlk govoril psu.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+volk_i_pes-027	volk_i_pes	27	Glad jest težky, ale veriga jest težejša.	Glåd jest tęžky, ale veriga jest tęžejša.	no	yes	skip:degree: realized except that the facade's comparative of `tęžky` is `tęžši` where Steen's text has `tęžejša`
+volk_i_pes-028	volk_i_pes	28	Ne nošu verigu i ne budu nositi verigu.	Ne nošų verigų i ne bųdų nositi verigų.	no	yes	skip:verb-phrase-negation: two coordinated verb phrases each carrying their own `ne`, while polarity is a clause-level feature
+volk_i_pes-029	volk_i_pes	29	Lučše, da byhmo s ženoju i dětami umrěli iz glada.	Lučše, da byhmo s ženojų i děťami umrěli iz glåda.	no	yes	skip:degree: the bare comparative `Lučše` heading a `da byhmo` clause
+volk_i_pes-030	volk_i_pes	30	Běži do svojego gospodara sam.	Běži do svojego gospodaŕa sam.	no	yes	skip:intensifier: the postposed intensifier `sam`
+volk_i_pes-031	volk_i_pes	31	Lučše byti gladny neželi tolsty; lučše byti svobodny neželi nositi verigu.	Lučše byti glådny neželi tȯlsty; lučše byti svobodny neželi nositi verigų.	no	yes	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+schleicher-001	schleicher	1	Na vozvyšenosti ovca, ktora ne iměla volnu, uviděla konjev.	Na vȯzvyšenosti ovca, ktora ne iměla vȯlnų, uviděla konjev.	no	no	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+schleicher-002	schleicher	2	Prvy tegal težky voz, vtory nosil veliko brěme, tretji brzo vozil muža.	Pŕvy tęgal tęžky voz, vtory nosil veliko brěmę, tretji brzo vozil mųža.	no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+schleicher-003	schleicher	3	Ovca rěkla konjam: «Boli mně srdce, kogda vidžu, kako člověk vladaje konjami.»	Ovca rěkla konjam: «Boli mně sŕdce, kȯgda viđų, kako člověk vladaje konjami.»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+schleicher-004	schleicher	4	Konji rěkli: «Slušaj, ovco, nam boli srdce, kogda vidimo ovo: muž, gospodar, bere tvoju volnu, da by iměl dlja sebe teplo palto.	Konji rěkli: «Slušaj, ovco, nam boli sŕdce, kȯgda vidimo ovo: mųž, gospodaŕ, bere tvojų vȯlnų, da by iměl dlja sebe teplo paľto.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+schleicher-005	schleicher	5	A ovca jest bez volny.	A ovca jest bez vȯlny.	no	yes	fixture:schleicher-005
+schleicher-006	schleicher	6	Uslyšavši to, ovca izběgla v ravninu.	Uslyšavši to, ovca izběgla v råvninų.	no	no	skip:past-adverbial-participle: only clause-initial PRESENT active participles are supported
+jokes-001	jokes	1	Prihodi muž do doktora i govori:	Prihodi mųž do doktora i govori:	no	no	skip:connective-fragment: the sentence ends in a colon introducing direct speech
+jokes-002	jokes	2	— Pane doktore, ja imaju problem.	— Pane doktore, ja imajų problem.	no	no	skip:vocative-edge: the facade has the vocative, but no phrase-level address slot uses it yet
+jokes-003	jokes	3	Ja myslju, že ne mogu iměti děti.	Ja mysljų, že ne mogų iměti děti.	no	no	fixture:jokes-003
+jokes-004	jokes	4	— Čemu vy tako myslite?	— Čemu vy tako myslite?	no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+jokes-005	jokes	5	— Tomu že moj otec takože ne iměl děti, i moj děd takože ne iměl.	— Tomu že moj otėc takože ne iměl děti, i moj děd takože ne iměl.	no	no	skip:dash-turn: a dialogue turn introduced by an em dash; the turn marker is a quotative device with no frame to model
+jokes-006	jokes	6	— Vaš otec i vaš děd ne iměli děti?	— Vaš otėc i vaš děd ne iměli děti?	no	no	skip:dash-turn: a dialogue turn introduced by an em dash; the turn marker is a quotative device with no frame to model
+jokes-007	jokes	7	Izvinite, ale togda odkud vy jeste?	Izvinite, ale tȯgda odkųd vy jeste?	no	no	skip:dash-turn: an imperative followed by a `wh` question, joined by `ale`, inside a dash-marked dialogue turn
+jokes-008	jokes	8	— Ja?	— Ja?	no	no	skip:fragment: an elliptical turn with no finite predicate; an explicit ellipsis model is needed
+jokes-009	jokes	9	Iz Dněpropetrovska!	Iz Dněpropetrovska!	no	no	skip:fragment: an elliptical answer with no finite predicate
+jokes-010	jokes	10	Fanatična gromada hoče okameniti grěšnu ženu.	Fanatična gromada hȯće okameniti grěšnų ženų.	no	no	skip:facade-orthography: expressible and realized correctly except that `hotěti` yields `hoće` (the dictionary's own present-stem hint) where Steen's text has `hȯće`
+jokes-011	jokes	11	Isus s gestom štopuje tolpu: — Kydaj kamenj toj, kto jest bez grěha!	Isus s gestom štopuje tȯlpų: — Kydaj kamenj toj, kto jest bez grěha!	no	no	skip:dash-turn: a dialogue turn introduced by an em dash; the turn marker is a quotative device with no frame to model
+jokes-012	jokes	12	Iz gromady leti dobro cěljeny kamenj i žena pade v dol, polna krovju.	Iz gromady leti dobro cěljeny kamenj i žena pade v dol, pȯlna krȯvjų.	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+jokes-013	jokes	13	Isus povračaje se k gromadě s obvinjajučim pogledom: — Mamo, začto...	Isus povraćaje sę k gromadě s obvinjajųćim poględom: — Mamo, začto...	no	no	skip:vocative-edge: the facade has the vocative, but no phrase-level address slot uses it yet
+jokes-014	jokes	14	Jan Pavel II stoji prěd vratami k nebu.	Jan Pavel {II} stoji prěd vråtami k nebu.	no	no	skip:spelled-out-numerals: a documented non-goal
+jokes-015	jokes	15	Svety Petr: — A vy kto?	Svęty Petr: — A vy kto?	no	no	skip:dash-turn: a dialogue turn introduced by an em dash; the turn marker is a quotative device with no frame to model
+jokes-016	jokes	16	— Ja jesm Karol Vojtyla, Jan Pavel II, papež, prědstavitelj Boga na zemji.	— Ja jesm Karolj Vojtyla, Jan Pavel {II}, papež, prědstavitelj Boga na zemji.	no	no	skip:dash-turn: a dialogue turn introduced by an em dash; the turn marker is a quotative device with no frame to model
+jokes-017	jokes	17	— Ne znaju, iměl by li šef na zemji prědstavitelja.	— Ne znajų, iměl by li šef na zemji prědstavitelja.	no	no	skip:dash-turn: a dialogue turn introduced by an em dash; the turn marker is a quotative device with no frame to model
+jokes-018	jokes	18	Trěba bude go zapytati.	Trěba bųde go zapytati.	no	no	skip:clitic-climbing: the infinitive's object clitic precedes the infinitive (`go zapytati`), the pattern this crate deliberately does not model
+jokes-019	jokes	19	On ide k Bogu, ktory takože ne znaje o ničem.	On ide k Bogu, ktory takože ne znaje o ničem.	no	no	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+jokes-020	jokes	20	Zato oni idut k Isusu.	Zato oni idųt k Isusu.	no	no	fixture:jokes-020
+jokes-021	jokes	21	Toj ide do nebskyh vrat, že by lično razvezal problem.	Toj ide do nebskyh vråt, že by lično råzvęzal problem.	no	no	skip:adverb-position: `lično` follows the conditional auxiliary; this generator places adverbs before the verb complex
+jokes-022	jokes	22	Poslě hvilje vračaje se, imajuči očevidno dobro nastrojenje:	Poslě hvilje vraćaje sę, imajųći očevidno dobro nastrojeńje:	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+jokes-023	jokes	23	— Vy pomnite, že ja onogda, prěd okolo dva tysečami lětami, osnoval jesm taku družinu rybakov?	— Vy pomnite, že ja onȯgda, prěd okolo dva tysęćami lětami, osnoval jesm takų družinų rybakov?	no	no	skip:spelled-out-numerals: a documented non-goal
+jokes-024	jokes	24	Sejčas ja slyšu, že ona funkcionuje do dnes!	Sejčas ja slyšų, že ona funkcionuje do dneś!	no	no	skip:fronted-adjunct: a clause-initial prepositional or adverbial adjunct cannot be fronted ahead of the subject
+declaration-001	declaration	1	Vsi ljudi rodet se svobodni i ravni v dostojnosti i pravah.	Vsi ljudi rodęt sę svobodni i råvni v dostojnosti i pravah.	no	no	skip:coordination-shape: three-or-more-way or nested coordination
+declaration-002	declaration	2	Oni sut obdarjeni razumom i svěstju i imajut postupati jedin k drugomu v duhu bratstva.	Oni sųt obdarjeni råzumom i svěsťjų i imajųt postųpati jedin k drugomu v duhu bratstva.	no	no	skip:spelled-out-numerals: a documented non-goal
+maly_princ-001	maly_princ	1	Togda pojavila se lisica.		no	no	fixture:maly_princ-001
+maly_princ-002	maly_princ	2	«Dobry denj», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-003	maly_princ	3	«Dobry denj», odgovoril učtivo maly princ, ktory se razgledal, ale ničto ne viděl.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-004	maly_princ	4	«Ja jesm tu», rěkl glas, «pod jablanju.»		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-005	maly_princ	5	«Kto jesi ty?», rěkl maly princ.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-006	maly_princ	6	Jesi mnogo lěpy...		no	yes	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+maly_princ-007	maly_princ	7	«Ja jesm lisica», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-008	maly_princ	8	«Hodi igrati s mnoju», prědložil mu maly princ.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-009	maly_princ	9	Jesm tako smutny...		no	yes	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+maly_princ-010	maly_princ	10	«Ja ne mogu igrati s toboju», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-011	maly_princ	11	Ne jesm odomašnjeny.		no	yes	fixture:maly_princ-011
+maly_princ-012	maly_princ	12	«Ah, izvini», rěkl maly princ.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-013	maly_princ	13	Ale, kratko podumavši, on dobavil:		no	no	skip:past-adverbial-participle: only clause-initial PRESENT active participles are supported
+maly_princ-014	maly_princ	14	«Ty ne jesi sdešnji», rěkla lisica, «čto ty iščeš?»		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-015	maly_princ	15	«Ljudi», rěkla lisica, «imajut karabiny i hodet na lov.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-016	maly_princ	16	To jest mnogo neprijetno!		no	yes	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+maly_princ-017	maly_princ	17	Oni takože razvodet kury.		no	yes	fixture:maly_princ-017
+maly_princ-018	maly_princ	18	To jest jedina jihna prědnost.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-019	maly_princ	19	Ty iščeš kury?		no	yes	skip:existential: a bare-object question with no expressible information structure for its order
+maly_princ-020	maly_princ	20	«To jest něčto uže davno zabyto», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-021	maly_princ	21	To znači: stvoriti svezi...		no	yes	skip:fragment: a gloss continued by an infinitive after a colon
+maly_princ-022	maly_princ	22	«Očevidno», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-023	maly_princ	23	Nyně ty jesi dlja mene samo někoj maly hlapčik, sovsěm taky, kako sto tysečev drugyh malyh hlapčikov.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-024	maly_princ	24	I ty ne jesi mi potrěbny.		no	yes	skip:dative-experiencer: a dative argument of a predicate adjective or impersonal verb has no edge
+maly_princ-025	maly_princ	25	A ja ne jesm potrěbny tobě.		no	yes	skip:dative-experiencer: a dative argument of a predicate adjective or impersonal verb has no edge
+maly_princ-026	maly_princ	26	Dlja tebe ja jesm samo lisica, sovsěm taka, kako sto tysečev drugyh lisic.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-027	maly_princ	27	Ale ako ty me odomašniš, my budemo sobě potrěbni jedin drugomu.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-028	maly_princ	28	Ty budeš dlja mene jediny na světu.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-029	maly_princ	29	A ja budu dlja tebe jediny na světu...		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-030	maly_princ	30	«Ja načinaju razuměti», rěkl maly princ.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-031	maly_princ	31	Jest jedna roza... izdavaje mi se, že ona odomašnila me...		no	yes	skip:dative-experiencer: a dative argument of a predicate adjective or impersonal verb has no edge
+maly_princ-032	maly_princ	32	«To jest možno», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-033	maly_princ	33	Na Zemji vidi se vsekake věči...		no	yes	skip:fragment: a reflexive-passive clause trailing into an ellipsis
+maly_princ-034	maly_princ	34	Lisica izdavala se mnogo ljubopytna:		no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+maly_princ-035	maly_princ	35	Na drugoj planetě?		no	yes	skip:fragment: an elliptical question with no finite predicate
+maly_princ-036	maly_princ	36	Sut li na onoj planetě lovci?		no	yes	skip:existential: `Sųt li … lovci?` — an existential `byti` question whose subject follows the locative phrase
+maly_princ-037	maly_princ	37	«Ničto ne jest doskonalo», vozdohnula lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-038	maly_princ	38	Ale potom ona vratila se k svojej mysli:		no	no	skip:fragment: a narrative clause ending in a colon that introduces speech
+maly_princ-039	maly_princ	39	«Prošu... odomašni me!», rěkla.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-040	maly_princ	40	«S radostju», odgovoril maly princ, «ale ne imaju mnogo vrěmena.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-041	maly_princ	41	Mně trěba najdti prijateljev i poznati mnogo věčij.		no	yes	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+maly_princ-042	maly_princ	42	«Možno jest poznati samo te věči, ktore se odomašni», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-043	maly_princ	43	Ljudi ne imajut uže vrěme, da by poznali čtokoli.		no	yes	skip:impersonal-modal: `ne imajut uže vrěme, da by …` — an impersonal possession frame with a purpose clause
+maly_princ-044	maly_princ	44	Oni kupujut gotove prědmety od trgovcev.		no	yes	fixture:maly_princ-044
+maly_princ-045	maly_princ	45	Ale nemaje trgovcev, ktori prodavajut prijateljev, i zatom ljudi bolje ne imajut prijateljev.		no	yes	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+maly_princ-046	maly_princ	46	Ako ty hočeš prijatelja, odomašni me!		no	yes	skip:conditional-clause-plus-imperative: an `ako` clause whose matrix is an imperative
+maly_princ-047	maly_princ	47	«A čto trěba sdělati?», zapytal maly princ.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-048	maly_princ	48	«Trěba byti mnogo trplivy», odgovorila lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-049	maly_princ	49	Najprvo sedeš trohu dalje od mene, vot tako, na travu.		no	yes	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+maly_princ-050	maly_princ	50	Ja budu na tebe gledati kraječkom oka, a ty ne budeš govoriti ničto.		no	yes	skip:reflexive-pronoun: `na tebe` and `ničto` need the full pronoun paradigm rather than the clitic series
+maly_princ-051	maly_princ	51	Govor jest žrlo nedorazuměnj.		no	yes	skip:nominal-complement: a genitive complement inside a predicate noun phrase
+maly_princ-052	maly_princ	52	Ale vsaky denj budeš sědati nemnožko bliže...		no	yes	skip:adverb-position: `nemnožko bliže` follows the infinitive, and is itself a degree-modified comparative adverb
+maly_princ-053	maly_princ	53	Na drugy denj maly princ prišel snova.		no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
+maly_princ-054	maly_princ	54	Tako maly princ odomašnil lisicu.		no	no	fixture:maly_princ-054
+maly_princ-055	maly_princ	55	I kogda približila se čas razstanja...		no	no	skip:fragment: an unfinished clause trailing into an ellipsis
+maly_princ-056	maly_princ	56	«Ah!», rěkla lisica, «ja budu plakati...»		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-057	maly_princ	57	«To jest tvoja vina», rěkl maly princ.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-058	maly_princ	58	Ja ti nikogda ne želal jesm zlo, ale ty htěl jesi, že byh te odomašnil...		no	yes	skip:negative-concord: a negative pronoun alongside clausal `ne` is not modelled
+maly_princ-059	maly_princ	59	«To pravda», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-060	maly_princ	60	«Ale ty budeš plakati!», rěkl maly princ.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-061	maly_princ	61	«To pravda», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-062	maly_princ	62	Znači, ty ne jesi tym dobyl ničto!		no	yes	skip:correlative: paired correlative clauses (`kako … tako`, `čim … tym`, `toliko … koliko`)
+maly_princ-063	maly_princ	63	«Jesm dobyl», rěkla lisica, «zaradi zlatoj barvy žita.»		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-064	maly_princ	64	Idi ješče raz pogleděti na rozy.		no	yes	skip:purposive-infinitive: an infinitive of purpose after an imperative of motion (`Idi … pogleděti`)
+maly_princ-065	maly_princ	65	Segda budeš razuměti, že tvoja jest jedina na světu.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-066	maly_princ	66	Kogda vratiš se k mně prostiti se, ja podarju ti jednu tajnu.		no	yes	skip:dative-experiencer: a dative argument of a predicate adjective or impersonal verb has no edge
+maly_princ-067	maly_princ	67	Maly princ pošel, že by ješče raz pogleděl na rozy.		no	no	skip:adverb-phrase: the multiword adverbial `ješče raz` has no single-lemma adverb slot
+maly_princ-068	maly_princ	68	«Vy sovsěm ne jeste podobne mojej rozě, vy ne jeste ješče ničto», rěkl jim.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-069	maly_princ	69	Nikto ne odomašnil vas i vy ne jeste odomašnili nikogo.		no	yes	skip:negative-concord: `nikto ne …` and `ne … nikogo` in one sentence
+maly_princ-070	maly_princ	70	Vy jeste take, kaka byla moja lisica.		no	yes	skip:correlative: paired correlative clauses (`kako … tako`, `čim … tym`, `toliko … koliko`)
+maly_princ-071	maly_princ	71	Ona byla samo obyčna lisica, podobna stu tysečev drugyh lisic.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-072	maly_princ	72	Ale ja iz njej sdělal jesm svojego prijatelja, a nyně ona jest jedina na světu.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-073	maly_princ	73	«Vy jeste krasive, ale jeste prazdne», prodolžil on.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-074	maly_princ	74	Ne možno jest umreti dlja vas.		no	yes	skip:impersonal-modal: the impersonal `možno jest` frame with an infinitive, and its negation attaching before `možno`
+maly_princ-075	maly_princ	75	Očevidno, obyčny prohodnik by pomyslil, že moja roza jest podobna vam.		no	yes	skip:adverb-phrase: the sentence-initial `Očevidno,` is a parenthetical adverbial set off by a comma
+maly_princ-076	maly_princ	76	Ale ona jedna jest dlja mene važnějša od vas vsih.		no	yes	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+maly_princ-077	maly_princ	77	Tomu že ja ju podlival jesm.		no	yes	skip:connective-fragment: a subordinate clause standing as a whole sentence, rather than attached to a matrix clause
+maly_princ-078	maly_princ	78	Tomu že ja ju nakryval jesm steklěnym kolpakom.		no	yes	skip:connective-fragment: a subordinate clause standing as a whole sentence, rather than attached to a matrix clause
+maly_princ-079	maly_princ	79	Tomu že ja ju zaslanjal jesm paravanom.		no	yes	skip:connective-fragment: a subordinate clause standing as a whole sentence, rather than attached to a matrix clause
+maly_princ-080	maly_princ	80	Tomu že ja dlja njej poubival jesm gusenice (kromě dvoh, da by byli motyli).		no	yes	skip:connective-fragment: a subordinate clause standing as a whole sentence, rather than attached to a matrix clause
+maly_princ-081	maly_princ	81	Tomu že ja ju slušal jesm, kogda ona žalila se, ili kogda ona hvalila se, ili daže kogda ona molčala.		no	yes	skip:connective-fragment: a subordinate clause standing as a whole sentence, rather than attached to a matrix clause
+maly_princ-082	maly_princ	82	Tomu že ona jest moja roza.		no	yes	skip:connective-fragment: a subordinate clause standing as a whole sentence, rather than attached to a matrix clause
+maly_princ-083	maly_princ	83	I on vratil se k lisici.		no	no	fixture:maly_princ-083
+maly_princ-084	maly_princ	84	«Sbogom...», rěkl on.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-085	maly_princ	85	«Sbogom», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-086	maly_princ	86	Vot moja tajna.		no	yes	skip:fragment: a presentative with no finite predicate (`Vot moja tajna`)
+maly_princ-087	maly_princ	87	Ona jest mnogo prosta: dobro vidi se jedino srdcem.		no	yes	skip:spelled-out-numerals: a documented non-goal
+maly_princ-088	maly_princ	88	Najglavnějše jest nevidimo očam.		no	yes	skip:degree: comparative/superlative predicates and `neželi` standards are not wired into the phrase layer
+maly_princ-089	maly_princ	89	«Najglavnějše jest nevidimo očam», povtoril maly princ, da by zapametal.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-090	maly_princ	90	Zaradi vrěmena, ktoro požrtvoval jesi svojej rozě, ona jest ti tako dragocěnna.		no	yes	skip:relative-clause-shape: gap role or relativizer form outside the supported subj/obj/pp set
+maly_princ-091	maly_princ	91	«Zaradi vrěmena, ktoro požrtvoval jesm svojej rozě...», rěkl princ, da by zapametal.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-092	maly_princ	92	«Ljudi zabyli tu istinu», rěkla lisica.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
+maly_princ-093	maly_princ	93	Ale ty ju ne zabyvaj.		no	yes	skip:postposed-possessive-and-address: verse-order possessives after the noun, and imperative clauses whose addressee is named
+maly_princ-094	maly_princ	94	Ty bereš na sebe odgovornost za tyh, kogo jesi odomašnil.		no	yes	skip:reflexive-pronoun: the full reflexive pronoun (as against the `sę` clitic) has no paradigm here
+maly_princ-095	maly_princ	95	Ty jesi odgovorny za svoju rozu...		no	yes	skip:predicate-complement: a predicate adjective governing a prepositional complement (`odgovorny za …`)
+maly_princ-096	maly_princ	96	«Ja jesm odgovorny za svoju rozu», povtoril maly princ, da by zapametal.		yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row

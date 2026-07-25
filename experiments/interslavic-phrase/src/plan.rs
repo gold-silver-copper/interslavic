@@ -15,6 +15,11 @@ pub(crate) enum SurfaceNode {
     Punct(char),
     Nominal(Box<NominalPlan>),
     Relative(Box<RelativePlan>),
+    /// A subordinate clause, already fully planned including its own
+    /// clitic placement. It is opaque to the parent for the same reason a
+    /// relative is: the parent must not be able to reach inside and move
+    /// anything out.
+    Subordinate(Box<SubordinatePlan>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -33,21 +38,33 @@ pub(crate) struct RelativePlan {
     pub body: Vec<SurfaceNode>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SubordinatePlan {
+    pub body: Vec<SurfaceNode>,
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct VerbDomainPlan {
     pub complex: Vec<SurfaceNode>,
     pub cluster: Vec<String>,
+    pub recipient: Option<NominalPlan>,
     pub object: Option<NominalPlan>,
     pub object_case: Option<Case>,
     pub adjuncts: Vec<Vec<SurfaceNode>>,
+    /// The verb's finite complement clause, already sealed. It follows
+    /// every other complement, so it is held separately rather than in
+    /// `adjuncts`.
+    pub complement_clause: Option<Vec<SurfaceNode>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SlotKind {
     Subject,
     Verb(usize),
+    Recipient(usize),
     Object(usize),
     QuestionParticle(QuestionParticle),
+    InitialAdjunct(usize),
     Fixed,
 }
 
@@ -131,6 +148,11 @@ fn flatten(node: SurfaceNode, out: &mut Vec<FlatToken>) {
                 flatten(child, out);
             }
         }
+        SurfaceNode::Subordinate(plan) => {
+            for child in plan.body {
+                flatten(child, out);
+            }
+        }
     }
 }
 
@@ -162,7 +184,7 @@ fn join_flat(tokens: &[FlatToken], force: Force, sentence: bool) -> String {
         }
         out.push(match force {
             Force::Declarative => '.',
-            Force::Imperative(_) => '!',
+            Force::Imperative(_) | Force::Optative => '!',
             _ => '?',
         });
     } else {

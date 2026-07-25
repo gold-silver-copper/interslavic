@@ -46,21 +46,25 @@ reuse a validation result.
 | Concern | Owner | Consequence |
 | --- | --- | --- |
 | lexical NP content | `NounPhrase` | An NP never carries grammatical case. |
+| recipient constraint | `Recipient` | The recipient edge assigns dative to the entire nominal and precedes the theme in neutral order. |
 | direct-object constraint | `Complement` | An explicit override applies to the whole complement and can be compared with dictionary government once. |
 | PP case | `PrepPhrase` | Validation checks the selected case against the preposition before resolution. |
+| bare adjunct case | `Oblique` | The adjunct edge assigns one explicit case to its whole nominal. |
 | predicate case | copular role edge | A predicate NP cannot override `PredCase`. |
 | relative-gap case | `GapRole` plus verb government | `ktory` receives the resolved gap case; no child NP can change it. |
 | finite and nominal features | central `NominalProfile` | Realization and discourse share one count/plural-only/coordination policy. |
 | referential choice | `NounPhrase::referential` | Discourse requests a pronoun without replacing or impoverishing the syntax node. |
-| clitic placement | `VerbDomainPlan` | Only that VP's direct clitic object and reflexive marker enter its cluster. |
+| clitic placement | `VerbDomainPlan` | Only that VP's direct recipient/object clitics and reflexive marker enter its cluster. |
 | nested relative content | `RelativePlan` | Parent traversal cannot inspect or extract descendant tokens. |
+| wh/optative/participial order | `ClausePlan` constituents | Fronting and particles move typed constituents, not realized strings. |
 | punctuation and casing | `ClausePlan::stringify` | Surface nodes flatten once; no morphology is rewritten afterward. |
 
-Case resolution records whether a case came from subject position,
-default accusative, dictionary government, an explicit object edge,
-preposition, or predicate position. Coordination members receive the
-same resolved case recursively. This prevents PP objects, nested NPs,
-predicate NPs, or individual conjuncts from reopening the decision.
+Case resolution records whether a case came from subject position, a
+dative recipient edge, default accusative, dictionary government, an
+explicit object edge, preposition, or predicate position. Coordination
+members receive the same resolved case recursively. This prevents
+recipients, PP objects, nested NPs, predicate NPs, or individual
+conjuncts from reopening the decision.
 
 ## Validation and resolution
 
@@ -68,10 +72,11 @@ Validation returns `ValidationErrors(Vec<ValidationError>)`. Every error
 has an `AstPath`, such as `clause.core.vp[0].object`. It checks:
 
 - non-empty coordination and non-empty leaves;
-- imperative/conditional/passive/tense coherence;
+- imperative/optative/conditional/passive/tense coherence;
 - passive patient promotion (no retained direct object);
 - predicate-case applicability;
-- topic/focus existence and duplicate references;
+- wh/topic/focus existence and duplicate references, including the
+  independent recipient slot;
 - relative gap versus overt subject/object coherence;
 - ordinary and relative-gap preposition government;
 - referential choices that would suppress a relative proposition.
@@ -79,13 +84,15 @@ has an `AstPath`, such as `clause.core.vp[0].object`. It checks:
 
 The supported combination rule is compact:
 
-- indicative non-imperative verbal clauses support present, past, and
-  future in active or passive voice; copular clauses are active;
-- conditionals use their own auxiliary/participle construction and
-  cannot carry independent past/future tense;
+- indicative non-imperative verbal clauses support present, past,
+  imperfect, simple and compound pluperfect, and future in active,
+  past-passive, or present-passive voice; copular clauses are active;
+- present and past conditionals use their own auxiliary/participle
+  construction and cannot carry an independent tense;
 - imperatives are present, active, and indicative;
-- declarative and all three question forces can combine with supported
-  non-imperative shapes.
+- optatives are third-person, present, active, and indicative;
+- constituent questions own an explicit wh slot/adverb and cannot
+  simultaneously reuse topic/focus ordering.
 
 Dictionary valence requires lexical metadata and therefore belongs to
 grammar resolution. `ResolutionErrors` is also pathful. An explicit
@@ -93,6 +100,12 @@ overt-object or object-gap case that differs from dictionary government
 remains realizable and emits one `GovernsConflict` warning; an object on
 a dictionary-intransitive verb is an error. Object gaps pass through the
 same case, valence, and government resolver as overt objects.
+
+The recipient edge is author-declared. The current dictionary records
+direct transitivity and direct-object government, but not indirect-object
+frames, so resolution cannot prove that a particular verb licenses a
+recipient. Restricting the edge to a hard-coded verb list would duplicate
+lexical policy in the phrase crate.
 
 ## Hierarchical clitic domains
 
@@ -103,10 +116,13 @@ A partially planned nominal is never a flat token vector. A
 placed its cluster.
 
 Each `VerbDomainPlan` owns a cluster ordered `li > dative > accusative >
-sę` for the arguments represented by this grammar. Postverbal placement
-inserts it after that VP's complex. Second-position placement inserts it
-after the first typed constituent of the domain. Coordinated VPs are
-separate domains; a discourse connective is outside the first domain.
+sę` for the arguments represented by this grammar. A direct recipient
+and object therefore produce `mu go`, never separate clusters. Full
+nominals use the source-attested neutral order verb–recipient–object.
+Postverbal placement inserts the cluster after that VP's complex.
+Second-position placement inserts it after the first typed constituent
+of the domain. Coordinated VPs are separate domains; a discourse
+connective is outside the first domain.
 
 Consequently:
 
@@ -116,6 +132,63 @@ Consequently:
 ```
 
 The relative `sę` and `go` are not visible to the parent VP.
+
+Subordinate clauses, infinitive complements, and coordinated clauses all
+extend the same rule rather than adding an exception to it.
+
+`plan_clause` is the single implementation for matrix and embedded
+clauses alike. Each call places its own clitic clusters into its own
+constituent vector and is then sealed into an opaque
+`SurfaceNode::Subordinate`. A matrix verb therefore cannot reach a
+clitic inside an embedded clause, for exactly the reason it cannot
+reach one inside a relative:
+
+```text
+Ja myjų sę, že ona myje sę.
+Ja viđų, že on myje sę.
+Ja myjų sę, i ona myje sę.
+```
+
+The third is clause coordination — `(and-clause …)`, distinct from
+verb-phrase coordination, which shares one subject. Each conjunct is a
+full clause with its own subject agreement, tense, polarity, and clitic
+domain; only the conjunction and its comma are added by the parent.
+
+An infinitive complement is likewise its own domain. Steen's `mogų
+slomiti ti hrėbet` puts the dative clitic with `slomiti`, not with the
+finite `mogų`, which is what the per-verb rule already predicts. The
+opposite pattern — clitic climbing, as in `načęl go napominati` — is
+not modelled; supporting both would make placement ambiguous everywhere
+on the strength of one sentence.
+
+## Punctuation and capitalization ownership
+
+Terminal punctuation and sentence-initial capitalization happen exactly
+once, in `ClausePlan::stringify`, at the top level only. Embedded
+clauses contribute `SurfaceNode`s and nothing else, so they cannot
+acquire a full stop or a mid-sentence capital, and matrix force
+survives a fronted subordinate:
+
+```text
+Kȯgda noč jest, či pes spi?
+```
+
+A subordinate clause's comma is structural too — a `SurfaceNode::Punct`
+on the inside edge, trailing for a fronted adverbial and leading
+otherwise. The single join pass handles spacing and collapses a
+boundary that coincides with another, so no stage concatenates strings.
+
+Complementizer choice is declared on the edge and resolved in
+resolution, never inferred from the embedded verb. `da by` is not a
+lexical unit: `da` is the complementizer and `by`/`byh`/`byhmo` comes
+from the embedded clause's own conditional mood, which is what
+person-marks it.
+
+Clause recursion is bounded by `MAX_CLAUSE_DEPTH`, checked iteratively
+in the S-expression preflight. The generic `MAX_STRUCTURE_DEPTH` counts
+list levels, and a clause is cheap in those but expensive in
+recursive-descent frames, so the generic bound alone admitted input
+that exhausted the stack before producing a diagnostic.
 
 ## Discourse planning
 
@@ -163,10 +236,30 @@ The canonical direct-object grammar is:
 
 ```text
 (vp (v LEMMA)
-    (object [:case CASE] NOMINAL)
     (adv ADVERB)*
-    (pp (prep PREPOSITION) [:case CASE] NOMINAL)*)
+    (recipient NOMINAL)?
+    (object [:case CASE] NOMINAL)?
+    (pp (prep PREPOSITION) [:case CASE] NOMINAL)*
+    (oblique :case CASE NOMINAL)*)
 ```
+
+The source-backed ditransitive extension is:
+
+```text
+(vp (v LEMMA)
+    (recipient NOMINAL)
+    (object [:case CASE] NOMINAL))
+```
+
+`recipient` is a distinct role edge with dative case. It has its own
+information-structure spelling, `:topic recipient` or
+`:focus recipient`, and is serialized before the direct object.
+
+Clause-level source-backed forms use `:force wh` with `:wh SLOT` or
+`:wh-adv ATOM`, `:force optative`, `:mood cond-perfect`,
+`:voice passive-present`, the historical/perfect `:tense` values, and
+`(initial-participle (v LEMMA) PP*)`. Short predicative adjectives use
+`(pred (short-adj LEMMA))`.
 
 Legacy direct nominal children of `(vp ...)` remain readable, but the
 printer emits `(object ...)`. Case is illegal inside `(np ...)`.
@@ -193,9 +286,9 @@ every valid serializable tree, `clause_from_str(&print(tree)?) == tree`.
 Raw printing validates first; only `print_validated(&ValidatedClause)`
 is infallible. A deterministic bounded
 generator covers hundreds of arbitrary combinations in noun,
-determiner, adjective, entity, name, verb, adverb, predicate, and
-relative fields. Another generator proves malformed inputs do not
-panic.
+determiner, adjective, entity, name, verb, adverb, predicate, wh-adverb,
+oblique, participial-adjunct, and relative fields. Another generator
+proves malformed inputs do not panic.
 
 ## Morphology boundary
 
@@ -212,6 +305,8 @@ or rewritten after the facade returns them.
   predicates.
 - Replace `np.case(CASE)` on direct objects with
   `vp.object_case(CASE, nominal)` or `Complement::new(nominal).case(CASE)`.
+- Use `vp.recipient(nominal)` / `(recipient NOMINAL)` for the dative
+  recipient in a ditransitive frame.
 - Use `RelClause::object_gap_case(CASE, subject, vp)` for an explicitly
   marked relative object gap.
 - Handle `BuildError` from `Clause::and_vp` and `Clause::conj`; these

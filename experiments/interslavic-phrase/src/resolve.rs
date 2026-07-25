@@ -13,6 +13,8 @@ use std::fmt;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CaseSource {
     Subject,
+    Recipient,
+    Oblique,
     DefaultAccusative,
     Dictionary,
     ExplicitObject,
@@ -63,9 +65,26 @@ pub(crate) struct ResolvedVerbPhrase {
     pub bare_verb: String,
     pub reflexive: bool,
     pub info: Option<VerbInfo>,
+    pub recipient: Option<ResolvedNominal>,
     pub object: Option<ResolvedNominal>,
     pub object_case: Option<Case>,
     pub adverbs: Vec<String>,
+    pub pps: Vec<ResolvedPrep>,
+    pub obliques: Vec<ResolvedNominal>,
+    pub complement_clause: Option<Box<ResolvedSubClause>>,
+    pub infinitive: Option<Box<ResolvedVerbPhrase>>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct ResolvedSubClause {
+    pub complementizer: Complementizer,
+    pub position: AdjunctPosition,
+    pub clause: Box<ResolvedClause>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct ResolvedParticipialAdjunct {
+    pub verb: String,
     pub pps: Vec<ResolvedPrep>,
 }
 
@@ -85,7 +104,10 @@ pub(crate) struct ResolvedRelative {
 pub(crate) enum ResolvedPredicate {
     Nominal(ResolvedNominal),
     Adjectival(String),
+    ShortAdjectival(String),
     Participial(String),
+    Prepositional(ResolvedPrep),
+    Graded { lemma: String, degree: Degree },
 }
 
 #[derive(Debug, Clone)]
@@ -94,7 +116,10 @@ pub(crate) enum ResolvedCore {
         conjunction: Conj,
         vps: Vec<ResolvedVerbPhrase>,
     },
-    Copular(ResolvedPredicate),
+    Copular {
+        conjunction: Conj,
+        predicates: Vec<ResolvedPredicate>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -109,6 +134,10 @@ pub(crate) struct ResolvedClause {
     pub prodrop: bool,
     pub topic: Option<SlotRef>,
     pub focus: Option<SlotRef>,
+    pub wh: Option<WhFront>,
+    pub initial_participles: Vec<ResolvedParticipialAdjunct>,
+    pub adverbial_clauses: Vec<ResolvedSubClause>,
+    pub coordinate_clauses: Vec<(Conj, Box<ResolvedClause>)>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -154,16 +183,34 @@ impl fmt::Display for ResolutionErrors {
 impl std::error::Error for ResolutionErrors {}
 
 pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, ResolutionErrors> {
-    let clause = &validated.clause;
     let mut conflicts = Vec::new();
     let mut errors = Vec::new();
+    let clause = resolve_clause(&validated.clause, "clause", &mut conflicts, &mut errors);
+    let resolution = Resolution { clause, conflicts };
+    if errors.is_empty() {
+        Ok(resolution)
+    } else {
+        Err(ResolutionErrors(errors))
+    }
+}
+
+/// Resolve one clause. Subordinate clauses recurse through here, so an
+/// embedded clause gets exactly the same case assignment, government
+/// checks, and nominal profiling as a matrix clause — there is no reduced
+/// second code path that could drift.
+fn resolve_clause(
+    clause: &Clause,
+    path: &str,
+    conflicts: &mut Vec<GovernmentConflict>,
+    errors: &mut Vec<ResolutionError>,
+) -> ResolvedClause {
     let subject = resolve_nominal(
         &clause.subject,
         Case::Nom,
         CaseSource::Subject,
-        "clause.subject",
-        &mut conflicts,
-        &mut errors,
+        &format!("{path}.subject"),
+        conflicts,
+        errors,
     );
     let core = match &clause.core {
         ClauseCore::Verbal(coordination) => ResolvedCore::Verbal {
@@ -176,59 +223,141 @@ pub(crate) fn resolve(validated: &ValidatedClause) -> Result<Resolution, Resolut
                     resolve_vp(
                         vp,
                         None,
-                        &format!("clause.core.vp[{index}]"),
-                        &mut conflicts,
-                        &mut errors,
+                        &format!("{path}.core.vp[{index}]"),
+                        conflicts,
+                        errors,
                     )
                 })
                 .collect(),
         },
         ClauseCore::Copular {
-            predicate,
+            predicates,
             pred_case,
         } => {
-            let predicate = match predicate {
-                Predicate::Nominal(np) => {
-                    let case = match pred_case {
-                        PredCase::Nominative => Case::Nom,
-                        PredCase::Instrumental => Case::Ins,
-                    };
-                    ResolvedPredicate::Nominal(resolve_nominal(
-                        &Nominal::Np(np.clone()),
-                        case,
-                        CaseSource::Predicate,
-                        "clause.core.predicate",
-                        &mut conflicts,
-                        &mut errors,
-                    ))
-                }
-                Predicate::Adjectival(adjective) => {
-                    ResolvedPredicate::Adjectival(adjective.clone())
-                }
-                Predicate::Participial(verb) => ResolvedPredicate::Participial(verb.clone()),
-            };
-            ResolvedCore::Copular(predicate)
+            let resolved = predicates
+                .items()
+                .iter()
+                .enumerate()
+                .map(|(index, predicate)| {
+                    let predicate_path = format!("{path}.core.predicate[{index}]");
+                    match predicate {
+                        Predicate::Nominal(np) => {
+                            let case = match pred_case {
+                                PredCase::Nominative => Case::Nom,
+                                PredCase::Instrumental => Case::Ins,
+                            };
+                            ResolvedPredicate::Nominal(resolve_nominal(
+                                &Nominal::Np(np.clone()),
+                                case,
+                                CaseSource::Predicate,
+                                &predicate_path,
+                                conflicts,
+                                errors,
+                            ))
+                        }
+                        Predicate::Adjectival(adjective) => {
+                            ResolvedPredicate::Adjectival(adjective.clone())
+                        }
+                        Predicate::ShortAdjectival(adjective) => {
+                            ResolvedPredicate::ShortAdjectival(adjective.clone())
+                        }
+                        Predicate::Graded { lemma, degree } => ResolvedPredicate::Graded {
+                            lemma: lemma.clone(),
+                            degree: *degree,
+                        },
+                        Predicate::Participial(verb) => {
+                            ResolvedPredicate::Participial(verb.clone())
+                        }
+                        Predicate::Prepositional(pp) => ResolvedPredicate::Prepositional(
+                            resolve_pp(pp, &predicate_path, conflicts, errors),
+                        ),
+                    }
+                })
+                .collect();
+            ResolvedCore::Copular {
+                conjunction: predicates.conjunction,
+                predicates: resolved,
+            }
         }
     };
-    let resolution = Resolution {
-        clause: ResolvedClause {
-            subject,
-            core,
-            tense: clause.tense,
-            polarity: clause.polarity,
-            force: clause.force,
-            mood: clause.mood,
-            voice: clause.voice,
-            prodrop: clause.prodrop,
-            topic: clause.topic,
-            focus: clause.focus,
-        },
-        conflicts,
-    };
-    if errors.is_empty() {
-        Ok(resolution)
-    } else {
-        Err(ResolutionErrors(errors))
+    let initial_participles = clause
+        .initial_participles
+        .iter()
+        .enumerate()
+        .map(|(index, adjunct)| ResolvedParticipialAdjunct {
+            verb: adjunct.verb.clone(),
+            pps: adjunct
+                .pps
+                .iter()
+                .enumerate()
+                .map(|(pp_index, pp)| {
+                    resolve_pp(
+                        pp,
+                        &format!("{path}.initial_participle[{index}].pp[{pp_index}]"),
+                        conflicts,
+                        errors,
+                    )
+                })
+                .collect(),
+        })
+        .collect();
+    let adverbial_clauses = clause
+        .adverbial_clauses
+        .iter()
+        .enumerate()
+        .map(|(index, adjunct)| {
+            resolve_subordinate(
+                adjunct,
+                &format!("{path}.adverbial_clause[{index}]"),
+                conflicts,
+                errors,
+            )
+        })
+        .collect();
+    let coordinate_clauses = clause
+        .coordinate_clauses
+        .iter()
+        .enumerate()
+        .map(|(index, coordinate)| {
+            (
+                coordinate.conjunction,
+                Box::new(resolve_clause(
+                    &coordinate.clause,
+                    &format!("{path}.coordinate_clause[{index}]"),
+                    conflicts,
+                    errors,
+                )),
+            )
+        })
+        .collect();
+    ResolvedClause {
+        subject,
+        core,
+        tense: clause.tense,
+        polarity: clause.polarity,
+        force: clause.force,
+        mood: clause.mood,
+        voice: clause.voice,
+        prodrop: clause.prodrop,
+        topic: clause.topic,
+        focus: clause.focus,
+        wh: clause.wh.clone(),
+        initial_participles,
+        adverbial_clauses,
+        coordinate_clauses,
+    }
+}
+
+fn resolve_subordinate(
+    sub: &SubClause,
+    path: &str,
+    conflicts: &mut Vec<GovernmentConflict>,
+    errors: &mut Vec<ResolutionError>,
+) -> ResolvedSubClause {
+    ResolvedSubClause {
+        complementizer: sub.complementizer,
+        position: sub.position,
+        clause: Box::new(resolve_clause(&sub.clause, path, conflicts, errors)),
     }
 }
 
@@ -311,6 +440,16 @@ fn resolve_vp(
         GapRole::Object { requested_case } => Some((*requested_case, path)),
         GapRole::Subject | GapRole::PpObject { .. } => None,
     });
+    let recipient = vp.recipient.as_ref().map(|recipient| {
+        resolve_nominal(
+            &recipient.nominal,
+            Case::Dat,
+            CaseSource::Recipient,
+            &format!("{path}.recipient.nominal"),
+            conflicts,
+            errors,
+        )
+    });
     let has_direct_object = vp.object.is_some() || object_gap.is_some();
     if has_direct_object
         && info.as_ref().and_then(|entry| entry.transitive) == Some(false)
@@ -355,31 +494,76 @@ fn resolve_vp(
         .pps
         .iter()
         .enumerate()
-        .map(|(index, pp)| {
-            let allowed = preposition_cases(&pp.preposition)
-                .expect("preposition validated before resolution");
-            let case = pp.case.unwrap_or(allowed[0]);
-            ResolvedPrep {
-                preposition: pp.preposition.clone(),
-                object: resolve_nominal(
-                    &pp.object,
-                    case,
-                    CaseSource::Preposition,
-                    &format!("{path}.pp[{index}].object"),
-                    conflicts,
-                    errors,
-                ),
-            }
+        .map(|(index, pp)| resolve_pp(pp, &format!("{path}.pp[{index}]"), conflicts, errors))
+        .collect();
+    let obliques = vp
+        .obliques
+        .iter()
+        .enumerate()
+        .map(|(index, oblique)| {
+            resolve_nominal(
+                &oblique.nominal,
+                oblique.case,
+                CaseSource::Oblique,
+                &format!("{path}.oblique[{index}].nominal"),
+                conflicts,
+                errors,
+            )
         })
         .collect();
+    let complement_clause = vp.complement_clause.as_ref().map(|sub| {
+        Box::new(resolve_subordinate(
+            sub,
+            &format!("{path}.complement_clause"),
+            conflicts,
+            errors,
+        ))
+    });
+    // The infinitive resolves through the same VP path: its own valence
+    // check, its own government, its own object case.
+    let infinitive = vp.infinitive.as_ref().map(|inner| {
+        Box::new(resolve_vp(
+            inner,
+            None,
+            &format!("{path}.infinitive"),
+            conflicts,
+            errors,
+        ))
+    });
     ResolvedVerbPhrase {
         bare_verb,
         reflexive,
         info,
+        recipient,
         object,
         object_case,
         adverbs: vp.adverbs.clone(),
         pps,
+        obliques,
+        complement_clause,
+        infinitive,
+    }
+}
+
+fn resolve_pp(
+    pp: &PrepPhrase,
+    path: &str,
+    conflicts: &mut Vec<GovernmentConflict>,
+    errors: &mut Vec<ResolutionError>,
+) -> ResolvedPrep {
+    let allowed =
+        preposition_cases(&pp.preposition).expect("preposition validated before resolution");
+    let case = pp.case.unwrap_or(allowed[0]);
+    ResolvedPrep {
+        preposition: pp.preposition.clone(),
+        object: resolve_nominal(
+            &pp.object,
+            case,
+            CaseSource::Preposition,
+            &format!("{path}.object"),
+            conflicts,
+            errors,
+        ),
     }
 }
 

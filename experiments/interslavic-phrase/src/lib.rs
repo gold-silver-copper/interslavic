@@ -3,7 +3,8 @@
 //!
 //! Two authoring surfaces produce the same raw AST:
 //!
-//! - typed builders ([`clause`], [`np`], [`vp`], [`pp`], [`pron`]),
+//! - typed builders ([`clause`], [`np`], [`vp`], [`pp`],
+//!   [`participial_adjunct`], [`pron`]),
 //! - the S-expression reader ([`clause_from_str`]) for data-driven
 //!   templates, with a canonical [`print()`]er.
 //!
@@ -12,11 +13,13 @@
 //! `RawClause` → [`validate`] → [`ValidatedClause`] → grammar
 //! resolution → hierarchical surface plans → one final stringification.
 //!
-//! Case belongs to grammatical-role edges such as [`Complement`] and
-//! [`PrepPhrase`], never to [`NounPhrase`]. Nested relative clauses and
-//! coordinated verb phrases remain distinct clitic domains until they
-//! place their own clusters. See `ARCHITECTURE.md` beside the crate
-//! README for the full ownership and serialization contracts.
+//! Case belongs to grammatical-role edges such as [`Recipient`],
+//! [`Complement`], [`PrepPhrase`], and [`Oblique`], never to
+//! [`NounPhrase`]. Nested
+//! relative clauses and coordinated verb phrases remain distinct clitic
+//! domains until they place their own clusters. See `ARCHITECTURE.md`
+//! beside the crate README for the full ownership and serialization
+//! contracts.
 //!
 //! ```
 //! use interslavic_phrase::*;
@@ -48,10 +51,11 @@ mod sexpr;
 mod validate;
 
 pub use ast::{
-    Addressee, BuildError, Clause, ClauseCore, Complement, Conj, Coordination, Force, GapRole,
-    Mood, Nominal, NounPhrase, Polarity, PredCase, Predicate, PrepPhrase, ReferentialForm,
-    RelClause, Relativizer, SlotRef, TenseSpec, VerbPhrase, Voice, clause, coordinate, copular,
-    name, np, pp, pron, pron_clitic, vp,
+    Addressee, AdjunctPosition, BuildError, Clause, ClauseCore, Complement, Complementizer, Conj,
+    Coordination, Degree, Force, GapRole, Mood, Nominal, NounPhrase, Oblique, ParticipialAdjunct,
+    Polarity, PredCase, Predicate, PrepPhrase, Recipient, ReferentialForm, RelClause, Relativizer,
+    SlotRef, SubClause, TenseSpec, VerbPhrase, Voice, WhFront, clause, coordinate, copular, name,
+    np, participial_adjunct, pp, pron, pron_clitic, sub, vp,
 };
 /// The unvalidated authoring tree produced by builders and the
 /// S-expression compiler.
@@ -65,6 +69,6 @@ pub use sexpr::{
     SexprError, Value, clause_from_str, compile_clause, parse, print, print_validated,
 };
 pub use validate::{
-    AstPath, MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationError, ValidationErrorKind,
-    ValidationErrors, validate,
+    AstPath, MAX_CLAUSE_DEPTH, MAX_STRUCTURE_DEPTH, ValidatedClause, ValidationError,
+    ValidationErrorKind, ValidationErrors, validate,
 };

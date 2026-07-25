@@ -9,7 +9,9 @@
 //! - an optional infix: `generoval(a)`, `(je) generovala`,
 //! - a full alternative-forms list: `dělaný (dělaná, dělanó)`,
 //! - an ending-swap list: `dělajemy (-a, -o)`,
-//! - a double citation: `dělajemý (-á, -œ), dělamý (-á, -œ)`.
+//! - a double citation: `dělajemý (-á, -œ), dělamý (-á, -œ)`,
+//! - a slash byform: `den / denj`, `oka / očese` — two genuine
+//!   alternative cells, emitted by the noun builders.
 //!
 //! [`variants`] turns any such cell into a flat list of plain forms — stress
 //! marks removed, `ĵ`→`j`, `œ`→`o`, every alternative expanded to its own entry
@@ -27,6 +29,9 @@
 /// assert_eq!(variants("dělaný (dělaná, dělanó)"), ["dělany", "dělana", "dělano"]);
 /// assert_eq!(variants("dělajemy (-a, -o)"), ["dělajemy", "dělajema", "dělajemo"]);
 /// assert_eq!(variants("dělaĵųći"), ["dělajųći"]); // ĵ→j, no alternatives
+/// // Slash byforms, as the noun builders emit them.
+/// assert_eq!(variants("den / denj"), ["den", "denj"]);
+/// assert_eq!(variants("oka / očese"), ["oka", "očese"]);
 /// assert_eq!(variants("čas"), ["čas"]); // already clean
 /// ```
 pub fn variants(cell: &str) -> Vec<String> {
@@ -50,6 +55,14 @@ pub fn variants(cell: &str) -> Vec<String> {
     }
 
     let cell = deaccent(cell);
+    // Slash byforms "A / B": the noun builders emit these for genuine
+    // alternative cells (`den / denj`, `oka / očese`, `oči / očesa`).
+    // Splitting them here is the whole point of this function — a consumer
+    // that skipped it would put the literal string `den / denj` into a
+    // sentence as if it were one word.
+    if cell.contains(" / ") {
+        return cell.split(" / ").flat_map(variants).collect();
+    }
     // Double-citation "A (…), B (…)": expand each citation independently and
     // concatenate — the -aje- passive participles ship this way.
     if let Some(idx) = cell.find("), ") {

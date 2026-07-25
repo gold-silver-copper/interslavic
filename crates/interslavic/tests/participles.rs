@@ -93,6 +93,52 @@ fn active_participle_agrees_with_paradigm() {
 }
 
 #[test]
+fn present_passive_and_adverbial_active_helpers_expose_their_distinct_roles() {
+    assert_eq!(
+        present_passive_participle(
+            "dělati",
+            Case::Nom,
+            Number::Singular,
+            Gender::Feminine,
+            Animacy::Inanimate,
+        ),
+        Some("dělajema".into()),
+    );
+    assert_eq!(
+        present_passive_participle(
+            "nesti",
+            Case::Nom,
+            Number::Singular,
+            Gender::Masculine,
+            Animacy::Animate,
+        ),
+        Some("nesomy".into()),
+    );
+    assert_eq!(
+        present_passive_participle(
+            "spati",
+            Case::Nom,
+            Number::Singular,
+            Gender::Masculine,
+            Animacy::Animate,
+        ),
+        None,
+    );
+    assert_eq!(
+        present_passive_participle(
+            "kupiti",
+            Case::Nom,
+            Number::Singular,
+            Gender::Masculine,
+            Animacy::Animate,
+        ),
+        None,
+    );
+    assert_eq!(active_adverbial_participle("idti"), Some("idųći".into()));
+    assert_eq!(active_adverbial_participle("ubiti"), None);
+}
+
+#[test]
 fn declined_participles_take_oblique_and_plural_endings() {
     // Oblique and plural agreement forms downstream templates need.
     let f = |c, n, g, a| passive_participle("osvětliti", c, n, g, a);

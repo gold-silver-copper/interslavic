@@ -21,11 +21,15 @@ assert_eq!(
 );
 ```
 
-Version 0.2 adds copular predicates, active/passive voice,
-imperatives, conditionals, dictionary-backed government, relative
-gaps, nominal and VP coordination, clitic styles, topic/focus order,
-and discourse microplanning. The complete design and ownership rules
-are in [ARCHITECTURE.md](ARCHITECTURE.md).
+Version 0.2 added copular predicates, active/passive voice, imperatives,
+conditionals, dictionary-backed government, relative gaps, nominal and
+VP coordination, clitic styles, topic/focus order, and discourse
+microplanning. The current Steen expansion adds dative recipients,
+constituent questions, optatives, historical/perfect tense choices,
+present-passive and adverbial participles, bare obliques, and short
+predicative adjectives.
+The complete design and ownership rules are in
+[ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Pipeline
 
@@ -50,13 +54,13 @@ form that discards warnings. The discourse equivalents are
 
 The important boundaries are structural:
 
-- `NounPhrase` has no case. `Complement`, `PrepPhrase`, predicate
-  position, and relative gaps own case constraints. Resolution assigns
-  one case to the entire governed nominal, including all coordination
-  members.
+- `NounPhrase` has no case. `Recipient`, `Complement`, `PrepPhrase`,
+  `Oblique`, predicate position, and relative gaps own case constraints.
+  Resolution assigns one case to the entire governed nominal, including
+  all coordination members.
 - Every verb and relative clause owns a clitic domain. A parent can
-  extract only a direct clitic object, never tokens nested inside an NP
-  or relative.
+  extract only direct recipient/object clitics, never tokens nested
+  inside an NP or relative.
 - Discourse pronominalization changes `ReferentialForm` on the existing
   NP. It does not replace the NP or discard its entity, role, case, or
   lexical content.
@@ -69,6 +73,34 @@ The canonical direct-object form exposes the grammatical edge:
 
 ```text
 (object [:case nom|acc|gen|loc|dat|ins] NOMINAL)
+```
+
+The source-backed ditransitive frame adds a dedicated dative edge:
+
+```text
+(vp (v dati)
+    (recipient NOMINAL)
+    (object NOMINAL))
+```
+
+Neutral full-form order is verb–recipient–object. Recipient and object
+clitics share the same VP domain in dative–accusative order.
+The recipient edge is author-declared: current dictionary metadata can
+validate direct transitivity and direct-object government, but does not
+describe indirect-object frames.
+
+The extended source-backed forms include:
+
+```text
+:force wh :wh subj|recipient|obj
+:force wh :wh-adv ATOM
+:force optative
+:tense imperfect|pluperfect|compound-pluperfect
+:mood cond-perfect
+:voice passive-present
+(initial-participle (v LEMMA) PP*)
+(oblique :case CASE NOMINAL)
+(pred (short-adj LEMMA))
 ```
 
 Case is not legal inside `(np ...)`. Strings that are not safe bare
@@ -99,17 +131,56 @@ conflicts.
 The package test suite includes the original 0.1 goldens, all intended
 0.2 constructions, architecture regressions, an exhaustive bounded
 force × mood × voice × tense matrix, generated atom roundtrips, and
-generated malformed parser inputs. `cargo xtask phrase-check` sends the
-golden corpus through slovowiki's independent agreement checker; set
-`SLOVOWIKI_DIR` when it is not in the default sibling location.
+generated malformed S-expression inputs. `cargo xtask phrase-check`
+sends the golden corpus through slovowiki's independent agreement
+checker; set `SLOVOWIKI_DIR` when it is not in the default sibling
+location.
+
+Source conformance comes from two corpora:
+
+- the **grammar pages**: 47 literal S-expressions in
+  `tests/steen_sexpr.rs` and `tests/steen_new_grammar.rs`;
+- the **sample texts**: 22 fixtures in `tests/steen_samples.rs`, drawn
+  from a ledger of all 222 candidate sentences in
+  `corpus/steen_samples.tsv`.
+
+Every fixture is parsed, validated, realized byte-exactly, canonically
+printed, and reparsed. The [coverage matrix](STEEN_CONFORMANCE.md)
+preserves Steen's original text separately from documented orthographic
+normalization and records every skipped sentence.
+
+The sample-text corpus is the stronger evidence. Nine of its ten pages
+publish each text three times — etymological Latin, standard Latin,
+Cyrillic — so for sixteen of the twenty-two fixtures the expected output is
+*the source's own etymological text*, checked verbatim rather than
+invented here. Every candidate sentence carries a disposition
+(`fixture:` or `skip:<reason>`) naming a specific missing capability,
+and `tests/corpus_inventory.rs` fails if any row is left untriaged or
+carries a bare reason, so the coverage claim is a property of committed
+data rather than an assertion about work done.
+
+`cargo xtask phrase-check` sends the goldens plus every sample fixture
+through slovowiki's independent agreement checker: 223 tokens, 2 unknown,
+0 agreement errors. Both unknowns are forms Steen writes and this
+dictionary produces (`psi`, `pėśjų`) which slovowiki's lexicon lacks;
+they are waived per-token in `SLOVOWIKI_LEXICON_GAPS` with a source
+citation each, so the sentences stay under agreement checking.
 
 ## Deliberately unsupported
 
 - genitive of negation (negated transitives retain their resolved case)
+- clitic climbing out of an infinitive complement (Steen shows both
+  `mogų slomiti ti hrėbet` and `načęl go napominati`; only the first,
+  which matches this crate's per-verb clitic domains, is modelled)
+- quotative frames for direct speech
+- ellipsis, and the full reflexive pronoun paradigm
+- adverb position as a lexical property: adverbs precede the verb, while
+  the sample texts place several of them after it
 - the `iže` relativizer, because the facade has no paradigm
 - passive imperatives
 - preposition-phrasal verb government such as `bazovati na`
-- clitic arguments beyond the represented direct-object/reflexive set
+- complement roles beyond recipient, direct object, PP, bare oblique,
+  and reflexive
 - parsing free Interslavic text into syntax trees
 - spelled-out numerals
 
