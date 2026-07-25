@@ -161,8 +161,11 @@ fn main() {
     }
 }
 
-/// The `tests/steen_samples.rs` fixtures, in the same order, minus the
-/// one noted below.
+/// The `tests/steen_samples.rs` fixtures, in the same order. Two of them
+/// contain forms slovowiki's lexicon lacks (`psi`, `pėśjų`); those are
+/// waived per-token in `xtask`'s `SLOVOWIKI_LEXICON_GAPS` so the
+/// sentences stay under agreement checking rather than being dropped
+/// from the external corpus.
 pub const SAMPLE_CORPUS: &[(Option<&str>, CliticStyle, &str)] = &[
     (
         None,
@@ -208,15 +211,12 @@ pub const SAMPLE_CORPUS: &[(Option<&str>, CliticStyle, &str)] = &[
         "(clause (coord i (np (det moj) (n žena)) (np :pl (det moj) (n dětę))) \
          (vp (v umirati) (pp (prep od) (np (n glåd)))))",
     ),
-    // `volk_i_pes-017` (`Imajųt li vsi psi šije bez vlåsov?`) is
-    // deliberately NOT fed to slovowiki. Its nominative plural `psi` is
-    // the form Steen's own text uses and this repo's dictionary produces
-    // from the lemma `pės`, but slovowiki's lexicon does not carry it, so
-    // the checker reports it as an unknown token and fails the run. The
-    // fixture still asserts that sentence byte-for-byte against Steen's
-    // published etymological text, which is the stronger check; excluding
-    // one sentence with a stated reason is preferable to relaxing the
-    // zero-unknowns gate for every sentence.
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (np :pl (det vsi) (n pės)) (vp (v iměti) (object (np :pl (n šija))) \
+         (pp (prep bez) (np :pl (n vlås)))) :force li)",
+    ),
     (
         None,
         CliticStyle::Postverbal,
@@ -233,6 +233,33 @@ pub const SAMPLE_CORPUS: &[(Option<&str>, CliticStyle, &str)] = &[
         "(clause (pron :3 :pl :m) (vp (v kupovati) \
          (object (np :pl (adj gotovy) (n prědmet))) \
          (pp (prep od) (np :pl (n trgovec)))))",
+    ),
+    (
+        Some("Naglo"),
+        CliticStyle::Postverbal,
+        "(clause (np (n vȯlk)) (vp (v uviděti) (object (np (adj pėśji) (n šija)))) :tense past)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :1 :sg :m) (vp (v mysliti) \
+         (sub :comp že (clause (pron :1 :sg :m) \
+           (vp (v mogti) (inf (v iměti) (object (np :pl (n dětę))))) :neg :prodrop))))",
+    ),
+    (
+        Some("Zato"),
+        CliticStyle::Postverbal,
+        "(clause (pron :3 :pl :m) (vp (v idti) (pp (prep k) (name Isus :m))))",
+    ),
+    (
+        Some("Togda"),
+        CliticStyle::Postverbal,
+        "(clause (np (n lisica)) (vp (v pojaviti sę)) :tense past :focus subj)",
+    ),
+    (
+        None,
+        CliticStyle::Postverbal,
+        "(clause (pron :1 :sg :m) (pred (part odomašniti)) :neg :prodrop)",
     ),
     (
         Some("Tako"),

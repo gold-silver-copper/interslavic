@@ -65,6 +65,27 @@ fn skips_state_a_reason() {
     }
 }
 
+/// Every skip must name a specific missing capability.
+///
+/// `untriaged` was an honest placeholder while the ledger was being
+/// built — it distinguished "we know this is unsupported" from "we have
+/// not looked". Now that every row has been analysed the placeholder must
+/// not come back, because it is the one skip reason that carries no
+/// information about the generator.
+#[test]
+fn no_skip_is_left_as_the_untriaged_placeholder() {
+    let placeholders: Vec<String> = rows()
+        .into_iter()
+        .filter(|row| matches!(row.disposition(), Disposition::Skip(reason) if reason.starts_with("untriaged")))
+        .map(|row| row.id)
+        .collect();
+    assert!(
+        placeholders.is_empty(),
+        "{} rows are still `skip:untriaged`: {placeholders:?}",
+        placeholders.len()
+    );
+}
+
 /// The defect this ledger was re-mined to fix.
 ///
 /// The first mining pass split paragraphs at sentence punctuation without

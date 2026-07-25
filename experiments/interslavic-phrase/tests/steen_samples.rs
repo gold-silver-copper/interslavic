@@ -50,6 +50,7 @@ const WREN: &str = "https://steen.free.fr/interslavic/wren.html";
 const VOLK: &str = "https://steen.free.fr/interslavic/volk_i_pes.html";
 const SELO: &str = "https://steen.free.fr/interslavic/selo.html";
 const PRINC: &str = "https://steen.free.fr/interslavic/maly_princ.html";
+const JOKES: &str = "https://steen.free.fr/interslavic/jokes.html";
 
 const CASES: &[SteenCase] = &[
     // -- Strižik (The Wren) -------------------------------------------
@@ -175,6 +176,50 @@ const CASES: &[SteenCase] = &[
                   :force li)",
         expected: "Imajųt li vsi psi šije bez vlåsov?",
     },
+    SteenCase {
+        id: "volk_i_pes-015",
+        source: VOLK,
+        source_text: "Naglo volk uviděl pesju šiju.",
+        flavored_published: true,
+        normalization: "`volk`→`vȯlk`; `pesju šiju`→`pėśjų šijų`; `Naglo` \
+                        is realized as a discourse lead-in.",
+        lead_in: Some("Naglo"),
+        clitics: CliticStyle::Postverbal,
+        sexpr: "(clause (np (n vȯlk)) \
+                  (vp (v uviděti) (object (np (adj pėśji) (n šija)))) \
+                  :tense past)",
+        expected: "Naglo vȯlk uviděl pėśjų šijų.",
+    },
+    // -- Tri směšky (Three jokes) --------------------------------------
+    SteenCase {
+        id: "jokes-003",
+        source: JOKES,
+        source_text: "Ja myslju, že ne mogu iměti děti.",
+        flavored_published: true,
+        normalization: "`myslju`→`mysljų`; `mogu`→`mogų`.",
+        lead_in: None,
+        clitics: CliticStyle::Postverbal,
+        // A `že` complement clause governing an infinitive complement —
+        // the two constructions of this PR meeting in one sentence.
+        sexpr: "(clause (pron :1 :sg :m) \
+                  (vp (v mysliti) \
+                      (sub :comp že (clause (pron :1 :sg :m) \
+                                       (vp (v mogti) \
+                                           (inf (v iměti) (object (np :pl (n dětę))))) \
+                                       :neg :prodrop))))",
+        expected: "Ja mysljų, že ne mogų iměti děti.",
+    },
+    SteenCase {
+        id: "jokes-020",
+        source: JOKES,
+        source_text: "Zato oni idut k Isusu.",
+        flavored_published: true,
+        normalization: "`idut`→`idųt`; `Zato` is realized as a discourse lead-in.",
+        lead_in: Some("Zato"),
+        clitics: CliticStyle::Postverbal,
+        sexpr: "(clause (pron :3 :pl :m) (vp (v idti) (pp (prep k) (name Isus :m))))",
+        expected: "Zato oni idųt k Isusu.",
+    },
     // -- Naše selo (Our village) ---------------------------------------
     SteenCase {
         id: "selo-006",
@@ -188,6 +233,30 @@ const CASES: &[SteenCase] = &[
         expected: "Pųť ne bųde dȯlgy.",
     },
     // -- Maly princ (standard spelling; no published flavored column) ---
+    SteenCase {
+        id: "maly_princ-001",
+        source: PRINC,
+        source_text: "Togda pojavila se lisica.",
+        flavored_published: false,
+        normalization: "`se`→`sę`; `Togda` is realized as a discourse \
+                        lead-in. The source's verb-before-subject order is \
+                        `:focus subj`.",
+        lead_in: Some("Togda"),
+        clitics: CliticStyle::Postverbal,
+        sexpr: "(clause (np (n lisica)) (vp (v pojaviti sę)) :tense past :focus subj)",
+        expected: "Togda pojavila sę lisica.",
+    },
+    SteenCase {
+        id: "maly_princ-011",
+        source: PRINC,
+        source_text: "Ne jesm odomašnjeny.",
+        flavored_published: false,
+        normalization: "None. The sentence sits inside direct speech.",
+        lead_in: None,
+        clitics: CliticStyle::Postverbal,
+        sexpr: "(clause (pron :1 :sg :m) (pred (part odomašniti)) :neg :prodrop)",
+        expected: "Ne jesm odomašnjeny.",
+    },
     SteenCase {
         id: "maly_princ-017",
         source: PRINC,

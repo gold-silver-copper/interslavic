@@ -167,6 +167,23 @@ fn diff_fingerprint(args: &mut impl Iterator<Item = String>) -> Result<(), Box<d
 /// error is reported. Interpret hits per the folded-key rule: a surface
 /// match can belong to a homograph — the JSON's `lemmas` field is the
 /// truth, and this gate only checks statuses, not lemma attribution.
+/// Tokens slovowiki's lexicon does not carry, which are nonetheless the
+/// forms Steen's own sample texts print and this repository's dictionary
+/// produces. Each is a gap in the external checker, not in the generator,
+/// so the sentence stays under agreement checking and only the
+/// unknown-word verdict is waived — for these exact tokens and no others.
+///
+/// Adding an entry here is a claim that the form is attested in the
+/// source. Cite where.
+const SLOVOWIKI_LEXICON_GAPS: &[(&str, &str)] = &[
+    // `Imajųt li vsi psi šije bez vlåsov?` — volk_i_pes.html. Nominative
+    // plural of `pės`; slovowiki suggests `pri`/`pa`/`pan`.
+    ("psi", "volk_i_pes.html, nom.pl of pės"),
+    // `Naglo vȯlk uviděl pėśjų šijų.` — volk_i_pes.html. Feminine
+    // accusative singular of the possessive adjective `pėśji`.
+    ("pėśjų", "volk_i_pes.html, f.acc.sg of pėśji"),
+];
+
 fn phrase_check() -> Result<(), Box<dyn Error>> {
     let root = workspace_root()?;
     let slovowiki = env::var("SLOVOWIKI_DIR")
@@ -211,11 +228,34 @@ fn phrase_check() -> Result<(), Box<dyn Error>> {
     let unknown = count("\"unknown\"");
     let tokens = count("\"token\"");
     let agreement_errors = count("\"agreement_error\"");
+    // Waive the unknown-word verdict for the named lexicon gaps, and only
+    // for those. A waived token must still appear as unknown in the
+    // report; if slovowiki later learns the form, the entry becomes stale
+    // and is reported so it can be removed rather than lingering.
+    let mut waived = 0;
+    let mut stale = Vec::new();
+    for (token, source) in SLOVOWIKI_LEXICON_GAPS {
+        let occurrences = json
+            .matches(&format!("\"token\":\"{token}\",\"status\":\"unknown\""))
+            .count();
+        if occurrences == 0 {
+            stale.push(format!("`{token}` ({source})"));
+        }
+        waived += occurrences;
+    }
+    let unwaived = unknown.saturating_sub(waived);
     println!(
-        "{} tokens checked, {} unknown, {} agreement errors",
-        tokens, unknown, agreement_errors
+        "{} tokens checked, {} unknown ({} waived as slovowiki lexicon gaps), \
+         {} agreement errors",
+        tokens, unknown, waived, agreement_errors
     );
-    if unknown > 0 || agreement_errors > 0 {
+    if !stale.is_empty() {
+        println!(
+            "note: no longer unknown, drop from SLOVOWIKI_LEXICON_GAPS: {}",
+            stale.join(", ")
+        );
+    }
+    if unwaived > 0 || agreement_errors > 0 {
         std::fs::write(dir.join("check.json"), check.stdout)?;
         return Err(format!(
             "phrase-check failed; full report at {}",
