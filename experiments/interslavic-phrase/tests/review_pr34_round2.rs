@@ -280,7 +280,7 @@ fn instrumental_pred_case_is_nominal_only() {
     let tree = Clause::with_core(
         np("otėc"),
         ClauseCore::Copular {
-            predicate: Predicate::Nominal(np("krålj")),
+            predicates: Coordination::single(Predicate::Nominal(np("krålj"))),
             pred_case: PredCase::Instrumental,
         },
     )
@@ -294,7 +294,7 @@ fn instrumental_pred_case_is_nominal_only() {
         let tree = Clause::with_core(
             np("krålj"),
             ClauseCore::Copular {
-                predicate,
+                predicates: Coordination::single(predicate),
                 pred_case: PredCase::Instrumental,
             },
         );

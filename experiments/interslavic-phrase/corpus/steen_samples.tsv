@@ -84,7 +84,7 @@ selo-005	selo	5	Ne hočete li pohoditi so mnoju po našem selu, ljubezny čitate
 selo-006	selo	6	Put ne bude dolgy.	Pųť ne bųde dȯlgy.	no	no	fixture:selo-006
 selo-007	selo	7	My počnemo na dolnom koncu i odtud budemo šli v vrh.	My počnemȯ na doľnom koncu i odtųd bųdemȯ šli v vŕh.	no	no	skip:clause-coordination: coordinating two finite clauses is not modelled
 volk_i_pes-001	volk_i_pes	1	Gladny volk podšel k staromu psu i rěkl: «Dragy prijatelju, jesm taky gladny, že ne mogu spati.	Glådny vȯlk podšėl k staromu psu i rěkl: «Drågy prijatelju, jesm taky glådny, že ne mogų spati.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
-volk_i_pes-002	volk_i_pes	2	Ale ty jesi veliky i tolsty.	Ale ty jesi veliky i tȯlsty.	no	yes	skip:predicate-coordination: coordinated adjectival predicates (`veliky i tolsty`) are not modelled
+volk_i_pes-002	volk_i_pes	2	Ale ty jesi veliky i tolsty.	Ale ty jesi veliky i tȯlsty.	no	yes	fixture:volk_i_pes-002
 volk_i_pes-003	volk_i_pes	3	Kde dostavaješ svoju jedu?	Kde dostavaješ svojų jedų?	no	yes	fixture:volk_i_pes-003
 volk_i_pes-004	volk_i_pes	4	Kde živeš?	Kde živeš?	no	yes	fixture:volk_i_pes-004
 volk_i_pes-005	volk_i_pes	5	Kde ješ?	Kde ješ?	no	yes	fixture:volk_i_pes-005
@@ -118,7 +118,7 @@ schleicher-001	schleicher	1	Na vozvyšenosti ovca, ktora ne iměla volnu, uvidě
 schleicher-002	schleicher	2	Prvy tegal težky voz, vtory nosil veliko brěme, tretji brzo vozil muža.	Pŕvy tęgal tęžky voz, vtory nosil veliko brěmę, tretji brzo vozil mųža.	no	no	skip:adverb-position: Steen places these adverbs after the verb; this generator places adverbs before it
 schleicher-003	schleicher	3	Ovca rěkla konjam: «Boli mně srdce, kogda vidžu, kako člověk vladaje konjami.»	Ovca rěkla konjam: «Boli mně sŕdce, kȯgda viđų, kako člověk vladaje konjami.»	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
 schleicher-004	schleicher	4	Konji rěkli: «Slušaj, ovco, nam boli srdce, kogda vidimo ovo: muž, gospodar, bere tvoju volnu, da by iměl dlja sebe teplo palto.	Konji rěkli: «Slušaj, ovco, nam boli sŕdce, kȯgda vidimo ovo: mųž, gospodaŕ, bere tvojų vȯlnų, da by iměl dlja sebe teplo paľto.	yes	no	skip:quotative-frame: direct speech with a `rěkl X` frame is not modelled; applied uniformly to every framed row
-schleicher-005	schleicher	5	A ovca jest bez volny.	A ovca jest bez vȯlny.	no	yes	skip:pp-predicate: `jest bez vȯlny` — a prepositional phrase as copular predicate, which `Predicate` cannot express
+schleicher-005	schleicher	5	A ovca jest bez volny.	A ovca jest bez vȯlny.	no	yes	fixture:schleicher-005
 schleicher-006	schleicher	6	Uslyšavši to, ovca izběgla v ravninu.	Uslyšavši to, ovca izběgla v råvninų.	no	no	skip:past-adverbial-participle: only clause-initial PRESENT active participles are supported
 jokes-001	jokes	1	Prihodi muž do doktora i govori:	Prihodi mųž do doktora i govori:	no	no	skip:clause-coordination: two finite verbs sharing a subject, ending in a colon that introduces speech
 jokes-002	jokes	2	— Pane doktore, ja imaju problem.	— Pane doktore, ja imajų problem.	no	no	skip:vocative-edge: the facade has the vocative, but no phrase-level address slot uses it yet

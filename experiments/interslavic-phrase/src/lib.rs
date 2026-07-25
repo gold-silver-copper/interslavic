@@ -52,10 +52,10 @@ mod validate;
 
 pub use ast::{
     Addressee, AdjunctPosition, BuildError, Clause, ClauseCore, Complement, Complementizer, Conj,
-    Coordination, Force, GapRole, Mood, Nominal, NounPhrase, Oblique, ParticipialAdjunct, Polarity,
-    PredCase, Predicate, PrepPhrase, Recipient, ReferentialForm, RelClause, Relativizer, SlotRef,
-    SubClause, TenseSpec, VerbPhrase, Voice, WhFront, clause, coordinate, copular, name, np,
-    participial_adjunct, pp, pron, pron_clitic, sub, vp,
+    Coordination, Degree, Force, GapRole, Mood, Nominal, NounPhrase, Oblique, ParticipialAdjunct,
+    Polarity, PredCase, Predicate, PrepPhrase, Recipient, ReferentialForm, RelClause, Relativizer,
+    SlotRef, SubClause, TenseSpec, VerbPhrase, Voice, WhFront, clause, coordinate, copular, name,
+    np, participial_adjunct, pp, pron, pron_clitic, sub, vp,
 };
 /// The unvalidated authoring tree produced by builders and the
 /// S-expression compiler.

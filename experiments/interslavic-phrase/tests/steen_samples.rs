@@ -51,6 +51,7 @@ const VOLK: &str = "https://steen.free.fr/interslavic/volk_i_pes.html";
 const SELO: &str = "https://steen.free.fr/interslavic/selo.html";
 const PRINC: &str = "https://steen.free.fr/interslavic/maly_princ.html";
 const JOKES: &str = "https://steen.free.fr/interslavic/jokes.html";
+const SCHLEICHER: &str = "https://steen.free.fr/interslavic/schleicher.html";
 
 const CASES: &[SteenCase] = &[
     // -- Strižik (The Wren) -------------------------------------------
@@ -113,6 +114,19 @@ const CASES: &[SteenCase] = &[
         expected: "Ale strižik ne iměl strah.",
     },
     // -- Vȯlk i pės (The Wolf and the Dog) -----------------------------
+    SteenCase {
+        id: "volk_i_pes-002",
+        source: VOLK,
+        source_text: "Ale ty jesi veliky i tolsty.",
+        flavored_published: true,
+        normalization: "`tolsty`→`tȯlsty`; `Ale` is realized as a discourse \
+                        lead-in. The sentence sits inside direct speech.",
+        lead_in: Some("Ale"),
+        clitics: CliticStyle::Postverbal,
+        // One copula, two coordinated predicates.
+        sexpr: "(clause (pron :2 :sg :m) (pred (adj veliky) (adj tȯlsty)))",
+        expected: "Ale ty jesi veliky i tȯlsty.",
+    },
     SteenCase {
         id: "volk_i_pes-003",
         source: VOLK,
@@ -219,6 +233,21 @@ const CASES: &[SteenCase] = &[
         clitics: CliticStyle::Postverbal,
         sexpr: "(clause (pron :3 :pl :m) (vp (v idti) (pp (prep k) (name Isus :m))))",
         expected: "Zato oni idųt k Isusu.",
+    },
+    // -- Ovca i konji (Schleicher's tale) ------------------------------
+    SteenCase {
+        id: "schleicher-005",
+        source: SCHLEICHER,
+        source_text: "A ovca jest bez volny.",
+        flavored_published: true,
+        normalization: "`volny`→`vȯlny`; `A` is realized as a discourse \
+                        lead-in. The sentence sits inside direct speech.",
+        lead_in: Some("A"),
+        clitics: CliticStyle::Postverbal,
+        // A prepositional phrase as copular predicate; the PP owns its
+        // own case, so predicate case never reaches it.
+        sexpr: "(clause (np (n ovca)) (pred (pp (prep bez) (np (n vȯlna)))))",
+        expected: "A ovca jest bez vȯlny.",
     },
     // -- Naše selo (Our village) ---------------------------------------
     SteenCase {

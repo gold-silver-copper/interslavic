@@ -66,7 +66,7 @@ fn trees() -> Vec<Clause> {
         Clause::with_core(
             pron(Person::Third, Number::Singular, Gender::Masculine),
             ClauseCore::Copular {
-                predicate: Predicate::Nominal(np("krålj")),
+                predicates: Coordination::single(Predicate::Nominal(np("krålj"))),
                 pred_case: PredCase::Instrumental,
             },
         )

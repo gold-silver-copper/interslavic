@@ -560,6 +560,71 @@ fn build_complex(
 /// aspect — applied identically wherever a VP appears (main clause,
 /// conjunct, relative clause). The resolved VP already owns its one
 /// authoritative object case.
+/// Render one copular predicate. Every predicate in a coordination
+/// agrees with the same subject, so agreement features come in from the
+/// caller rather than being re-derived here.
+fn render_predicate(
+    predicate: &ResolvedPredicate,
+    path: &str,
+    number: Number,
+    gender: Gender,
+    animacy: Animacy,
+    ctx: &mut Ctx,
+) -> Result<Vec<SurfaceNode>, PhraseError> {
+    Ok(match predicate {
+        ResolvedPredicate::Nominal(nominal) => {
+            render_nominal(nominal, PronounStyle::Full, CliticContext::ForceFull, ctx)?
+                .into_surface()
+        }
+        ResolvedPredicate::Adjectival(adjective) => vec![word(surface(&adj(
+            adjective,
+            Case::Nom,
+            number,
+            gender,
+            animacy,
+        )))],
+        ResolvedPredicate::ShortAdjectival(adjective) => vec![word(surface(&short_adj(
+            adjective,
+            Case::Nom,
+            number,
+            gender,
+            animacy,
+        )))],
+        // Degree comes from the facade's own comparative/superlative
+        // builders; the tree stores the positive lemma, so the degree is
+        // a grammatical feature rather than a second lexeme. The result
+        // is itself an adjective and declines like one.
+        ResolvedPredicate::Graded { lemma, degree } => {
+            let graded = match degree {
+                Degree::Comparative => interslavic::comparative(lemma),
+                Degree::Superlative => interslavic::superlative(lemma),
+            }
+            .ok_or(PhraseError::Unsupported {
+                path: path.to_string(),
+                feature: "no synthetic degree (non-gradable adjective?)",
+            })?;
+            vec![word(surface(&adj(
+                &graded.0,
+                Case::Nom,
+                number,
+                gender,
+                animacy,
+            )))]
+        }
+        ResolvedPredicate::Participial(infinitive) => {
+            let participle = passive_participle(infinitive, Case::Nom, number, gender, animacy)
+                .ok_or(PhraseError::Unsupported {
+                    path: path.to_string(),
+                    feature: "no passive participle (intransitive verb?)",
+                })?;
+            vec![word(surface(&participle))]
+        }
+        // A prepositional predicate owns its case through its own
+        // preposition, so predicate case never reaches it.
+        ResolvedPredicate::Prepositional(pp) => render_pp(pp, ctx)?,
+    })
+}
+
 /// Whether a verb phrase realizes as a finite complex or as the bare
 /// infinitive of a governed complement.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -1028,11 +1093,11 @@ fn plan_clause(
         || clause.wh == Some(WhFront::Slot(SlotRef::Object));
     let information_recipient_index = match &clause.core {
         ResolvedCore::Verbal { vps, .. } => vps.iter().position(|vp| vp.recipient.is_some()),
-        ResolvedCore::Copular(_) => None,
+        ResolvedCore::Copular { .. } => None,
     };
     let information_object_index = match &clause.core {
         ResolvedCore::Verbal { vps, .. } => vps.iter().position(|vp| vp.object.is_some()),
-        ResolvedCore::Copular(_) => Some(0),
+        ResolvedCore::Copular { .. } => Some(0),
     };
     let information_recipient_slot = information_recipient_index.map(SlotKind::Recipient);
     let information_object_slot = information_object_index.map(SlotKind::Object);
@@ -1069,7 +1134,10 @@ fn plan_clause(
     let mut information_object_case: Option<Case> = None;
 
     match &clause.core {
-        ResolvedCore::Copular(predicate) => {
+        ResolvedCore::Copular {
+            conjunction,
+            predicates,
+        } => {
             let complex = build_complex(
                 "clause.core.copula",
                 "byti",
@@ -1085,40 +1153,29 @@ fn plan_clause(
                 slot: SlotKind::Verb(0),
                 nodes: complex,
             });
-            let nodes = match predicate {
-                ResolvedPredicate::Nominal(nominal) => {
-                    render_nominal(nominal, PronounStyle::Full, CliticContext::ForceFull, ctx)?
-                        .into_surface()
+            // One copula, possibly several predicates: `ty jesi veliky i
+            // tȯlsty`. Every predicate agrees with the same subject, so
+            // they are rendered independently and joined the way nominal
+            // coordination already joins its items.
+            let mut nodes = Vec::new();
+            let last = predicates.len().saturating_sub(1);
+            for (index, predicate) in predicates.iter().enumerate() {
+                if index > 0 {
+                    if index == last {
+                        nodes.push(word(conjunction.word()));
+                    } else {
+                        nodes.push(SurfaceNode::Punct(','));
+                    }
                 }
-                ResolvedPredicate::Adjectival(adjective) => vec![word(surface(&adj(
-                    adjective,
-                    Case::Nom,
+                nodes.extend(render_predicate(
+                    predicate,
+                    &format!("clause.core.predicate[{index}]"),
                     number,
                     gender,
                     subject.profile.animacy,
-                )))],
-                ResolvedPredicate::ShortAdjectival(adjective) => vec![word(surface(&short_adj(
-                    adjective,
-                    Case::Nom,
-                    number,
-                    gender,
-                    subject.profile.animacy,
-                )))],
-                ResolvedPredicate::Participial(infinitive) => {
-                    let participle = passive_participle(
-                        infinitive,
-                        Case::Nom,
-                        number,
-                        gender,
-                        subject.profile.animacy,
-                    )
-                    .ok_or(PhraseError::Unsupported {
-                        path: "clause.core.predicate".to_string(),
-                        feature: "no passive participle (intransitive verb?)",
-                    })?;
-                    vec![word(surface(&participle))]
-                }
-            };
+                    ctx,
+                )?);
+            }
             constituents.push(Constituent {
                 slot: SlotKind::Object(0),
                 nodes,
@@ -1404,7 +1461,7 @@ fn resolved_information_object(
 ) -> Option<&ResolvedNominal> {
     match &clause.core {
         ResolvedCore::Verbal { vps, .. } => index.and_then(|index| vps.get(index)?.object.as_ref()),
-        ResolvedCore::Copular(_) => None,
+        ResolvedCore::Copular { .. } => None,
     }
 }
 

@@ -106,6 +106,8 @@ pub(crate) enum ResolvedPredicate {
     Adjectival(String),
     ShortAdjectival(String),
     Participial(String),
+    Prepositional(ResolvedPrep),
+    Graded { lemma: String, degree: Degree },
 }
 
 #[derive(Debug, Clone)]
@@ -114,7 +116,10 @@ pub(crate) enum ResolvedCore {
         conjunction: Conj,
         vps: Vec<ResolvedVerbPhrase>,
     },
-    Copular(ResolvedPredicate),
+    Copular {
+        conjunction: Conj,
+        predicates: Vec<ResolvedPredicate>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -225,33 +230,53 @@ fn resolve_clause(
                 .collect(),
         },
         ClauseCore::Copular {
-            predicate,
+            predicates,
             pred_case,
         } => {
-            let predicate = match predicate {
-                Predicate::Nominal(np) => {
-                    let case = match pred_case {
-                        PredCase::Nominative => Case::Nom,
-                        PredCase::Instrumental => Case::Ins,
-                    };
-                    ResolvedPredicate::Nominal(resolve_nominal(
-                        &Nominal::Np(np.clone()),
-                        case,
-                        CaseSource::Predicate,
-                        &format!("{path}.core.predicate"),
-                        conflicts,
-                        errors,
-                    ))
-                }
-                Predicate::Adjectival(adjective) => {
-                    ResolvedPredicate::Adjectival(adjective.clone())
-                }
-                Predicate::ShortAdjectival(adjective) => {
-                    ResolvedPredicate::ShortAdjectival(adjective.clone())
-                }
-                Predicate::Participial(verb) => ResolvedPredicate::Participial(verb.clone()),
-            };
-            ResolvedCore::Copular(predicate)
+            let resolved = predicates
+                .items()
+                .iter()
+                .enumerate()
+                .map(|(index, predicate)| {
+                    let predicate_path = format!("{path}.core.predicate[{index}]");
+                    match predicate {
+                        Predicate::Nominal(np) => {
+                            let case = match pred_case {
+                                PredCase::Nominative => Case::Nom,
+                                PredCase::Instrumental => Case::Ins,
+                            };
+                            ResolvedPredicate::Nominal(resolve_nominal(
+                                &Nominal::Np(np.clone()),
+                                case,
+                                CaseSource::Predicate,
+                                &predicate_path,
+                                conflicts,
+                                errors,
+                            ))
+                        }
+                        Predicate::Adjectival(adjective) => {
+                            ResolvedPredicate::Adjectival(adjective.clone())
+                        }
+                        Predicate::ShortAdjectival(adjective) => {
+                            ResolvedPredicate::ShortAdjectival(adjective.clone())
+                        }
+                        Predicate::Graded { lemma, degree } => ResolvedPredicate::Graded {
+                            lemma: lemma.clone(),
+                            degree: *degree,
+                        },
+                        Predicate::Participial(verb) => {
+                            ResolvedPredicate::Participial(verb.clone())
+                        }
+                        Predicate::Prepositional(pp) => ResolvedPredicate::Prepositional(
+                            resolve_pp(pp, &predicate_path, conflicts, errors),
+                        ),
+                    }
+                })
+                .collect();
+            ResolvedCore::Copular {
+                conjunction: predicates.conjunction,
+                predicates: resolved,
+            }
         }
     };
     let initial_participles = clause

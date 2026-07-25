@@ -588,6 +588,25 @@ pub enum Predicate {
     /// Steen's optional short predicative form (`dom jest velik`).
     ShortAdjectival(String),
     Participial(String),
+    /// A prepositional phrase as predicate: `A ovca jest bez vȯlny.`
+    /// The PP owns its own case, as every [`PrepPhrase`] does, so
+    /// predicate case does not apply to it.
+    Prepositional(PrepPhrase),
+    /// A comparative or superlative adjective, built by the facade's
+    /// `comparative`/`superlative` from the positive lemma stored here.
+    /// The lemma is the positive form so the tree stays a citation-form
+    /// tree; the degree is a grammatical feature, not a second lexeme.
+    Graded {
+        lemma: String,
+        degree: Degree,
+    },
+}
+
+/// Degree of comparison for a graded predicate.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Degree {
+    Comparative,
+    Superlative,
 }
 
 /// The predicate case of a NOMINAL copular predicate. Nominative is the
@@ -610,7 +629,12 @@ pub enum PredCase {
 pub enum ClauseCore {
     Verbal(Coordination<VerbPhrase>),
     Copular {
-        predicate: Predicate,
+        /// One copula may carry several coordinated predicates:
+        /// `ty jesi veliky i tȯlsty`, `Vsi ljudi rodęt sę svobodni i
+        /// råvni`. This reuses `Coordination<T>` rather than adding a
+        /// second coordination mechanism; a single predicate is a
+        /// one-item coordination and realizes as itself.
+        predicates: Coordination<Predicate>,
         pred_case: PredCase,
     },
 }
@@ -931,7 +955,7 @@ pub fn copular(subject: impl Into<Nominal>, predicate: Predicate) -> Clause {
     Clause::with_core(
         subject,
         ClauseCore::Copular {
-            predicate,
+            predicates: Coordination::single(predicate),
             pred_case: PredCase::default(),
         },
     )

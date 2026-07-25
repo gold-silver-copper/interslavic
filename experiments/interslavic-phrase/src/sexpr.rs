@@ -22,7 +22,9 @@
 //!           CHILD: (initial-participle (v L) PP*) | SUB
 //! SUB    := (sub :comp že|da|kogda|ako|zato-že|tomu-že
 //!                [:pos initial|final] CLAUSE)
-//! CORE   := VP+ | (pred NP | (adj L) | (short-adj L) | (part L))
+//! CORE   := VP+ | (pred PREDICATE+ [:conj CONJ])
+//! PREDICATE := NP | (adj L) | (short-adj L) | (comp-adj L)
+//!            | (super-adj L) | (part L) | PP
 //! SUBJ   := NOMINAL
 //! NOMINAL:= NP | PRON | NAME | (coord CONJ NOMINAL+)
 //! NP     := (np [:pl|:sg] [:entity ID] [:refer full|pron|clitic]
@@ -333,7 +335,7 @@ fn compile_clause_raw(value: &Value) -> Result<Clause, SexprError> {
     }
     let mut subject = None;
     let mut vps: Vec<VerbPhrase> = Vec::new();
-    let mut predicate: Option<Predicate> = None;
+    let mut predicate: Option<Coordination<Predicate>> = None;
     let mut pred_case = PredCase::default();
     let mut pred_case_at = None;
     let mut conjunction = Conj::I;
@@ -504,12 +506,15 @@ fn compile_clause_raw(value: &Value) -> Result<Clause, SexprError> {
             // erased. Instrumental misuse is also caught by shared
             // validation for typed raw trees.
             if let Some(pred_case_at) = pred_case_at
-                && !matches!(predicate, Predicate::Nominal(_))
+                && !predicate
+                    .items()
+                    .iter()
+                    .all(|item| matches!(item, Predicate::Nominal(_)))
             {
                 return err(pred_case_at, "`:pred-case` needs a nominal `(pred (np …))`");
             }
             ClauseCore::Copular {
-                predicate,
+                predicates: predicate,
                 pred_case,
             }
         }
@@ -722,24 +727,60 @@ fn slot_ref_of(text: &str, at: usize) -> Result<SlotRef, SexprError> {
     })
 }
 
-fn compile_pred(items: &[Value], at: usize) -> Result<Predicate, SexprError> {
-    match &items[1..] {
-        [Value::List(child, child_at)] => match head_of(child, *child_at)? {
-            ("np", _) => Ok(Predicate::Nominal(compile_np(child, *child_at)?)),
-            ("adj", _) => Ok(Predicate::Adjectival(sym_arg(child, "adj", *child_at)?)),
-            ("short-adj", _) => Ok(Predicate::ShortAdjectival(sym_arg(
-                child,
-                "short-adj",
-                *child_at,
-            )?)),
-            ("part", _) => Ok(Predicate::Participial(sym_arg(child, "part", *child_at)?)),
-            (other, other_at) => err(other_at, format!("unknown predicate `{other}`")),
-        },
-        _ => err(
-            at,
-            "`(pred …)` takes exactly one of (np …)/(adj …)/(short-adj …)/(part …)",
-        ),
+/// `(pred PREDICATE+ [:conj i|ili|a|ale])`
+///
+/// One copula may carry several coordinated predicates (`ty jesi veliky
+/// i tȯlsty`), so this returns a coordination. A single predicate is a
+/// one-item coordination and prints as itself.
+fn compile_pred(items: &[Value], at: usize) -> Result<Coordination<Predicate>, SexprError> {
+    let mut predicates = Vec::new();
+    let mut conjunction = Conj::I;
+    let mut conjunction_at = None;
+    let mut rest = items[1..].iter().peekable();
+    while let Some(item) = rest.next() {
+        match item {
+            Value::Key(key, key_at) if key == "conj" => {
+                mark_once(&mut conjunction_at, *key_at, "`:conj`")?;
+                let (value, value_at) = key_sym(&mut rest, *key_at, ":conj")?;
+                conjunction = conj_of(value, value_at)?;
+            }
+            Value::Key(key, key_at) => return err(*key_at, format!("unknown pred key `:{key}`")),
+            Value::List(child, child_at) => predicates.push(match head_of(child, *child_at)? {
+                ("np", _) => Predicate::Nominal(compile_np(child, *child_at)?),
+                ("adj", _) => Predicate::Adjectival(sym_arg(child, "adj", *child_at)?),
+                ("short-adj", _) => {
+                    Predicate::ShortAdjectival(sym_arg(child, "short-adj", *child_at)?)
+                }
+                ("comp-adj", _) => Predicate::Graded {
+                    lemma: sym_arg(child, "comp-adj", *child_at)?,
+                    degree: Degree::Comparative,
+                },
+                ("super-adj", _) => Predicate::Graded {
+                    lemma: sym_arg(child, "super-adj", *child_at)?,
+                    degree: Degree::Superlative,
+                },
+                ("part", _) => Predicate::Participial(sym_arg(child, "part", *child_at)?),
+                ("pp", _) => Predicate::Prepositional(compile_pp(child, *child_at)?),
+                (other, other_at) => {
+                    return err(other_at, format!("unknown predicate `{other}`"));
+                }
+            }),
+            other => return err(other.at(), "unexpected atom inside `(pred …)`"),
+        }
     }
+    if predicates.is_empty() {
+        return err(
+            at,
+            "`(pred …)` takes at least one of \
+             (np …)/(adj …)/(short-adj …)/(comp-adj …)/(super-adj …)/(part …)/(pp …)",
+        );
+    }
+    if let Some(conjunction_at) = conjunction_at
+        && predicates.len() < 2
+    {
+        return err(conjunction_at, "`:conj` needs at least two predicates");
+    }
+    Ok(Coordination::new(conjunction, predicates))
 }
 
 fn compile_nominal(value: &Value) -> Result<Nominal, SexprError> {
@@ -1485,27 +1526,48 @@ fn print_clause_body(clause: &Clause, out: &mut String) {
             }
         }
         ClauseCore::Copular {
-            predicate,
+            predicates,
             pred_case,
         } => {
-            out.push_str(" (pred ");
-            match predicate {
-                Predicate::Nominal(np) => print_np(np, out),
-                Predicate::Adjectival(adjective) => {
-                    out.push_str("(adj ");
-                    push_atom(out, adjective);
-                    out.push(')');
+            out.push_str(" (pred");
+            for predicate in predicates.items() {
+                out.push(' ');
+                match predicate {
+                    Predicate::Nominal(np) => print_np(np, out),
+                    Predicate::Adjectival(adjective) => {
+                        out.push_str("(adj ");
+                        push_atom(out, adjective);
+                        out.push(')');
+                    }
+                    Predicate::ShortAdjectival(adjective) => {
+                        out.push_str("(short-adj ");
+                        push_atom(out, adjective);
+                        out.push(')');
+                    }
+                    Predicate::Graded { lemma, degree } => {
+                        out.push_str(match degree {
+                            Degree::Comparative => "(comp-adj ",
+                            Degree::Superlative => "(super-adj ",
+                        });
+                        push_atom(out, lemma);
+                        out.push(')');
+                    }
+                    Predicate::Participial(infinitive) => {
+                        out.push_str("(part ");
+                        push_atom(out, infinitive);
+                        out.push(')');
+                    }
+                    Predicate::Prepositional(pp) => {
+                        // `print_pp` emits its own leading space.
+                        let mut nested = String::new();
+                        print_pp(pp, &mut nested);
+                        out.push_str(nested.trim_start());
+                    }
                 }
-                Predicate::ShortAdjectival(adjective) => {
-                    out.push_str("(short-adj ");
-                    push_atom(out, adjective);
-                    out.push(')');
-                }
-                Predicate::Participial(infinitive) => {
-                    out.push_str("(part ");
-                    push_atom(out, infinitive);
-                    out.push(')');
-                }
+            }
+            if predicates.conjunction != Conj::I {
+                out.push_str(" :conj ");
+                out.push_str(predicates.conjunction.word());
             }
             out.push(')');
             if *pred_case == PredCase::Instrumental {

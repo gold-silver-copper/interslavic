@@ -186,13 +186,23 @@ fn pronominalize_relative(relative: &mut RelClause, mentions: &mut Mentions) {
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum MentionSlot {
-    InitialPpObject { adjunct: usize, pp: usize },
+    InitialPpObject {
+        adjunct: usize,
+        pp: usize,
+    },
     Subject,
     Recipient(usize),
     Object(usize),
-    PpObject { vp: usize, pp: usize },
-    Oblique { vp: usize, oblique: usize },
-    Predicate,
+    PpObject {
+        vp: usize,
+        pp: usize,
+    },
+    Oblique {
+        vp: usize,
+        oblique: usize,
+    },
+    /// A nominal predicate, by index in the predicate coordination.
+    Predicate(usize),
 }
 
 fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
@@ -225,16 +235,24 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
                 }
             }
         }
-        ClauseCore::Copular { predicate, .. } => {
-            if matches!(predicate, Predicate::Nominal(_)) {
-                slots.push(MentionSlot::Predicate);
+        ClauseCore::Copular { predicates, .. } => {
+            for (index, predicate) in predicates.items().iter().enumerate() {
+                if matches!(predicate, Predicate::Nominal(_)) {
+                    slots.push(MentionSlot::Predicate(index));
+                }
             }
         }
     }
 
     let object_slot = match &clause.core {
         ClauseCore::Verbal(_) => information_object_index(&clause.core).map(MentionSlot::Object),
-        ClauseCore::Copular { .. } => Some(MentionSlot::Predicate),
+        // The information-structure object slot is the first nominal
+        // predicate, if the coordination has one.
+        ClauseCore::Copular { predicates, .. } => predicates
+            .items()
+            .iter()
+            .position(|predicate| matches!(predicate, Predicate::Nominal(_)))
+            .map(MentionSlot::Predicate),
     };
     let recipient_slot = match &clause.core {
         ClauseCore::Verbal(_) => {
@@ -339,12 +357,11 @@ fn pronominalize_clause(clause: &mut Clause, mentions: &mut Mentions) {
                     mentions,
                 );
             }
-            MentionSlot::Predicate => {
-                let ClauseCore::Copular {
-                    predicate: Predicate::Nominal(np),
-                    ..
-                } = &mut clause.core
-                else {
+            MentionSlot::Predicate(index) => {
+                let ClauseCore::Copular { predicates, .. } = &mut clause.core else {
+                    unreachable!("predicate mention slot was derived from a copular core");
+                };
+                let Some(Predicate::Nominal(np)) = predicates.items.get_mut(index) else {
                     unreachable!("predicate mention slot was derived from a nominal predicate");
                 };
                 let requested = np.referential;

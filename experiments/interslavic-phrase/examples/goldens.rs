@@ -235,6 +235,16 @@ pub const SAMPLE_CORPUS: &[(Option<&str>, CliticStyle, &str)] = &[
          (pp (prep od) (np :pl (n trgovec)))))",
     ),
     (
+        Some("Ale"),
+        CliticStyle::Postverbal,
+        "(clause (pron :2 :sg :m) (pred (adj veliky) (adj tȯlsty)))",
+    ),
+    (
+        Some("A"),
+        CliticStyle::Postverbal,
+        "(clause (np (n ovca)) (pred (pp (prep bez) (np (n vȯlna)))))",
+    ),
+    (
         Some("Naglo"),
         CliticStyle::Postverbal,
         "(clause (np (n vȯlk)) (vp (v uviděti) (object (np (adj pėśji) (n šija)))) :tense past)",

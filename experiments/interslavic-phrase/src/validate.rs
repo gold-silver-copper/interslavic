@@ -176,13 +176,21 @@ fn validate_structure_depth(clause: &Clause) -> Option<ValidationError> {
                             ));
                         }
                     }
-                    ClauseCore::Copular { predicate, .. } => {
-                        if let Predicate::Nominal(np) = predicate {
-                            stack.push((
-                                StructureNode::Np(np),
-                                next,
-                                format!("{path}.core.predicate"),
-                            ));
+                    ClauseCore::Copular { predicates, .. } => {
+                        for (index, predicate) in predicates.items().iter().enumerate() {
+                            match predicate {
+                                Predicate::Nominal(np) => stack.push((
+                                    StructureNode::Np(np),
+                                    next,
+                                    format!("{path}.core.predicate[{index}]"),
+                                )),
+                                Predicate::Prepositional(pp) => stack.push((
+                                    StructureNode::Pp(pp),
+                                    next,
+                                    format!("{path}.core.predicate[{index}]"),
+                                )),
+                                _ => {}
+                            }
                         }
                     }
                 }
@@ -465,7 +473,7 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
             )
         }
         ClauseCore::Copular {
-            predicate,
+            predicates,
             pred_case,
         } => {
             if clause.voice != Voice::Active {
@@ -477,17 +485,19 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
                     ),
                 );
             }
-            match predicate {
-                Predicate::Nominal(np) => {
-                    validate_np(np, &format!("{path}.core.predicate"), errors);
-                }
-                Predicate::Adjectival(adjective) | Predicate::ShortAdjectival(adjective) => {
-                    validate_leaf(
-                        adjective,
-                        "adjective",
-                        &format!("{path}.core.predicate"),
-                        errors,
-                    );
+            if predicates.items().is_empty() {
+                push(
+                    errors,
+                    format!("{path}.core.predicate"),
+                    ValidationErrorKind::EmptyCoordination,
+                );
+            }
+            for (index, predicate) in predicates.items().iter().enumerate() {
+                let predicate_path = format!("{path}.core.predicate[{index}]");
+                // Only a nominal predicate can take the instrumental.
+                // Everything else agrees in the nominative, so requesting
+                // it is rejected rather than silently dropped.
+                let nominal_only = |errors: &mut Vec<ValidationError>| {
                     if *pred_case == PredCase::Instrumental {
                         push(
                             errors,
@@ -497,22 +507,26 @@ fn validate_clause(clause: &Clause, path: &str, errors: &mut Vec<ValidationError
                             ),
                         );
                     }
-                }
-                Predicate::Participial(verb) => {
-                    validate_leaf(
-                        verb,
-                        "participle lemma",
-                        &format!("{path}.core.predicate"),
-                        errors,
-                    );
-                    if *pred_case == PredCase::Instrumental {
-                        push(
-                            errors,
-                            format!("{path}.core.pred_case"),
-                            ValidationErrorKind::IncoherentClause(
-                                "instrumental predicate case is nominal-only",
-                            ),
-                        );
+                };
+                match predicate {
+                    Predicate::Nominal(np) => validate_np(np, &predicate_path, errors),
+                    Predicate::Adjectival(adjective) | Predicate::ShortAdjectival(adjective) => {
+                        validate_leaf(adjective, "adjective", &predicate_path, errors);
+                        nominal_only(errors);
+                    }
+                    Predicate::Graded { lemma, .. } => {
+                        validate_leaf(lemma, "adjective", &predicate_path, errors);
+                        nominal_only(errors);
+                    }
+                    Predicate::Participial(verb) => {
+                        validate_leaf(verb, "participle lemma", &predicate_path, errors);
+                        nominal_only(errors);
+                    }
+                    Predicate::Prepositional(pp) => {
+                        // The PP owns its own case through its
+                        // preposition, so predicate case cannot apply.
+                        validate_pp(pp, &predicate_path, errors);
+                        nominal_only(errors);
                     }
                 }
             }
